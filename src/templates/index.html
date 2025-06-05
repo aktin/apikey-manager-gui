@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    .container{display: flex;flex-direction: column}
+    label{margin-bottom: 25px;text-align: right}
+    input{background-color: white;margin-bottom: 20px}
+    button{width: 100px}
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>apikey-manager-gui</title>
+</head>
+<body>
+<div>
+    <div style="background-color: lightcoral;width: 700px; height: 300px;overflow-y: scroll;float: left">
+        <ul id="api_list"></ul>
+    </div>
+    <div style="background-color: lightblue;width: 500px; height: 300px;float: left">
+        <div style="display: flex;flex-direction: row">
+
+            <div class="container" style="width: 15%">
+                <label for="apikey_input">ApiKey:</label>
+                <label for="cn_input">CN:</label>
+                <label for="o_input">O:</label>
+                <label for="l_input">L:</label>
+            </div>
+            <div  class="container" style="width: 50%">
+                <input type="text" id="apikey_input" name="apikey_input" title="" onChange="check_all_inputs();">
+                <input type="text" id="cn_input" name="cn_input" onChange="check_all_inputs();">
+                <input type="text" id="o_input" name="o_input" onChange="check_all_inputs();">
+                <input type="text" id="l_input" name="l_input" onChange="check_all_inputs();">
+            </div>
+            <div  class="container" style="width: 35%">
+                <label id="api_error" for="apikey_input" style="text-align: center"></label>
+            </div>
+
+        </div>
+        <div style="display: flex;flex-direction: column">
+            <button disabled id="add_btn" onclick="create_api_key()">add</button>
+            <button disabled id="activate_btn" onclick="activate_api()">activate</button>
+            <button disabled id="deactivate_btn" onclick="deactivate_api()">deactivate</button>
+        </div>
+    </div>
+</div>
+<script>
+
+    var url = "http://localhost:8080/api-keys"
+    head = {"Authorization": "Bearer xxxAdmin1234", "Content-Type": "application/xml"}
+
+    var no_apikey = true
+    var no_CN = true
+    var no_O = true
+    var no_L = true
+
+    function create_api_key()
+    {
+        if (check_all_inputs())
+        {
+            apiKey = (document.getElementById("apikey_input")).value;
+            cn = (document.getElementById("cn_input")).value;
+            o = (document.getElementById("o_input")).value;
+            l = (document.getElementById("l_input")).value;
+            payload = "CN="+cn+",O="+o+",L="+l;
+            //add_api_key(url,head,apiKey,payload)
+            xml_data="<ApiKeyCred><apiKey>+apiKey+</apiKey><clientDn>+payload+</clientDn></ApiKeyCred>";
+            var response = requests.post(url, headers=head, data=xml_data, timeout=5)
+            response.raise_for_status()
+        }
+    }
+
+    function check_all_inputs()
+    {
+        no_apikey = (check_apikey_symbols());
+        no_CN = ((document.getElementById("cn_input")).value === "");
+        no_O = ((document.getElementById("o_input")).value === "");
+        no_L = ((document.getElementById("l_input")).value === "");
+
+        if(no_apikey || no_CN || no_O || no_L)
+        {
+            document.getElementById("add_btn").disabled = true;
+            document.getElementById("add_btn").title ="all fields must be filled"
+            return false
+        }
+        else
+        {
+            document.getElementById("add_btn").disabled = false;
+            document.getElementById("add_btn").title =""
+            return true
+        }
+    }
+
+    function check_apikey_symbols()
+    {
+        var format = /[ `!@#$%^&*§()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        const apiKeyInput = document.getElementById("apikey_input").value;
+        if(apiKeyInput.length!==12)
+        {
+            change_label_color("#ff9999","!must be 12 characters")
+            return true
+        }
+        else
+        {
+            if(format.test(apiKeyInput))
+            {
+                change_label_color("#ff9999","!illegal symbols")
+                return true
+            }
+            else
+            {
+                change_label_color("white", "")
+                return false
+            }
+        }
+    }
+    function change_label_color(color,text)
+    {
+        //document.getElementById("add_btn").style.backgroundColor=color;
+        document.getElementById("apikey_input").style.backgroundColor=color;
+        document.getElementById("api_error").innerHTML=text
+    }
+    function activate_api()
+    {
+        fetch('/api-keys-activate', { method: 'POST' });
+    }
+    function deactivate_api()
+    {
+        fetch('/api-keys-deactivate', { method: 'POST' });
+    }
+    function get_api()
+    {
+        document.getElementById("api_list").innerHTML=""
+
+        fetch('/api-keys')
+            .then(res => res.json())
+            .then(data => {
+                var Text = JSON.stringify(data, null,2);
+                var newText = Text.replace(/"/g,'')
+                var splittedText = newText.split("\\n")
+
+                for(i=0;i<splittedText.length-1;i++)
+                {
+                    const newItem = document.createElement("li");
+                    newItem.textContent = splittedText[i]
+                    document.getElementById("api_list").appendChild(newItem)
+                }
+            })
+    }
+
+    window.onload = function()
+    {
+        get_api();
+    };
+
+</script>
+
+</body>
+</html>
