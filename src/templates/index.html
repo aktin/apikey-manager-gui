@@ -106,17 +106,13 @@
         } catch (error) {
             console.error("Failed to add API key:", error);
         }
-        get_api();
+        await get_api();
     }
 
     ////////////////// BORDER OF REFACTORING
 
-
-    function deactivate() {
-        fetch('/api-keys-deactivate', {method: 'POST'});
-    }
-
-    function get_api() {
+    function get_api()
+    {
         document.getElementById("api_list").innerHTML = ""
 
         fetch('/api-keys')
@@ -126,7 +122,8 @@
                 var newText = Text.replace(/"/g, '')
                 var splittedText = newText.split("\\n")
 
-                for (let i = 0; i < splittedText.length - 1; i++) {
+                for (let i = 0; i < splittedText.length - 1; i++)
+                {
                     const newItem = document.createElement("li");
                     newItem.textContent = splittedText[i];
 
@@ -136,39 +133,28 @@
                     checkbox.value = splittedText[i];
                     checkbox.id = splittedText[i];
 
-                    checkbox.addEventListener("change", function () {
+                    checkbox.addEventListener("change", ()=> {
                         document.querySelectorAll("li").forEach(item => item.style.backgroundColor = "");
-                        newItem.style.backgroundColor = this.checked ? "lightgreen" : "red";
+                        newItem.style.backgroundColor = checkbox.checked ? "lightgreen" : "red";
                     });
-
                     newItem.appendChild(checkbox);
                     document.getElementById("api_list").appendChild(newItem);
                 }
             })
     }
 
-    function get_checked_boxes() {
-        const checkboxes = document.querySelectorAll('input[type="radio"]');
-        for (i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].checked) {
-                const newItem = document.createElement("li");
-                newItem.textContent = checkboxes[i].id
-                console.log(newItem.textContent.substring(0, 12));
-                return newItem.textContent.substring(0, 12)
-                // return newItem.textContent.split("=")[0]
-            }
-        }
-    }
-
-    async function deactivate_api() {
+    async function deactivate_api()
+    {
         await send_activation("deactivate")
     }
 
-    async function activate_api() {
+    async function activate_api()
+    {
         await send_activation("activate")
     }
 
-    async function send_activation(url) {
+    async function send_activation(url)
+    {
         var api_key = get_checked_boxes()
         try {
             const response = await fetch("/api-keys-" + url, {
@@ -184,11 +170,17 @@
         } catch (error) {
             console.error("Error creating post:", error);
         }
-        get_api();
+        await get_api();
     }
 
+    function get_checked_boxes()
+    {
+        const checkboxes = document.querySelector('input[type="radio"]:checked');
+        return (checkboxes.id).split("=")[0]
+    }
 
-    window.onload = function () {
+    window.onload = function ()
+    {
         get_api();
     };
 
