@@ -1,46 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <style>
-    .container{display: flex;flex-direction: column}
-    label{margin-bottom: 25px;text-align: right}
-    input{background-color: white;margin-bottom: 20px}
-    button{width: 100px}
+    .container {
+        display: flex;
+        flex-direction: column
+    }
+
+    label {
+        margin-bottom: 25px;
+        text-align: right
+    }
+
+    input {
+        background-color: white;
+        margin-bottom: 20px
+    }
+
+    button {
+        width: 100px
+    }
+    input[type="radio"]{
+        float: right;
+        margin: auto;
+    }
 </style>
 <head>
 
     <meta charset="UTF-8">
     <title>apikey-manager-gui</title>
 </head>
-<body>
-<div>
-    <div style="background-color: lightcoral;width: 700px; height: 300px;overflow-y: scroll;float: left">
-        <ul id="api_list"></ul>
+<body style="display: flex">
+<div style="flex-grow: 1;top:0;bottom:0 ;overflow-y: scroll;float: left;height: 95vh; background-color: lightblue">
+    <ul id="api_list"></ul>
+</div>
+<div style="width: 450px; height: 100%;float: left;display: flex;flex-direction: row">
+    <div class="container" style="width: 15%">
+        <label for="apikey_input">ApiKey:</label>
+        <label> <br> </label>
+        <label for="cn_input">CN:</label>
+        <label for="o_input">O:</label>
+        <label for="l_input">L:</label>
     </div>
-    <div style="background-color: lightblue;width: 500px; height: 300px;float: left">
-        <div style="display: flex;flex-direction: row">
-
-            <div class="container" style="width: 15%">
-                <label for="apikey_input">ApiKey:</label>
-                <label for="cn_input">CN:</label>
-                <label for="o_input">O:</label>
-                <label for="l_input">L:</label>
-            </div>
-            <div  class="container" style="width: 50%">
-                <input type="text" id="apikey_input" name="apikey_input" title="" onChange="check_all_inputs();">
-                <input type="text" id="cn_input" name="cn_input" onChange="check_all_inputs();">
-                <input type="text" id="o_input" name="o_input" onChange="check_all_inputs();">
-                <input type="text" id="l_input" name="l_input" onChange="check_all_inputs();">
-            </div>
-            <div  class="container" style="width: 35%">
-                <label id="api_error" for="apikey_input" style="text-align: center"></label>
-            </div>
-
-        </div>
-        <div style="display: flex;flex-direction: column">
-            <button disabled id="add_btn" onclick="create_api_key()">add</button>
-            <button disabled id="activate_btn" onclick="activate_api()">activate</button>
-            <button disabled id="deactivate_btn" onclick="deactivate_api()">deactivate</button>
-        </div>
+    <div class="container" style="width: 50%">
+        <input type="text" id="apikey_input" name="apikey_input" title="" onChange="check_all_inputs();">
+        <button id="randomize" onclick="create_random_api_key()" style="margin-bottom: 20px;align-self: center">randomise</button>
+        <input type="text" id="cn_input" name="cn_input" onChange="check_all_inputs();">
+        <input type="text" id="o_input" name="o_input" onChange="check_all_inputs();">
+        <input type="text" id="l_input" name="l_input" onChange="check_all_inputs();">
+        <button disabled id="add_btn" onclick="create_api_key()">add</button>
+        <button id="activate_btn" onclick="activate_api()">activate</button>
+        <button id="deactivate_btn" onclick="deactivate_api()">deactivate</button>
+    </div>
+    <div class="container" style="width: 35%">
+        <label id="api_error" for="apikey_input" style="text-align: center"></label>
     </div>
 </div>
 <script>
@@ -61,94 +73,163 @@
             cn = (document.getElementById("cn_input")).value;
             o = (document.getElementById("o_input")).value;
             l = (document.getElementById("l_input")).value;
-            payload = "CN="+cn+",O="+o+",L="+l;
+            payload = "CN=" + cn + ",O=" + o + ",L=" + l;
             //add_api_key(url,head,apiKey,payload)
-            xml_data="<ApiKeyCred><apiKey>+apiKey+</apiKey><clientDn>+payload+</clientDn></ApiKeyCred>";
-            var response = requests.post(url, headers=head, data=xml_data, timeout=5)
-            response.raise_for_status()
+            xml_data = "<ApiKeyCred><apiKey>"+apiKey+"</apiKey><clientDn>"+payload+"</clientDn></ApiKeyCred>";
+            addApiKey(xml_data)
         }
     }
 
-    function check_all_inputs()
+    async function addApiKey(data)
     {
+        try {
+            const response = await fetch("/api-keys", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("Error creating post:", error);
+        }
+        get_api();
+    }
+
+    function check_all_inputs() {
         no_apikey = (check_apikey_symbols());
         no_CN = ((document.getElementById("cn_input")).value === "");
         no_O = ((document.getElementById("o_input")).value === "");
         no_L = ((document.getElementById("l_input")).value === "");
 
-        if(no_apikey || no_CN || no_O || no_L)
-        {
+        if (no_apikey || no_CN || no_O || no_L) {
             document.getElementById("add_btn").disabled = true;
-            document.getElementById("add_btn").title ="all fields must be filled"
+            document.getElementById("add_btn").title = "all fields must be filled"
             return false
-        }
-        else
-        {
+        } else {
             document.getElementById("add_btn").disabled = false;
-            document.getElementById("add_btn").title =""
+            document.getElementById("add_btn").title = ""
             return true
         }
     }
 
-    function check_apikey_symbols()
-    {
+    function check_apikey_symbols() {
         var format = /[ `!@#$%^&*§()_+\-=\[\]{};':"\\|,.<>\/?~]/;
         const apiKeyInput = document.getElementById("apikey_input").value;
-        if(apiKeyInput.length!==12)
-        {
-            change_label_color("#ff9999","!must be 12 characters")
+        if (apiKeyInput.length !== 12) {
+            change_label_color("#ff9999", "!must be 12 characters")
             return true
-        }
-        else
-        {
-            if(format.test(apiKeyInput))
-            {
-                change_label_color("#ff9999","!illegal symbols")
+        } else {
+            if (format.test(apiKeyInput)) {
+                change_label_color("#ff9999", "!illegal symbols")
                 return true
-            }
-            else
-            {
+            } else {
                 change_label_color("white", "")
                 return false
             }
         }
     }
-    function change_label_color(color,text)
-    {
+
+    function change_label_color(color, text) {
         //document.getElementById("add_btn").style.backgroundColor=color;
-        document.getElementById("apikey_input").style.backgroundColor=color;
-        document.getElementById("api_error").innerHTML=text
+        document.getElementById("apikey_input").style.backgroundColor = color;
+        document.getElementById("api_error").innerHTML = text
     }
-    function activate_api()
+
+    function deactivate()
     {
-        fetch('/api-keys-activate', { method: 'POST' });
+        fetch('/api-keys-deactivate', {method: 'POST'});
     }
-    function deactivate_api()
-    {
-        fetch('/api-keys-deactivate', { method: 'POST' });
-    }
+
     function get_api()
     {
-        document.getElementById("api_list").innerHTML=""
+        document.getElementById("api_list").innerHTML = ""
 
         fetch('/api-keys')
             .then(res => res.json())
             .then(data => {
-                var Text = JSON.stringify(data, null,2);
-                var newText = Text.replace(/"/g,'')
+                var Text = JSON.stringify(data, null, 2);
+                var newText = Text.replace(/"/g, '')
                 var splittedText = newText.split("\\n")
 
-                for(i=0;i<splittedText.length-1;i++)
+                for (let i = 0; i < splittedText.length - 1; i++)
                 {
                     const newItem = document.createElement("li");
-                    newItem.textContent = splittedText[i]
-                    document.getElementById("api_list").appendChild(newItem)
+                    newItem.textContent = splittedText[i];
+
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "radio";
+                    checkbox.name = "box";
+                    checkbox.value = splittedText[i];
+                    checkbox.id = splittedText[i];
+
+                    checkbox.addEventListener("change", function()
+                    {
+                        document.querySelectorAll("li").forEach(item => item.style.backgroundColor = "");
+                        newItem.style.backgroundColor = this.checked ? "lightgreen" : "red";
+                    });
+
+                    newItem.appendChild(checkbox);
+                    document.getElementById("api_list").appendChild(newItem);
                 }
             })
     }
 
-    window.onload = function()
+    function get_checked_boxes()
     {
+        const checkboxes = document.querySelectorAll('input[type="radio"]');
+        for(i=0;i<checkboxes.length;i++)
+        {
+            if (checkboxes[i].checked)
+            {
+                const newItem = document.createElement("li");
+                newItem.textContent = checkboxes[i].id
+                return newItem.textContent.substring(0,12)
+            }
+        }
+    }
+
+    async function deactivate_api()
+    {
+        await send_activation("deactivate")
+    }
+    async function activate_api()
+    {
+        await send_activation("activate")
+    }
+    async function send_activation(url)
+    {
+        var api_key = get_checked_boxes()
+        try
+        {
+            const response = await fetch("/api-keys-"+url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(api_key)
+            });
+            if (!response.ok)
+            {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+        }
+        catch (error)
+        {
+            console.error("Error creating post:", error);
+        }
+        get_api();
+    }
+
+    function create_random_api_key()
+    {
+        document.getElementById("apikey_input").value= "xxxApiKey"+Math.floor(Math.random()*(9.9))+Math.floor(Math.random()*(9.9))+Math.floor(Math.random()*(9.9))
+    }
+
+    window.onload = function () {
         get_api();
     };
 
