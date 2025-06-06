@@ -1,87 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-<style>
-    .container {
-        display: flex;
-        flex-direction: column
-    }
-
-    label {
-        margin-bottom: 25px;
-        text-align: right
-    }
-
-    input {
-        background-color: white;
-        margin-bottom: 20px
-    }
-
-    button {
-        width: 100px
-    }
-    input[type="radio"]{
-        float: right;
-        margin: auto;
-    }
-</style>
 <head>
-
     <meta charset="UTF-8">
     <title>apikey-manager-gui</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body style="display: flex">
 <div style="flex-grow: 1;top:0;bottom:0 ;overflow-y: scroll;float: left;height: 95vh; background-color: lightblue">
     <ul id="api_list"></ul>
 </div>
 <div style="width: 450px; height: 100%;float: left;display: flex;flex-direction: row">
     <div class="container" style="width: 15%">
-        <label for="apikey_input">ApiKey:</label>
+        <label for="api_key_input">ApiKey:</label>
         <label> <br> </label>
-        <label for="cn_input">CN:</label>
-        <label for="o_input">O:</label>
-        <label for="l_input">L:</label>
+        <label for="common_name_input">CN:</label>
+        <label for="organization_input">O:</label>
+        <label for="location_input">L:</label>
     </div>
     <div class="container" style="width: 50%">
-        <input type="text" id="apikey_input" name="apikey_input" title="" onChange="check_all_inputs();">
-        <button id="randomize" onclick="create_random_api_key()" style="margin-bottom: 20px;align-self: center">randomise</button>
-        <input type="text" id="cn_input" name="cn_input" onChange="check_all_inputs();">
-        <input type="text" id="o_input" name="o_input" onChange="check_all_inputs();">
-        <input type="text" id="l_input" name="l_input" onChange="check_all_inputs();">
-        <button disabled id="add_btn" onclick="create_api_key()">add</button>
+        <input type="text" id="api_key_input" name="api_key_input" title="" oninput="checkInputFields();">
+        <button id="randomize" onclick="createRandomApiKey()" style="margin-bottom: 20px;align-self: center">randomise</button>
+        <input type="text" id="common_name_input" name="common_name_input" oninput="checkInputFields();">
+        <input type="text" id="organization_input" name="organization_input" oninput="checkInputFields();">
+        <input type="text" id="location_input" name="location_input" oninput="checkInputFields();">
+        <button id="add_api_key_btn" onclick="createNewApiKey()">add</button>
         <button id="activate_btn" onclick="activate_api()">activate</button>
         <button id="deactivate_btn" onclick="deactivate_api()">deactivate</button>
     </div>
     <div class="container" style="width: 35%">
-        <label id="api_error" for="apikey_input" style="text-align: center"></label>
+        <label id="api_error" for="api_key_input" style="text-align: center"></label>
     </div>
 </div>
+
 <script>
 
-    var url = "http://localhost:8080/api-keys"
-    head = {"Authorization": "Bearer xxxAdmin1234", "Content-Type": "application/xml"}
+    let isApiKeyValid = false;
+    let isCommonNameValid = false
+    let isOrganizationValid = false
+    let isLocationValid = false
 
-    var no_apikey = true
-    var no_CN = true
-    var no_O = true
-    var no_L = true
-
-    function create_api_key()
-    {
-        if (check_all_inputs())
-        {
-            apiKey = (document.getElementById("apikey_input")).value;
-            cn = (document.getElementById("cn_input")).value;
-            o = (document.getElementById("o_input")).value;
-            l = (document.getElementById("l_input")).value;
-            payload = "CN=" + cn + ",O=" + o + ",L=" + l;
-            //add_api_key(url,head,apiKey,payload)
-            xml_data = "<ApiKeyCred><apiKey>"+apiKey+"</apiKey><clientDn>"+payload+"</clientDn></ApiKeyCred>";
-            addApiKey(xml_data)
+    function createRandomApiKey() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let key = '';
+        for (let i = 0; i < 12; i++) {
+            key += chars.charAt(Math.floor(Math.random() * chars.length));
         }
+        document.getElementById("api_key_input").value = key;
     }
 
-    async function addApiKey(data)
-    {
+    // TODO unsure if this will work
+    function createNewApiKey() {
+        var apiKey = document.getElementById("api_key_input").value;
+        var commonName = document.getElementById("common_name_input").value;
+        var organization = document.getElementById("organization_input").value;
+        var location = document.getElementById("location_input").value;
+        payload = "CN=" + commonName + ",O=" + organization + ",L=" + location;
+        xml_data = "<ApiKeyCred><apiKey>" + apiKey + "</apiKey><clientDn>" + payload + "</clientDn></ApiKeyCred>";
+        addApiKey(xml_data)
+    }
+
+    // TODO move all warnings and errors into own text field
+    function checkInputFields() {
+        isApiKeyValid = isApiKeyInputFieldValid();
+        isCommonNameValid = document.getElementById("common_name_input").value !== "";
+        isOrganizationValid = document.getElementById("organization_input").value !== "";
+        isLocationValid = document.getElementById("location_input").value !== "";
+        document.getElementById("add_api_key_btn").disabled = !(isApiKeyValid && isCommonNameValid && isOrganizationValid && isLocationValid);
+    }
+
+    function isApiKeyInputFieldValid() {
+        const illegalPattern = /[ `!@#$%^&*§()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        const api_key = document.getElementById("api_key_input").value;
+        if (api_key.length !== 12) {
+            updateApiKeyError("#ff9999", "!must be 12 characters")
+            return false
+        }
+        if (illegalPattern.test(api_key)) {
+            updateApiKeyError("#ff9999", "!illegal symbols")
+            return false
+        }
+        updateApiKeyError("white", "")
+        return true
+    }
+
+    function updateApiKeyError(color, message) {
+        document.getElementById("api_key_input").style.backgroundColor = color;
+        document.getElementById("api_error").textContent = message
+    }
+
+    // TODO again, add text field where all errors will be written into
+    async function addApiKey(data) {
+        console.log(JSON.stringify(data))
         try {
             const response = await fetch("/api-keys", {
                 method: "POST",
@@ -91,61 +101,22 @@
                 body: JSON.stringify(data)
             });
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                console.error("HTTP error! Status: " + response.status);
             }
         } catch (error) {
-            console.error("Error creating post:", error);
+            console.error("Failed to add API key:", error);
         }
         get_api();
     }
 
-    function check_all_inputs() {
-        no_apikey = (check_apikey_symbols());
-        no_CN = ((document.getElementById("cn_input")).value === "");
-        no_O = ((document.getElementById("o_input")).value === "");
-        no_L = ((document.getElementById("l_input")).value === "");
+    ////////////////// BORDER OF REFACTORING
 
-        if (no_apikey || no_CN || no_O || no_L) {
-            document.getElementById("add_btn").disabled = true;
-            document.getElementById("add_btn").title = "all fields must be filled"
-            return false
-        } else {
-            document.getElementById("add_btn").disabled = false;
-            document.getElementById("add_btn").title = ""
-            return true
-        }
-    }
 
-    function check_apikey_symbols() {
-        var format = /[ `!@#$%^&*§()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-        const apiKeyInput = document.getElementById("apikey_input").value;
-        if (apiKeyInput.length !== 12) {
-            change_label_color("#ff9999", "!must be 12 characters")
-            return true
-        } else {
-            if (format.test(apiKeyInput)) {
-                change_label_color("#ff9999", "!illegal symbols")
-                return true
-            } else {
-                change_label_color("white", "")
-                return false
-            }
-        }
-    }
-
-    function change_label_color(color, text) {
-        //document.getElementById("add_btn").style.backgroundColor=color;
-        document.getElementById("apikey_input").style.backgroundColor = color;
-        document.getElementById("api_error").innerHTML = text
-    }
-
-    function deactivate()
-    {
+    function deactivate() {
         fetch('/api-keys-deactivate', {method: 'POST'});
     }
 
-    function get_api()
-    {
+    function get_api() {
         document.getElementById("api_list").innerHTML = ""
 
         fetch('/api-keys')
@@ -155,8 +126,7 @@
                 var newText = Text.replace(/"/g, '')
                 var splittedText = newText.split("\\n")
 
-                for (let i = 0; i < splittedText.length - 1; i++)
-                {
+                for (let i = 0; i < splittedText.length - 1; i++) {
                     const newItem = document.createElement("li");
                     newItem.textContent = splittedText[i];
 
@@ -166,8 +136,7 @@
                     checkbox.value = splittedText[i];
                     checkbox.id = splittedText[i];
 
-                    checkbox.addEventListener("change", function()
-                    {
+                    checkbox.addEventListener("change", function () {
                         document.querySelectorAll("li").forEach(item => item.style.backgroundColor = "");
                         newItem.style.backgroundColor = this.checked ? "lightgreen" : "red";
                     });
@@ -178,56 +147,46 @@
             })
     }
 
-    function get_checked_boxes()
-    {
+    function get_checked_boxes() {
         const checkboxes = document.querySelectorAll('input[type="radio"]');
-        for(i=0;i<checkboxes.length;i++)
-        {
-            if (checkboxes[i].checked)
-            {
+        for (i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
                 const newItem = document.createElement("li");
                 newItem.textContent = checkboxes[i].id
-                return newItem.textContent.substring(0,12)
+                console.log(newItem.textContent.substring(0, 12));
+                return newItem.textContent.substring(0, 12)
+                // return newItem.textContent.split("=")[0]
             }
         }
     }
 
-    async function deactivate_api()
-    {
+    async function deactivate_api() {
         await send_activation("deactivate")
     }
-    async function activate_api()
-    {
+
+    async function activate_api() {
         await send_activation("activate")
     }
-    async function send_activation(url)
-    {
+
+    async function send_activation(url) {
         var api_key = get_checked_boxes()
-        try
-        {
-            const response = await fetch("/api-keys-"+url, {
+        try {
+            const response = await fetch("/api-keys-" + url, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(api_key)
             });
-            if (!response.ok)
-            {
+            if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.error("Error creating post:", error);
         }
         get_api();
     }
 
-    function create_random_api_key()
-    {
-        document.getElementById("apikey_input").value= "xxxApiKey"+Math.floor(Math.random()*(9.9))+Math.floor(Math.random()*(9.9))+Math.floor(Math.random()*(9.9))
-    }
 
     window.onload = function () {
         get_api();
