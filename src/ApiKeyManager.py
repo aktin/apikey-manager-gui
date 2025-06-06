@@ -39,7 +39,7 @@ def add_api_key():
     print(request.get_json)
     ###
     url = f"{broker_url}/api-keys"
-    response = requests.get(url, headers=append_to_default_header({"Content-Type": "application/xml"}), data=data, timeout=response_timeout)
+    response = requests.post(url, headers=append_to_default_header({"Content-Type": "application/xml"}), data=data, timeout=response_timeout)
     response.raise_for_status()
 
 #TODO check is json.dumps really necessary
