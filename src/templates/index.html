@@ -14,7 +14,7 @@
             text-align: right
         }
 
-        input {
+        input[type="text"] {
             background-color: white;
             margin-bottom: 20px
         }
@@ -27,6 +27,7 @@
             float: right;
             margin: auto;
         }
+
     </style>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -53,8 +54,7 @@
             <p style="font-size: 20px; margin: auto" id="error_text"></p>
         </div>
         <button disabled id="add_api_key_btn" onclick="createNewApiKey()">add</button>
-        <button id="activate_btn" onclick="activate_api()">activate</button>
-        <button id="deactivate_btn" onclick="deactivate_api()">deactivate</button>
+        <button id="activate_btn" onclick="activate_api()">deactivate</button>
     </div>
 </div>
 
@@ -92,7 +92,8 @@
         document.getElementById("add_api_key_btn").disabled = !(isApiKeyValid && isCommonNameValid && isOrganizationValid && isLocationValid);
     }
 
-    function isApiKeyInputFieldValid() {
+    function isApiKeyInputFieldValid()
+    {
         const illegalPattern = /[ `!@#$%^&*§()_+\-=\[\]{};':"\\|,.<>\/?~]/;
         const api_key = document.getElementById("api_key_input").value;
         if (api_key.length !== 12) {
@@ -138,11 +139,10 @@
         document.getElementById("api_list").innerHTML = ""
 
         fetch('/api-keys')
-            .then(res => res.json())
+            .then(res => res.text())
             .then(data => {
-                var Text = JSON.stringify(data, null, 2);
-                var newText = Text.replace(/"/g, '')
-                var splittedText = newText.split("\\n")
+                var newText = data.replace(/"/g, '');
+                var splittedText = newText.split("\n");
 
                 for (let i = 0; i < splittedText.length - 1; i++)
                 {
@@ -158,21 +158,26 @@
                     checkbox.addEventListener("change", ()=> {
                         document.querySelectorAll("li").forEach(item => item.style.backgroundColor = "");
                         newItem.style.backgroundColor = checkbox.checked ? "lightgreen" : "red";
+                        document.getElementById("activate_btn").innerHTML = checkActivation(checkbox.id);
                     });
+
                     newItem.appendChild(checkbox);
                     document.getElementById("api_list").appendChild(newItem);
                 }
-            })
-    }
-
-    async function deactivate_api()
-    {
-        await send_activation("deactivate")
+            });
     }
 
     async function activate_api()
     {
-        await send_activation("activate")
+        const text = document.getElementById("activate_btn").innerHTML;
+        if(text === "activate")
+        {
+            await send_activation("activate")
+        }
+        else if (text === "deactivate")
+        {
+            await send_activation("deactivate")
+        }
     }
 
     async function send_activation(url)
@@ -193,6 +198,18 @@
             console.error("Error creating post:", error);
         }
         await get_api();
+    }
+
+    function checkActivation(checkbox_id)
+    {
+        if(checkbox_id.search("INACTIVE")>-1)
+        {
+            return"activate"
+        }
+        else
+        {
+            return "deactivate"
+        }
     }
 
     function get_checked_boxes()
