@@ -3,6 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>apikey-manager-gui</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column
+        }
+
+        label {
+            margin-bottom: 25px;
+            text-align: right
+        }
+
+        input {
+            background-color: white;
+            margin-bottom: 20px
+        }
+
+        button {
+            width: 100px
+        }
+
+        input[type="radio"] {
+            float: right;
+            margin: auto;
+        }
+    </style>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -24,12 +49,12 @@
         <input type="text" id="common_name_input" name="common_name_input" oninput="checkInputFields();">
         <input type="text" id="organization_input" name="organization_input" oninput="checkInputFields();">
         <input type="text" id="location_input" name="location_input" oninput="checkInputFields();">
-        <button id="add_api_key_btn" onclick="createNewApiKey()">add</button>
+        <div style="height: 50px">
+            <p style="font-size: 20px; margin: auto" id="error_text"></p>
+        </div>
+        <button disabled id="add_api_key_btn" onclick="createNewApiKey()">add</button>
         <button id="activate_btn" onclick="activate_api()">activate</button>
         <button id="deactivate_btn" onclick="deactivate_api()">deactivate</button>
-    </div>
-    <div class="container" style="width: 35%">
-        <label id="api_error" for="api_key_input" style="text-align: center"></label>
     </div>
 </div>
 
@@ -49,7 +74,6 @@
         document.getElementById("api_key_input").value = key;
     }
 
-    // TODO unsure if this will work
     function createNewApiKey() {
         var apiKey = document.getElementById("api_key_input").value;
         var commonName = document.getElementById("common_name_input").value;
@@ -60,7 +84,6 @@
         addApiKey(xml_data)
     }
 
-    // TODO move all warnings and errors into own text field
     function checkInputFields() {
         isApiKeyValid = isApiKeyInputFieldValid();
         isCommonNameValid = document.getElementById("common_name_input").value !== "";
@@ -86,10 +109,9 @@
 
     function updateApiKeyError(color, message) {
         document.getElementById("api_key_input").style.backgroundColor = color;
-        document.getElementById("api_error").textContent = message
+        document.getElementById("error_text").textContent = message
     }
 
-    // TODO again, add text field where all errors will be written into
     async function addApiKey(data) {
         console.log(JSON.stringify(data))
         try {
