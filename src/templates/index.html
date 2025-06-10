@@ -40,6 +40,7 @@
             height: 95vh;
             overflow-y: auto;
             background-color: #f0f7ff;
+            min-width: 120px;
         }
         .dynamic-list
         {
@@ -58,15 +59,15 @@
 <div class ="scrollable-container">
     <ul id="api_list" class="dynamic-list"></ul>
 </div>
-<div style="min-width: 450px; height: 100%;float: left;display: flex;flex-direction: row">
-    <div class="container" style="width: 15% ; min-width: 60px; background-color: red">
+<div style="min-width: 160px;width: 450px; height: 100%;float: left;display: flex;flex-direction: row">
+    <div class="container" style="width: 25% ; min-width: 60px">
         <label for="api_key_input">ApiKey:</label>
         <label> <br> </label>
         <label for="common_name_input">CN:</label>
         <label for="organization_input">O:</label>
         <label for="location_input">L:</label>
     </div>
-    <div class="container" style="width: 50%">
+    <div class="container" style="width: 60%;min-width: 100px">
         <input type="text" id="api_key_input" name="api_key_input" title="" oninput="checkInputFields();">
         <button id="randomize" onclick="createRandomApiKey()" style="margin-bottom: 20px;align-self: center">randomise</button>
         <input type="text" id="common_name_input" name="common_name_input" oninput="checkInputFields();">
