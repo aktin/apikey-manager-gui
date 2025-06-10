@@ -1,7 +1,7 @@
 import json
 
 import requests
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request ,Response
 from flaskwebgui import FlaskUI
 
 from src.ApiKeyDTO import ApiKeyDTO
@@ -27,7 +27,7 @@ def get_api_keys():
     url = f"{broker_url}/api-keys"
     response = requests.get(url, headers=append_to_default_header(), timeout=response_timeout)
     response.raise_for_status()
-    return jsonify(response.text)
+    return Response(response.text.encode("latin-1"), content_type="application/json; charset=ISO-8859-1")
 
 @app.route('/api-keys', methods=['POST'])
 def add_api_key():
