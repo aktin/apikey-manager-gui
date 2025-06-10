@@ -27,23 +27,23 @@
             float: right;
             margin: auto;
         }
-        li
-        {
+
+        li {
             padding: 5px;
             white-space: nowrap;
         }
-        .scrollable-container
-        {
+
+        .scrollable-container {
             flex-grow: 1;
-            top:0;
-            bottom:0 ;
+            top: 0;
+            bottom: 0;
             height: 95vh;
             overflow-y: auto;
             background-color: #f0f7ff;
             min-width: 120px;
         }
-        .dynamic-list
-        {
+
+        .dynamic-list {
             padding: 0;
             margin: 0;
             display: flex;
@@ -56,7 +56,7 @@
 </head>
 
 <body style="display: flex">
-<div class ="scrollable-container">
+<div class="scrollable-container">
     <ul id="api_list" class="dynamic-list"></ul>
 </div>
 <div style="min-width: 160px;width: 450px; height: 100%;float: left;display: flex;flex-direction: row">
@@ -77,7 +77,7 @@
             <p style="font-size: 20px; margin: auto" id="error_text"></p>
         </div>
         <button disabled id="add_api_key_btn" onclick="createNewApiKey()">add</button>
-        <button id="activate_btn" onclick="activate_api()">deactivate</button>
+        <button id="switch_apikey_state_btn" onclick="switchApiKeyState()">deactivate</button>
     </div>
 </div>
 
@@ -87,6 +87,11 @@
     let isCommonNameValid = false
     let isOrganizationValid = false
     let isLocationValid = false
+    let selectedItem = null; //TODO keep selected Item after pressing button
+
+    window.onload = function () {
+        get_api();
+    };
 
     function createRandomApiKey() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -115,8 +120,7 @@
         document.getElementById("add_api_key_btn").disabled = !(isApiKeyValid && isCommonNameValid && isOrganizationValid && isLocationValid);
     }
 
-    function isApiKeyInputFieldValid()
-    {
+    function isApiKeyInputFieldValid() {
         const illegalPattern = /[ `!@#$%^&*§()_+\-=\[\]{};':"\\|,.<>\/?~]/;
         const api_key = document.getElementById("api_key_input").value;
         if (api_key.length !== 12) {
@@ -137,7 +141,6 @@
     }
 
     async function addApiKey(data) {
-        console.log(JSON.stringify(data))
         try {
             const response = await fetch("/api-keys", {
                 method: "POST",
@@ -147,7 +150,7 @@
                 body: JSON.stringify(data)
             });
             if (!response.ok) {
-                console.error("HTTP error! Status: " + response.status);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
         } catch (error) {
             console.error("Failed to add API key:", error);
@@ -155,88 +158,84 @@
         await get_api();
     }
 
-    ////////////////// BORDER OF REFACTORING
-
-    let selectedItem = null;
-
-    function get_api()
-    {
-        document.getElementById("api_list").innerHTML = ""
-
-        fetch('/api-keys')
-            .then(res => res.text())
-            .then(data => {
-                var newText = data.replace(/"/g, '');
-                var splittedText = newText.split("\n");
-
-                for (let i = 0; i < splittedText.length - 1; i++)
-                {
-                    const newItem = document.createElement("li");
-                    newItem.textContent = splittedText[i];
-                    newItem.id = splittedText[i];
-
-                    newItem.addEventListener("click", ()=> {
-                        document.querySelectorAll("li").forEach(item => item.style.backgroundColor = "");
-                        newItem.style.backgroundColor = "lightgreen";
-                        selectedItem = newItem.id
-                        document.getElementById("activate_btn").innerHTML = checkActivation(newItem.id);
-                    });
-                    document.getElementById("api_list").appendChild(newItem);
+    async function get_api() {
+        clearApiKeyList()
+        try {
+            const response = await fetch("/api-keys", {
+                headers: {
+                    "Accept": "application/txt"
                 }
             });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            /// TODO check this should not be necessary
+            payload = await response.text();
+            payload = payload.replace(/"/g, '');
+            ///
+            var apiKeyItems = payload.split("\n");
+            for (index in apiKeyItems) {
+                apiKeyListElement = createApiKeyListElement(index, apiKeyItems[index]);
+                document.getElementById("api_list").appendChild(apiKeyListElement);
+            }
+        } catch (error) {
+            console.error("Failed to load API key list:", error);
+        }
     }
 
-    async function activate_api()
-    {
-        const text = document.getElementById("activate_btn").innerHTML;
-        if(text === "activate")
-        {
-            await send_activation("activate")
-        }
-        else if (text === "deactivate")
-        {
-            await send_activation("deactivate")
+    function clearApiKeyList() {
+        document.getElementById("api_list").innerHTML = ""
+    }
+
+    function createApiKeyListElement(id, content) {
+        const element = document.createElement("li");
+        element.id = id;
+        element.textContent = content;
+        element.addEventListener("click", () => {
+            document.querySelectorAll("li").forEach(item => item.style.backgroundColor = "");
+            element.style.backgroundColor = "lightgreen";
+            selectedItem = element.id
+            checkApiKeyState(element.textContent);
+        });
+        return element;
+    }
+
+    function checkApiKeyState(listElementContent) {
+        if (listElementContent.search("INACTIVE") > -1) {
+            changeApiKeyStateButtonTextTo("activate")
+        } else {
+            changeApiKeyStateButtonTextTo("deactivate")
         }
     }
 
-    async function send_activation(url)
-    {
-        var api_key = (selectedItem).split("=")[0]
+    function changeApiKeyStateButtonTextTo(text) {
+        document.getElementById("switch_apikey_state_btn").innerHTML = text;
+    }
+
+    async function switchApiKeyState() {
+        const text = document.getElementById("switch_apikey_state_btn").innerHTML;
+        await send_activation(text);
+    }
+
+    async function send_activation(switchCommand) {
+        var apiKeyElementContent = document.getElementById(selectedItem).innerHTML
+        var apiKey = (apiKeyElementContent).split("=")[0]
         try {
-            const response = await fetch("/api-keys-" + url, {
+            const response = await fetch("/" + switchCommand, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(api_key)
+                body: JSON.stringify(apiKey)
             });
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
         } catch (error) {
             console.error("Error creating post:", error);
         }
         await get_api();
     }
-
-    function checkActivation(checkbox_id)
-    {
-        if(checkbox_id.search("INACTIVE")>-1)
-        {
-            return"activate"
-        }
-        else
-        {
-            return "deactivate"
-        }
-    }
-
-    window.onload = function ()
-    {
-        get_api();
-    };
-
 </script>
-
 </body>
 </html>

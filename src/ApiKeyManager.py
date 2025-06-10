@@ -20,7 +20,7 @@ admin_api_key = "xxxAdmin1234"
 response_timeout = 5
 
 
-def create_basic_header(appendices: dict = None) -> dict:
+def append_to_default_header(appendices: dict = None) -> dict:
     auth = {"Authorization": f"Bearer {admin_api_key}"}
     if appendices:
         auth.update(appendices)
@@ -29,7 +29,7 @@ def create_basic_header(appendices: dict = None) -> dict:
 @app.route('/api-keys', methods=['GET'])
 def get_api_keys():
     url = f"{broker_url}/api-keys"
-    response = requests.get(url, headers=create_basic_header(), timeout=response_timeout)
+    response = requests.get(url, headers=append_to_default_header({"Accept": "application/txt"}), timeout=response_timeout)
     response.raise_for_status()
     return Response(response.content, content_type="application/text; charset=ISO-8859-1")
 
@@ -39,19 +39,19 @@ def add_api_key():
     url = f"{broker_url}/api-keys"
     response = requests.post(url, headers=append_to_default_header({"Content-Type": "application/xml"}), data=data, timeout=response_timeout)
 
-@app.route('/api-keys-activate', methods=['POST'])
+@app.route('/activate', methods=['POST'])
 def activate_api_key():
     api_key = request.get_json()
     url = f"{broker_url}/api-keys/{api_key}/activate"
-    requests.post(url, headers=create_basic_header(), timeout=response_timeout)
+    requests.post(url, headers=append_to_default_header(), timeout=response_timeout)
     return "", 200
 
 
-@app.route('/api-keys-deactivate', methods=['POST'])
+@app.route('/deactivate', methods=['POST'])
 def deactivate_api_key():
     api_key = request.get_json()
     url = f"{broker_url}/api-keys/{api_key}/deactivate"
-    requests.post(url, headers=create_basic_header(), timeout=response_timeout)
+    requests.post(url, headers=append_to_default_header(), timeout=response_timeout)
     return "", 200
 
 
