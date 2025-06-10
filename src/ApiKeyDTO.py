@@ -15,3 +15,5 @@ class ApiKeyDTO:
 
     def set_clientDN(self, clientDN):
         self.clientDN = clientDN
+
+# TODO  add validation

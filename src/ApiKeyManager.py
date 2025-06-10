@@ -6,6 +6,10 @@ from flaskwebgui import FlaskUI
 
 from src.ApiKeyDTO import ApiKeyDTO
 
+# TODO check if reusable sessions are helpful here:
+# session = requests.Session()
+# session.headers.update(create_basic_header(...))
+
 app = Flask(__name__)
 
 api_key_dto = ApiKeyDTO("xxxB", "abc")
@@ -16,18 +20,18 @@ admin_api_key = "xxxAdmin1234"
 response_timeout = 5
 
 
-def append_to_default_header(item: dict = None) -> dict:
+def create_basic_header(appendices: dict = None) -> dict:
     auth = {"Authorization": f"Bearer {admin_api_key}"}
-    if item:
-        auth.update(item)
+    if appendices:
+        auth.update(appendices)
     return auth
 
 @app.route('/api-keys', methods=['GET'])
 def get_api_keys():
     url = f"{broker_url}/api-keys"
-    response = requests.get(url, headers=append_to_default_header(), timeout=response_timeout)
+    response = requests.get(url, headers=create_basic_header(), timeout=response_timeout)
     response.raise_for_status()
-    return Response(response.text.encode("latin-1"), content_type="application/json; charset=ISO-8859-1")
+    return Response(response.content, content_type="application/text; charset=ISO-8859-1")
 
 @app.route('/api-keys', methods=['POST'])
 def add_api_key():
@@ -37,15 +41,19 @@ def add_api_key():
 
 @app.route('/api-keys-activate', methods=['POST'])
 def activate_api_key():
-    apiKey = request.get_json()
-    url = f"{broker_url}/api-keys/{apiKey}/activate"
-    requests.post(url, headers=append_to_default_header(), timeout=response_timeout)
+    api_key = request.get_json()
+    url = f"{broker_url}/api-keys/{api_key}/activate"
+    requests.post(url, headers=create_basic_header(), timeout=response_timeout)
+    return "", 200
+
 
 @app.route('/api-keys-deactivate', methods=['POST'])
 def deactivate_api_key():
-    apiKey = request.get_json()
-    url = f"{broker_url}/api-keys/{apiKey}/deactivate"
-    requests.post(url, headers=append_to_default_header(), timeout=response_timeout)
+    api_key = request.get_json()
+    url = f"{broker_url}/api-keys/{api_key}/deactivate"
+    requests.post(url, headers=create_basic_header(), timeout=response_timeout)
+    return "", 200
+
 
 @app.route("/")
 def home():
