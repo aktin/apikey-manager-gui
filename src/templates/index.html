@@ -27,14 +27,36 @@
             float: right;
             margin: auto;
         }
+        li
+        {
+            padding: 5px;
+            white-space: nowrap;
+        }
+        .scrollable-container
+        {
+            flex-grow: 1;
+            top:0;
+            bottom:0 ;
+            height: 95vh;
+            overflow-y: auto;
+            background-color: #f0f7ff;
+        }
+        .dynamic-list
+        {
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            width: max-content;
+        }
 
     </style>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body style="display: flex">
-<div style="flex-grow: 1;top:0;bottom:0 ;overflow-y: scroll;float: left;height: 95vh; background-color: lightblue">
-    <ul id="api_list"></ul>
+<div class ="scrollable-container">
+    <ul id="api_list" class="dynamic-list"></ul>
 </div>
 <div style="width: 450px; height: 100%;float: left;display: flex;flex-direction: row">
     <div class="container" style="width: 15%">
