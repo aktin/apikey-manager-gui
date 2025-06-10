@@ -58,8 +58,8 @@
 <div class ="scrollable-container">
     <ul id="api_list" class="dynamic-list"></ul>
 </div>
-<div style="width: 450px; height: 100%;float: left;display: flex;flex-direction: row">
-    <div class="container" style="width: 15%">
+<div style="min-width: 450px; height: 100%;float: left;display: flex;flex-direction: row">
+    <div class="container" style="width: 15% ; min-width: 60px; background-color: red">
         <label for="api_key_input">ApiKey:</label>
         <label> <br> </label>
         <label for="common_name_input">CN:</label>
@@ -156,6 +156,8 @@
 
     ////////////////// BORDER OF REFACTORING
 
+    let selectedItem = null;
+
     function get_api()
     {
         document.getElementById("api_list").innerHTML = ""
@@ -170,20 +172,14 @@
                 {
                     const newItem = document.createElement("li");
                     newItem.textContent = splittedText[i];
+                    newItem.id = splittedText[i];
 
-                    const checkbox = document.createElement("input");
-                    checkbox.type = "radio";
-                    checkbox.name = "box";
-                    checkbox.value = splittedText[i];
-                    checkbox.id = splittedText[i];
-
-                    checkbox.addEventListener("change", ()=> {
+                    newItem.addEventListener("click", ()=> {
                         document.querySelectorAll("li").forEach(item => item.style.backgroundColor = "");
-                        newItem.style.backgroundColor = checkbox.checked ? "lightgreen" : "red";
-                        document.getElementById("activate_btn").innerHTML = checkActivation(checkbox.id);
+                        newItem.style.backgroundColor = "lightgreen";
+                        selectedItem = newItem.id
+                        document.getElementById("activate_btn").innerHTML = checkActivation(newItem.id);
                     });
-
-                    newItem.appendChild(checkbox);
                     document.getElementById("api_list").appendChild(newItem);
                 }
             });
@@ -204,7 +200,7 @@
 
     async function send_activation(url)
     {
-        var api_key = get_checked_boxes()
+        var api_key = (selectedItem).split("=")[0]
         try {
             const response = await fetch("/api-keys-" + url, {
                 method: "POST",
@@ -232,12 +228,6 @@
         {
             return "deactivate"
         }
-    }
-
-    function get_checked_boxes()
-    {
-        const checkboxes = document.querySelector('input[type="radio"]:checked');
-        return (checkboxes.id).split("=")[0]
     }
 
     window.onload = function ()
