@@ -27,12 +27,58 @@ def append_to_default_header(appendices: dict = None) -> dict:
         auth.update(appendices)
     return auth
 
-def extract_api_key(ApiKeyCred):
-    return re.search(r"<apiKey>(.*?)</apiKey>",ApiKeyCred).group(1)
+def check_apiKey(ApiKeyCred):
+    try:
+        apikey = re.search(r"<apiKey>(.*?)</apiKey>",ApiKeyCred).group(1)
+        if apikey:
+            if len(apikey) == 12:
+                return ""
+            else:
+                return "apikey is not 12 characters"
+        else:
+            return "no apikey found"
+    except AttributeError:
+        return "ApiKey has wrong format"
 
-def check_apiKey(apikey):
-    return None
+def check_clientDN(ApiKeyCred):
+    try:
+        clientDN = re.search(r"<clientDn>(.*?)</clientDn>",ApiKeyCred).group(1)
+        if clientDN:
+            return ""
+        else:
+            return "no clientDn found"
+    except AttributeError:
+        return "ApiKey has wrong format"
 
+def check_common_name(ApiKeyCred):
+    try:
+        commonName = re.search(r"CN=(.*?),O=",ApiKeyCred).group(1)
+        if commonName:
+            return ""
+        else:
+            return "no Common name found"
+    except AttributeError:
+        return "ApiKey has wrong format"
+
+def check_organization(ApiKeyCred):
+    try:
+        organization = re.search(r"O=(.*?),L=",ApiKeyCred).group(1)
+        if organization:
+            return ""
+        else:
+            return "no Organization found"
+    except AttributeError:
+        return "ApiKey has wrong format"
+
+def check_location(ApiKeyCred):
+    try:
+        location = re.search(r"L=(.*?)</clientDn>",ApiKeyCred).group(1)
+        if location:
+            return ""
+        else:
+            return "no Location found"
+    except AttributeError:
+        return "ApiKey has wrong format"
 
 @app.route('/api-keys', methods=['GET'])
 def get_api_keys():
@@ -44,9 +90,24 @@ def get_api_keys():
 @app.route('/api-keys', methods=['POST'])
 def add_api_key():
     data = request.get_json()
+    print(str(data))
     url = f"{broker_url}/api-keys"
+    apikey = check_apiKey(data)
+    client_dn = check_clientDN(data)
+    common_name = check_common_name(data)
+    organization = check_organization(data)
+    location = check_location(data)
+    if apikey != "":
+        return apikey,400
+    if client_dn != "":
+        return client_dn,400
+    if common_name != "":
+        return common_name,400
+    if organization != "":
+        return organization,400
+    if location != "":
+        return location,400
     response = requests.post(url, headers=append_to_default_header({"Content-Type": "application/xml"}), data=data, timeout=response_timeout)
-    print("add api key response =",response)
     response.raise_for_status()
     return response.text
 
