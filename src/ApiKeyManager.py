@@ -1,4 +1,5 @@
 import json
+import re
 
 import requests
 from flask import Flask, render_template, jsonify, request ,Response
@@ -26,6 +27,13 @@ def append_to_default_header(appendices: dict = None) -> dict:
         auth.update(appendices)
     return auth
 
+def extract_api_key(ApiKeyCred):
+    return re.search(r"<apiKey>(.*?)</apiKey>",ApiKeyCred).group(1)
+
+def check_apiKey(apikey):
+    return None
+
+
 @app.route('/api-keys', methods=['GET'])
 def get_api_keys():
     url = f"{broker_url}/api-keys"
@@ -38,24 +46,25 @@ def add_api_key():
     data = request.get_json()
     url = f"{broker_url}/api-keys"
     response = requests.post(url, headers=append_to_default_header({"Content-Type": "application/xml"}), data=data, timeout=response_timeout)
-    print(response)
-    #response.raise_for_status()
+    print("add api key response =",response)
+    response.raise_for_status()
     return response.text
 
 @app.route('/activate', methods=['POST'])
 def activate_api_key():
     api_key = request.get_json()
     url = f"{broker_url}/api-keys/{api_key}/activate"
-    requests.post(url, headers=append_to_default_header(), timeout=response_timeout)
-    return "", 200
+    response = requests.post(url, headers=append_to_default_header(), timeout=response_timeout)
+    response.raise_for_status()
+    return response.text
 
 @app.route('/deactivate', methods=['POST'])
 def deactivate_api_key():
     api_key = request.get_json()
     url = f"{broker_url}/api-keys/{api_key}/deactivate"
-    requests.post(url, headers=append_to_default_header(), timeout=response_timeout)
-    return "", 200
-
+    response = requests.post(url, headers=append_to_default_header(), timeout=response_timeout)
+    response.raise_for_status()
+    return response.text
 
 @app.route("/")
 def home():
