@@ -1,3 +1,4 @@
+import json
 import subprocess
 import time
 import unittest
@@ -16,7 +17,7 @@ class AddApiKeyTestCase(unittest.TestCase):
             "-p", "8080:8080",
             "ghcr.io/aktin/aktin-broker:1.5.2"
         ], check=True)
-        time.sleep(2)
+        time.sleep(5)
 
     @classmethod
     def tearDownClass(cls):
@@ -26,7 +27,7 @@ class AddApiKeyTestCase(unittest.TestCase):
         self.client = app.test_client()
 
     def test_add_api_key(self):
-        payload = "<ApiKeyCred><apiKey>xxxApiKey1111</apiKey><clientDn>CN=CommonName,O=Organization,L=Location</clientDn></ApiKeyCred>"
+        payload = "<ApiKeyCred><apiKey>xxxApiKey111</apiKey><clientDn>CN=CommonName,O=Organization,L=Location</clientDn></ApiKeyCred>"
         response = self.client.post(
             "/api-keys",
             json=payload,
@@ -48,7 +49,7 @@ class AddApiKeyTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_add_api_key_with_no_client_dn(self):
-        payload = "<ApiKeyCred><apiKey>xxxApiKey1234</apiKey></ApiKeyCred>"
+        payload = "<ApiKeyCred><apiKey>xxxApiKey123</apiKey></ApiKeyCred>"
         response = self.client.post(
             "/api-keys",
             json=payload,
@@ -60,6 +61,17 @@ class AddApiKeyTestCase(unittest.TestCase):
 
     def test_add_api_key_with_empty_api_key(self):
         payload = "<ApiKeyCred><apiKey></apiKey><clientDn>CN=CommonName,O=Organization,L=Location</clientDn></ApiKeyCred>"
+        response = self.client.post(
+            "/api-keys",
+            json=payload,
+            content_type="application/json"
+        )
+        print("Response status:", response.status_code)
+        print("Response body:", response.data.decode())
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_api_key_with_no_common_name(self):
+        payload = "<ApiKeyCred><apiKey>xxxApiKey111</apiKey><clientDn>CN=,O=Organization,L=Location</clientDn></ApiKeyCred>"
         response = self.client.post(
             "/api-keys",
             json=payload,
