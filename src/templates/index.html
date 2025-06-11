@@ -35,10 +35,8 @@
 
         p
         {
-            font-size: 30px;
+            font-size: 20px;
             color: red;
-            -webkit-text-stroke-width: 10px;
-            -webkit-text-stroke-color: black;
         }
 
         .scrollable-container {
@@ -102,13 +100,16 @@
         get_api();
     };
 
-    function createRandomApiKey() {
+    function createRandomApiKey()
+    {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let key = '';
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 12; i++)
+        {
             key += chars.charAt(Math.floor(Math.random() * chars.length));
         }
         document.getElementById("api_key_input").value = key;
+        checkInputFields()
     }
 
     function createNewApiKey() {
@@ -169,8 +170,10 @@
         document.getElementById("api_key_input").style.backgroundColor = color;
     }
 
-    async function addApiKey(data) {
-        try {
+    async function addApiKey(data)
+    {
+        try
+        {
             const response = await fetch("/api-keys", {
                 method: "POST",
                 headers: {
@@ -178,10 +181,15 @@
                 },
                 body: JSON.stringify(data)
             });
-            if (!response.ok) {
+            if (!response.ok)
+            {
+
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-        } catch (error) {
+
+        }
+        catch (error)
+        {
             console.error("Failed to add API key:", error);
         }
         await get_api();
@@ -198,13 +206,11 @@
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            /// TODO check this should not be necessary
             payload = await response.text();
-            payload = payload.replace(/"/g, '');
-            ///
             var apiKeyItems = payload.split("\n");
-            for (index in apiKeyItems) {
-                apiKeyListElement = createApiKeyListElement(index, apiKeyItems[index]);
+            for (index in apiKeyItems)
+            {
+                var apiKeyListElement = createApiKeyListElement(index, apiKeyItems[index]);
                 document.getElementById("api_list").appendChild(apiKeyListElement);
             }
         } catch (error) {

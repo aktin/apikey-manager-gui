@@ -38,6 +38,9 @@ def add_api_key():
     data = request.get_json()
     url = f"{broker_url}/api-keys"
     response = requests.post(url, headers=append_to_default_header({"Content-Type": "application/xml"}), data=data, timeout=response_timeout)
+    print(response)
+    #response.raise_for_status()
+    return response.text
 
 @app.route('/activate', methods=['POST'])
 def activate_api_key():
@@ -45,7 +48,6 @@ def activate_api_key():
     url = f"{broker_url}/api-keys/{api_key}/activate"
     requests.post(url, headers=append_to_default_header(), timeout=response_timeout)
     return "", 200
-
 
 @app.route('/deactivate', methods=['POST'])
 def deactivate_api_key():
