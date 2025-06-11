@@ -29,8 +29,27 @@ class AddApiKeyTestCase(unittest.TestCase):
         print("Response body:", response.data.decode())
         self.assertEqual(response.status_code, 200)
 
+    def test_add_api_key_with_no_client_dn(self):
+        payload = "<ApiKeyCred><apiKey>xxxApiKey1234</apiKey></ApiKeyCred>"
+        response = self.client.post(
+            "/api-keys",
+            json=payload,
+            content_type="application/json"
+        )
+        print("Response status:", response.status_code)
+        print("Response body:", response.data.decode())
+        self.assertEqual(response.status_code, 200)
 
-        # api key without clientDN
+    def test_add_api_key_with_empty_api_key(self):
+        payload = "<ApiKeyCred><apiKey></apiKey><clientDn>CN=CommonName,O=Organization,L=Location</clientDn></ApiKeyCred>"
+        response = self.client.post(
+            "/api-keys",
+            json=payload,
+            content_type="application/json"
+        )
+        print("Response status:", response.status_code)
+        print("Response body:", response.data.decode())
+        self.assertEqual(response.status_code, 200)
 
         # sent an apikey twice
 
