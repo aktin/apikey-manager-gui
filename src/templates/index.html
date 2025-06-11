@@ -33,6 +33,14 @@
             white-space: nowrap;
         }
 
+        p
+        {
+            font-size: 30px;
+            color: red;
+            -webkit-text-stroke-width: 10px;
+            -webkit-text-stroke-color: black;
+        }
+
         .scrollable-container {
             flex-grow: 1;
             top: 0;
@@ -52,7 +60,6 @@
         }
 
     </style>
-    <link rel="stylesheet" href="style.css">
 </head>
 
 <body style="display: flex">
@@ -73,11 +80,10 @@
         <input type="text" id="common_name_input" name="common_name_input" oninput="checkInputFields();">
         <input type="text" id="organization_input" name="organization_input" oninput="checkInputFields();">
         <input type="text" id="location_input" name="location_input" oninput="checkInputFields();">
-        <div style="height: 50px">
-            <p style="font-size: 20px; margin: auto" id="error_text"></p>
-        </div>
         <button disabled id="add_api_key_btn" onclick="createNewApiKey()">add</button>
         <button id="switch_apikey_state_btn" onclick="switchApiKeyState()">deactivate</button>
+        <div id="error_box" style="height: 50px">
+        </div>
     </div>
 </div>
 
@@ -123,24 +129,44 @@
         document.getElementById("add_api_key_btn").disabled = !(isApiKeyValid && isCommonNameValid && isOrganizationValid && isLocationValid);
     }
 
-    function isApiKeyInputFieldValid() {
+    function isApiKeyInputFieldValid()
+    {
         const illegalPattern = /[ `!@#$%^&*§()_+\-=\[\]{};':"\\|,.<>\/?~]/;
         const api_key = document.getElementById("api_key_input").value;
-        if (api_key.length !== 12) {
-            updateApiKeyError("#ff9999", "!must be 12 characters")
+        const api_key_length_error = "Apikey must be 12 characters"
+        const api_key_symbol_error = "Apikey can not contain illegal symbols"
+        if (api_key.length !== 12 || illegalPattern.test(api_key))
+        {
+            if (api_key.length !== 12)
+            {
+                create_error_text(api_key_length_error)
+            }
+            else
+            {
+                delete_error_text(api_key_length_error)
+            }
+            if (illegalPattern.test(api_key))
+            {
+                create_error_text(api_key_symbol_error)
+            }
+            else
+            {
+                delete_error_text(api_key_symbol_error)
+            }
+            updateApiKeyError("#ff9999");
             return false
         }
-        if (illegalPattern.test(api_key)) {
-            updateApiKeyError("#ff9999", "!illegal symbols")
-            return false
+        else
+        {
+            updateApiKeyError("white")
+            delete_error_text(api_key_length_error)
+            delete_error_text(api_key_symbol_error)
+            return true
         }
-        updateApiKeyError("white", "")
-        return true
     }
 
-    function updateApiKeyError(color, message) {
+    function updateApiKeyError(color) {
         document.getElementById("api_key_input").style.backgroundColor = color;
-        document.getElementById("error_text").textContent = message
     }
 
     async function addApiKey(data) {
@@ -203,10 +229,23 @@
         return element;
     }
 
-    function checkApiKeyState(listElementContent) {
-        if (listElementContent.search("INACTIVE") > -1) {
+    function checkApiKeyState(listElementContent)
+    {
+        const errormessage = "Admin can not be deactivated"
+        if(listElementContent.search("xxxAdmin1234")<0)
+        {
+            delete_error_text(errormessage);
+        }
+        else
+        {
+            create_error_text(errormessage);
+        }
+        if (listElementContent.search("INACTIVE") > -1)
+        {
             changeApiKeyStateButtonTextTo("activate")
-        } else {
+        }
+        else
+        {
             changeApiKeyStateButtonTextTo("deactivate")
         }
     }
@@ -220,7 +259,8 @@
         await send_activation(text);
     }
 
-    async function send_activation(switchCommand) {
+    async function send_activation(switchCommand)
+    {
         var apiKeyElementContent = document.getElementById(selectedItem).innerHTML
         var apiKey = (apiKeyElementContent).split("=")[0]
         try {
@@ -238,6 +278,24 @@
             console.error("Error creating post:", error);
         }
         await get_api();
+    }
+    function create_error_text(message)
+    {
+        const errorbox = document.getElementById("error_box");
+        if (!document.getElementById(message))
+        {
+            const text = document.createElement("p");
+            text.innerHTML = message;
+            text.id = message;
+            errorbox.appendChild(text);
+        }
+    }
+    function delete_error_text(message)
+    {
+        if(document.getElementById(message))
+        {
+            document.getElementById(message).remove();
+        }
     }
 </script>
 </body>
