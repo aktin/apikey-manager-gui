@@ -1,9 +1,27 @@
+import subprocess
+import time
 import unittest
 
 from src.ApiKeyManager import app
 
 
 class AddApiKeyTestCase(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.container_name = "test-aktin-broker"
+        subprocess.run([
+            "docker", "run", "-d",
+            "--name", cls.container_name,
+            "-p", "8080:8080",
+            "ghcr.io/aktin/aktin-broker:1.5.2"
+        ], check=True)
+        time.sleep(2)
+
+    @classmethod
+    def tearDownClass(cls):
+        subprocess.run(["docker", "rm", "-f", cls.container_name], check=True)
+
     def setUp(self):
         self.client = app.test_client()
 
@@ -54,6 +72,7 @@ class AddApiKeyTestCase(unittest.TestCase):
         # sent an apikey twice
 
         # sent admin apikey
+
 
 if __name__ == "__main__":
     unittest.main()
