@@ -1,28 +1,38 @@
 <script setup>
 import {computed, ref} from 'vue'
 import Button from 'primevue/button';
+import Toast from 'primevue/toast';
+import {useToast} from "primevue/usetoast";
+
 
 defineProps({
   msg: String,
 })
 
-const count = ref(0)
+const toast = useToast();
+const showToast = () => {
+  toast.add({severity: 'info', summary: 'Info', detail: 'Message Content', life: 3000});
+};
 
+const count = ref(0)
 const clickBtnLabel = computed(() =>
     count.value === 1 ? '1 Click' : `${count.value} Clicks`
 )
 </script>
 
 <template>
+  <Toast/>
+
   <div class="flex align-items-center justify-content-center">
     <h1>{{ msg }}</h1>
   </div>
 
-  <div class="flex flex-column">
+  <div class="flex flex-column ">
     <div class="flex align-items-center justify-content-center">
       <p>Demo PrimeVue Buttons</p>
     </div>
-    <Button :label="clickBtnLabel" @click="count++"/>
+    <Button :label="clickBtnLabel" @click="count++" class="mb-2"/>
+    <Button label="I am a Toast" @click="showToast()"/>
   </div>
 
   <div class="flex flex-column">
