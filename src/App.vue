@@ -1,18 +1,24 @@
 <script setup>
 import HelloWorld from './components/HelloWorld.vue'
+import ClinicCredentialsInput from "./components/ClinicCredentialsInput.vue";
+import BrokerConnection from "./components/BrokerConnection.js";
+import ClinicCredentialsTable from "./components/ClinicCredentialsTable.vue";
+import InputText from "primevue/inputtext";
+import FloatLabel from "primevue/floatlabel";
+
+const broker = new BrokerConnection();
+
 </script>
 
 <template>
-  <div class="flex align-items-center justify-content-center">
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo"/>
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo"/>
-    </a>
+
+  <div class="field grid mt-5 border-3 border-blue-500">
+    <div class="col border-3 border-red-600">
+      <ClinicCredentialsTable/>
+    </div>
+    <ClinicCredentialsInput/>
   </div>
 
-  <HelloWorld msg="Vite + Vue"/>
 </template>
 
 <style scoped>
