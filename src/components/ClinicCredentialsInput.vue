@@ -1,32 +1,58 @@
 <script setup lang="ts">
-import {computed, ref} from 'vue'
-import BrokerConnection from "./BrokerConnection.js";
-import Button from 'primevue/button';
-import Toast from 'primevue/toast';
-import {useToast} from "primevue/usetoast";
-import BlockUI from 'primevue/blockui';
-import InputText from 'primevue/inputtext';
+import { ref } from "vue";
+import Button from "primevue/button";
+import BlockUI from "primevue/blockui";
+import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 
+// Reactive variables
+const commonNameInput = ref("");
 const blocked = ref(false);
 const apiKeyInput = ref("");
-const commonNameInput = ref(null);
-const organizationInput = ref(null);
-const locationInput = ref(null);
-const api_input_valid = ref(false)
-const is_api_valid = ref(false)
+const organizationInput = ref("");
+const locationInput = ref("");
 
-const broker = new BrokerConnection();
 
-function makeInvalid() {
-  is_api_valid.value = apiKeyInput.value.length != 12;
 
+let apiKeyErrorText = ref("");
+const commonNameErrorText = ref("");
+const organizationErrorText = ref("");
+const locationErrorText = ref("");
+
+const isApiKeyInvalid = ref(false);
+const isCommonNameInvalid = ref(false);
+const isOrganizationInvalid = ref(false);
+const isLocationInvalid = ref(false);
+
+
+
+function validate() {
+  const pattern = /[!@#$%^&*(),.?":{}|<>_-]/;
+
+  function checkInput(input, invalid, errorText, lengthCheck = false) {
+    if (lengthCheck && input.value.length !== 12) {
+      invalid.value = true;
+      errorText.value = "must be 12 characters";
+    } else if (pattern.test(input.value)) {
+      invalid.value = true;
+      errorText.value = "cannot contain special symbols";
+    } else if (!input.value) {
+      invalid.value = true;
+      errorText.value = "cannot be empty";
+    } else {
+      invalid.value = false;
+      errorText.value = "";
+    }
+  }
+  checkInput(apiKeyInput, isApiKeyInvalid, apiKeyErrorText, true);
+  checkInput(commonNameInput, isCommonNameInvalid, commonNameErrorText);
+  checkInput(organizationInput, isOrganizationInvalid, organizationErrorText);
+  checkInput(locationInput, isLocationInvalid, locationErrorText);
 }
-
 </script>
 
 <template>
-  <div  class="bg-blue-200">
+  <div class="bg-gray-200">
     <Button label="Block" @click="blocked = !blocked"></Button>
 
     <BlockUI :blocked="blocked">
@@ -34,52 +60,61 @@ function makeInvalid() {
       <div class="field grid mt-5">
         <div class="col">
           <FloatLabel>
-            <InputText id="firstname3" type="text" class="text-base text-color surface-overlay p-2 " v-model="apiKeyInput"/>
-            <label for="firstname3" class="col-fixed">api key</label>
+            <InputText id="apiInput" type="text" class="text-base text-color surface-overlay p-2 " v-model="apiKeyInput"  :invalid="isApiKeyInvalid"/>
+            <label for="apiInput" class="col-fixed">api key</label>
           </FloatLabel>
         </div>
-        <label for="firstname3" class="col-fixed" style="width:100px">Firstname</label>
+        <label id="apiKeyErrorText" for="apiInput" class="col-fixed" style="width:300px">{{apiKeyErrorText}}</label>
+      </div>
+
+      <div class="field grid mt-5 ">
+        <div class="col ">
+          <FloatLabel>
+            <InputText id="nameInput" type="text" class="text-base text-color surface-overlay p-2 " v-model="commonNameInput" :invalid="isCommonNameInvalid"/>
+            <label for="nameInput" class="col-fixed">common name</label>
+          </FloatLabel>
+        </div>
+        <label id="commonNameErrorText" for="nameInput" class="col-fixed" style="width:300px">{{ commonNameErrorText }}</label>
       </div>
 
       <div class="field grid mt-5">
         <div class="col">
           <FloatLabel>
-            <InputText id="firstname2" type="text" class="text-base text-color surface-overlay p-2 " v-model="commonNameInput"/>
-            <label for="firstname2" class="col-fixed">common name</label>
+            <InputText id="orgInput" type="text" class="text-base text-color surface-overlay p-2 " v-model="organizationInput" :invalid="isOrganizationInvalid"/>
+            <label for="orgInput" class="col-fixed">organization</label>
           </FloatLabel>
         </div>
-        <label for="firstname2" class="col-fixed" style="width:100px">Firstname</label>
+        <label id="organizationErrorText" for="orgInput" class="col-fixed" style="width:300px">{{ organizationErrorText }}</label>
       </div>
 
       <div class="field grid mt-5">
         <div class="col">
           <FloatLabel>
-            <InputText id="firstname1" type="text" class="text-base text-color surface-overlay p-2 " v-model="organizationInput"/>
-            <label for="firstname1" class="col-fixed">organization</label>
+            <InputText id="locInput" type="text" class="text-base text-color surface-overlay p-2 " v-model="locationInput" :invalid="isLocationInvalid"/>
+            <label for="locInput" class="col-fixed">location</label>
           </FloatLabel>
         </div>
-        <label for="firstname1" class="col-fixed" style="width:100px">Firstname</label>
+        <label id="locationErrorText" for="locInput" class="col-fixed" style="width:300px">{{ locationErrorText }}</label>
       </div>
-
-      <div class="field grid mt-5">
-        <div class="col">
-          <FloatLabel>
-            <InputText id="firstname0" type="text" class="text-base text-color surface-overlay p-2 " v-model="locationInput"/>
-            <label for="firstname0" class="col-fixed">location</label>
-          </FloatLabel>
-        </div>
-        <label for="firstname0" class="col-fixed" style="width:100px">Firstname</label>
-      </div>
-
-
+      <Button label="add" @click="validate()"></Button>
     </BlockUI>
   </div>
-
-
 
 
 </template>
 
 <style scoped>
+
+.p-inputtext:focus {
+  box-shadow: none !important;
+  border-color: initial !important;
+}
+
+.p-inputtext:hover {
+  border-color: initial !important;
+}
+button:focus {
+  box-shadow: none !important;
+}
 
 </style>
