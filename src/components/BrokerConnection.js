@@ -6,16 +6,24 @@ class BrokerConnection {
 
     // TODO include vars instead of strings
     async getApiKeys() {
-        fetch(this.brokerUrl+"/api-keys", {
-            method: "GET",
-            headers: {
-                "Authorization": "Bearer "+this.adminApiKey, "Content-Type": "application/json"
-            },
-            mode: "cors"
-        })
-            .then(response => response.text())
-            .then(data => console.log(data))
-            .catch(error => console.error("Error:", error));
+        try {
+            const response = await fetch(this.brokerUrl + "/api-keys", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + this.adminApiKey,
+                    "Content-Type": "application/json"
+                },
+                mode: "cors"
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.text();
+            return data ? data : "List of Api keys is empty";
+        } catch (error) {
+            console.error("Error:", error);
+            return "error while trying to retrieve api keys";
+        }
     }
 
     async addApiKeys(ClinicCredentials) {
