@@ -9,21 +9,17 @@ import InputText from 'primevue/inputtext';
 import FloatLabel from "primevue/floatlabel";
 
 const blocked = ref(false);
-const apikeyinput = ref("");
-const commonName = ref(null);
-const organization = ref(null);
-const location = ref(null);
+const apiKeyInput = ref("");
+const commonNameInput = ref(null);
+const organizationInput = ref(null);
+const locationInput = ref(null);
 const api_input_valid = ref(false)
 const is_api_valid = ref(false)
 
 const broker = new BrokerConnection();
 
 function makeInvalid() {
-  if(apikeyinput.value.length > 12) {
-    is_api_valid.value = false;
-  }
-  else
-  {is_api_valid.value = true;}
+  is_api_valid.value = apiKeyInput.value.length != 12;
 
 }
 
@@ -32,42 +28,58 @@ function makeInvalid() {
 <template>
   <div  class="bg-blue-200">
     <Button label="Block" @click="blocked = !blocked"></Button>
-    <div>
 
     <BlockUI :blocked="blocked">
 
-      <FloatLabel class="FloatLabel">
-        <InputText id="apikey_input"  v-model="apikeyinput" :invalid = "is_api_valid" @update:modelValue="makeInvalid"/>
-        <label for="apikey_input">ApiKey</label>
-      </FloatLabel>
+      <div class="field grid mt-5">
+        <div class="col">
+          <FloatLabel>
+            <InputText id="firstname3" type="text" class="text-base text-color surface-overlay p-2 " v-model="apiKeyInput"/>
+            <label for="firstname3" class="col-fixed">api key</label>
+          </FloatLabel>
+        </div>
+        <label for="firstname3" class="col-fixed" style="width:100px">Firstname</label>
+      </div>
 
-      <FloatLabel class="FloatLabel">
-        <InputText id="commonName_input" v-model="commonName" />
-        <label for="commonName_input">Common Name</label>
-      </FloatLabel>
+      <div class="field grid mt-5">
+        <div class="col">
+          <FloatLabel>
+            <InputText id="firstname2" type="text" class="text-base text-color surface-overlay p-2 " v-model="commonNameInput"/>
+            <label for="firstname2" class="col-fixed">common name</label>
+          </FloatLabel>
+        </div>
+        <label for="firstname2" class="col-fixed" style="width:100px">Firstname</label>
+      </div>
 
-      <FloatLabel class="FloatLabel">
-        <InputText id="organization_input" v-model="organization" />
-        <label for="organization_input">Organization</label>
-      </FloatLabel>
+      <div class="field grid mt-5">
+        <div class="col">
+          <FloatLabel>
+            <InputText id="firstname1" type="text" class="text-base text-color surface-overlay p-2 " v-model="organizationInput"/>
+            <label for="firstname1" class="col-fixed">organization</label>
+          </FloatLabel>
+        </div>
+        <label for="firstname1" class="col-fixed" style="width:100px">Firstname</label>
+      </div>
 
-      <FloatLabel class="FloatLabel mb-1 mb-5">
-        <InputText id="location_input" v-model="location" @update:modelValue="console.log(location)" />
-        <label for="location_input">Location</label>
-      </FloatLabel>
+      <div class="field grid mt-5">
+        <div class="col">
+          <FloatLabel>
+            <InputText id="firstname0" type="text" class="text-base text-color surface-overlay p-2 " v-model="locationInput"/>
+            <label for="firstname0" class="col-fixed">location</label>
+          </FloatLabel>
+        </div>
+        <label for="firstname0" class="col-fixed" style="width:100px">Firstname</label>
+      </div>
+
+
     </BlockUI>
-
-    </div>
   </div>
+
+
+
+
 </template>
 
 <style scoped>
-.BG
-{
-  background-color: lightblue;
-}
-.FloatLabel
-{
-  margin-bottom: 30px;
-}
+
 </style>
