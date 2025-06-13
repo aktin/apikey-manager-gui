@@ -12,11 +12,13 @@ const broker = new BrokerConnection();
 
 <template>
 
-  <div class="field grid mt-5 border-3 border-blue-500">
-    <div class="col border-3 border-red-600">
+  <div class="field grid border-3 border-blue-500">
+    <div class="border-3 border-red-600" style="width:57%">
       <ClinicCredentialsTable/>
     </div>
+    <div style="width:43%">
     <ClinicCredentialsInput/>
+    </div>
   </div>
 
 </template>

@@ -19,7 +19,15 @@ class BrokerConnection {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.text();
-            return data ? data : "List of Api keys is empty";
+            console.log(data);
+            if (data)
+            {
+                return this.formatIntoList(data)
+            }
+            else
+            {
+            return "List of Api keys is empty";
+            }
         } catch (error) {
             console.error("Error:", error);
             return "error while trying to retrieve api keys";
@@ -50,7 +58,8 @@ class BrokerConnection {
             .then(data => console.log(data))
             .catch(error => console.error("Error:", error))
     }
-    async deactivateApiKey(apiKey) {
+    async deactivateApiKey(apiKey)
+    {
         fetch(this.brokerUrl+"/api-keys/"+apiKey+"/deactivate", {
             method: "POST",
             headers: {
@@ -60,6 +69,10 @@ class BrokerConnection {
             .then(response => response.text())
             .then(data => console.log(data))
             .catch(error => console.error("Error:", error))
+    }
+    formatIntoList(data)
+    {
+
     }
 }
 
