@@ -6,7 +6,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 
 const broker = new BrokerConnection();
-const bruh = ref("");
+const selectedApiKey = ref("");
 
 const init = () => { showlist()}
 
@@ -25,7 +25,7 @@ init();
   <Button label="get api list" @click="showlist()"/>
 
   <div class="card border-1">
-    <DataTable :value="products" tableStyle="width: 100%" scrollable scrollHeight="450px">
+    <DataTable v-model:selection="selectedApiKey" :value="products" selectionMode="single" :meta-key-selection="false" tableStyle="width: 100%" scrollable scrollHeight="450px">
       <Column field="ApiKey" header="ApiKey" style="width: 20%"></Column>
       <Column field="CommonName" header="Common name" sortable style="width: 20%"></Column>
       <Column field="Organization" header="Organization" sortable style="width: 20%"></Column>
