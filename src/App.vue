@@ -1,5 +1,5 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import BrokerConnectionChecker from './components/BrokerConnectionChecker.vue'
 import ClinicCredentialsInput from "./components/ClinicCredentialsInput.vue";
 import BrokerConnection from "./components/BrokerConnection.js";
 import ClinicCredentialsTable from "./components/ClinicCredentialsTable.vue";
@@ -12,30 +12,22 @@ const broker = new BrokerConnection();
 
 <template>
 
-  <div class="field grid border-3 border-blue-500">
-    <div class="border-3 border-red-600" style="width:57%">
-      <ClinicCredentialsTable/>
+  <div style="width:90vw; height:90vh" class="border-3 border-orange-300">
+    <div  style="display:flex ; flex-direction:row" class="border-3 border-blue-500">
+      <div  style="flex-grow: 1" class="border-3 border-red-500">
+        <ClinicCredentialsTable/>
+      </div>
+      <div style="width:500px ; height:100%">
+      <ClinicCredentialsInput/>
+      </div>
     </div>
-    <div style="width:43%">
-    <ClinicCredentialsInput/>
+    <div>
+      <BrokerConnectionChecker/>
     </div>
   </div>
 
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
 
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
 </style>
