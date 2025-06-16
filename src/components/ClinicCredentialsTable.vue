@@ -8,35 +8,16 @@ import Column from 'primevue/column';
 const broker = new BrokerConnection();
 const bruh = ref("");
 
+const init = () => { showlist()}
+
 async function showlist()
 {
-  bruh.value = await broker.getApiKeys()
+  products.value = await broker.getApiKeys()
 }
 
 
-const products = ref([
-  { ApiKey: 'xxxAPIKEY001', CommonName: 'Clinic A', Organization: 'ORG Q', Location: "place P", Status: "active" },
-  { ApiKey: 'xxxAPIKEY002', CommonName: 'Clinic B', Organization: 'ORG W', Location: "place O", Status: "active" },
-  { ApiKey: 'xxxAPIKEY003', CommonName: 'Clinic C', Organization: 'ORG E', Location: "place I", Status: "active" },
-  { ApiKey: 'xxxAPIKEY004', CommonName: 'Clinic D', Organization: 'ORG R', Location: "place U", Status: "inactive" },
-  { ApiKey: 'xxxAPIKEY005', CommonName: 'Clinic E', Organization: 'ORG T', Location: "place Z", Status: "active" },
-  { ApiKey: 'xxxAPIKEY006', CommonName: 'Clinic F', Organization: 'ORG A', Location: "place T", Status: "active" },
-  { ApiKey: 'xxxAPIKEY007', CommonName: 'Clinic G', Organization: 'ORG S', Location: "place R", Status: "active" },
-  { ApiKey: 'xxxAPIKEY008', CommonName: 'Clinic H', Organization: 'ORG D', Location: "place E", Status: "active" },
-  { ApiKey: 'xxxAPIKEY009', CommonName: 'Clinic I', Organization: 'ORG F', Location: "place W", Status: "active" },
-  { ApiKey: 'xxxAPIKEY010', CommonName: 'Clinic J', Organization: 'ORG Y', Location: "place Q", Status: "inactive" },
-  { ApiKey: 'xxxAPIKEY011', CommonName: 'Clinic K', Organization: 'ORG X', Location: "place A", Status: "active" },
-  { ApiKey: 'xxxAPIKEY012', CommonName: 'Clinic L', Organization: 'ORG C', Location: "place S", Status: "active" },
-  { ApiKey: 'xxxAPIKEY013', CommonName: 'Clinic M', Organization: 'ORG V', Location: "place D", Status: "active" },
-  { ApiKey: 'xxxAPIKEY014', CommonName: 'Clinic N', Organization: 'ORG t', Location: "place F", Status: "inactive" },
-  { ApiKey: 'xxxAPIKEY015', CommonName: 'Clinic O', Organization: 'ORG G', Location: "place G", Status: "active" },
-  { ApiKey: 'xxxAPIKEY016', CommonName: 'Clinic P', Organization: 'ORG B', Location: "place H", Status: "inactive" },
-  { ApiKey: 'xxxAPIKEY017', CommonName: 'YYYYYYYYYYYYYYYYYYYYYYYYY', Organization: 'AAAAAAAAAAAAAAAAAAAA', Location: "AAAAAAAAAAAAAAAAAAA", Status: "inactive" },
-
-
-
-]);
-
+const products = ref([]);
+init();
 </script>
 
 <template>
