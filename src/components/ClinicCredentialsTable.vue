@@ -15,13 +15,13 @@ function formatApiKeyList(textBlock) {
       .trim()
       .split("\n")
       .map(element => {
-        const [apiKey, , commonName, , organization, , location, status = "ACTIVE"] = element.split(/[=,]/);
+        const [apiKey, , commonName, , organization, , location, aktive = "ACTIVE"] = element.split(/[=,]/);
         return {
           apiKey: apiKey,
           commonName: commonName,
           organization: organization,
           location: location,
-          status: status
+          aktive: aktive
         };
       });
 }
@@ -45,17 +45,18 @@ onMounted(async () => {
 
 watch(selectedRow, (newVal) => {
   selectedApiKey.value = newVal?.apiKey || "";
+  selectedApiKey.value +=";"+ newVal?.aktive || "";
   emit("update:selectedApiKey", selectedApiKey.value);
 });
 </script>
 
 <template>
-  <DataTable v-model:selection="selectedRow" :value="apiKeyList" selectionMode="single" :meta-key-selection="false" scrollable>
+  <DataTable v-model:selection="selectedRow" :value="apiKeyList" selectionMode="single" :meta-key-selection="false" scrollable style="max-height:55rem"  scroll-height="flex">
     <template #empty>No Api Keys found</template>
     <Column field="apiKey" header="ApiKey" style="width: 10%"></Column>
     <Column field="commonName" header="Common name" sortable style="width: 35%"></Column>
     <Column field="organization" header="Organization" sortable style="width: 35%"></Column>
     <Column field="location" header="Location" sortable style="width: 10%"></Column>
-    <Column field="status" header="Status" sortable style="width: 10%"></Column>
+    <Column field="aktive" header="Status" sortable style="width: 10%"></Column>
   </DataTable>
 </template>
