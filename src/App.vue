@@ -12,22 +12,41 @@ const broker = new BrokerConnection();
 
 <template>
 
-  <div style="width:90vw; height:90vh" class="border-3 border-orange-300">
-    <div  style="display:flex ; flex-direction:row" class="border-3 border-blue-500">
-      <div  style="flex-grow: 1" class="border-3 border-red-500">
-        <ClinicCredentialsTable/>
-      </div>
-      <div style="width:500px ; height:100%">
-      <ClinicCredentialsInput/>
-      </div>
+  <div class="layout">
+
+    <div class="span1">
+      <ClinicCredentialsTable/>
     </div>
-    <div>
+
+    <div class="span2">
+    <ClinicCredentialsInput/>
+    </div>
+
+    <div class="span3">
       <BrokerConnectionChecker/>
     </div>
+
   </div>
 
 </template>
 
 <style scoped>
+
+.layout {
+  display: grid;
+  grid:
+    "span1 span1 span1 span1 span1 span1 span1 span2 span2 span2" 1fr
+    "span1 span1 span1 span1 span1 span1 span1 span2 span2 span2" 1fr
+    "span1 span1 span1 span1 span1 span1 span1 span2 span2 span2" 1fr
+    "span1 span1 span1 span1 span1 span1 span1 span2 span2 span2" 1fr
+    "span1 span1 span1 span1 span1 span1 span1 span2 span2 span2" 1fr
+    "span3 span3 span3 span3 span3 span3 span3 span3 span3 span3" 1fr
+    / 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 2px;
+}
+
+.span1 { grid-area: span1; }
+.span2 { grid-area: span2; }
+.span3 { grid-area: span3; }
 
 </style>
