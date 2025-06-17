@@ -30,7 +30,8 @@ const isLocationInvalid = ref(false);
 function validate() {
   const pattern = /[!@#$%^&*(),.?":{}|<>_-]/;
 
-  function checkInput(input, invalid, errorText, lengthCheck = false) {
+  function checkInput(input, invalid, errorText, lengthCheck = false)
+  {
     if (lengthCheck && input.value.length !== 12) {
       invalid.value = true;
       errorText.value = "must be 12 characters";
@@ -56,6 +57,17 @@ function changeState() {
 
 }
 
+function generateApiKey()
+{
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let key = '';
+  for (let i = 0; i < 12; i++)
+  {
+    key += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  apiKeyInput.value = key;
+}
+
 </script>
 
 <template>
@@ -66,21 +78,19 @@ function changeState() {
       <div class="field grid">
         <div class="input_Div mt-3">
           <FloatLabel>
-            <InputText id="apiInput" type="text" class="text-base text-color surface-overlay p-2 input_Field" v-model="apiKeyInput"
-                       :invalid="isApiKeyInvalid"/>
+            <InputText id="apiInput" type="text" class="text-base text-color surface-overlay p-2 input_Field" v-model="apiKeyInput" :invalid="isApiKeyInvalid"/>
             <label for="apiInput" class="col-fixed">api key</label>
           </FloatLabel>
         </div>
         <label id="apiKeyErrorText" for="apiInput" class="errorLabel" >{{ apiKeyErrorText }}</label>
       </div>
       <div class="input_Div">
-        <Button>generate ApiKey</Button>
+        <Button @click="generateApiKey()">generate ApiKey</Button>
       </div>
       <div class="field grid mt-4">
         <div class="input_Div">
           <FloatLabel>
-            <InputText id="nameInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
-                       v-model="commonNameInput" :invalid="isCommonNameInvalid"/>
+            <InputText id="nameInput" type="text" class="text-base text-color surface-overlay p-2 input_Field" v-model="commonNameInput" :invalid="isCommonNameInvalid"/>
             <label for="nameInput" class="col-fixed">common name</label>
           </FloatLabel>
         </div>
@@ -90,8 +100,7 @@ function changeState() {
       <div class="field grid ">
         <div class="input_Div">
           <FloatLabel>
-            <InputText id="orgInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
-                       v-model="organizationInput" :invalid="isOrganizationInvalid"/>
+            <InputText id="orgInput" type="text" class="text-base text-color surface-overlay p-2 input_Field" v-model="organizationInput" :invalid="isOrganizationInvalid"/>
             <label for="orgInput" class="col-fixed">organization</label>
           </FloatLabel>
         </div>
@@ -101,8 +110,7 @@ function changeState() {
       <div class="field grid ">
         <div class="input_Div">
           <FloatLabel>
-            <InputText id="locInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
-                       v-model="locationInput" :invalid="isLocationInvalid"/>
+            <InputText id="locInput" type="text" class="text-base text-color surface-overlay p-2 input_Field" v-model="locationInput" :invalid="isLocationInvalid"/>
             <label for="locInput">location</label>
           </FloatLabel>
         </div>
