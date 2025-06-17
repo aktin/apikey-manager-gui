@@ -4,6 +4,13 @@ import BrokerConnection from "./BrokerConnection.js";
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 
+import { useToast } from "primevue/usetoast";
+const toast = useToast();
+
+const loadErrorToast = () => {
+  toast.add({ severity: 'error', summary: 'Error', detail: 'Could not retrieve ApiKeys. Code:500'});
+};
+
 const broker = new BrokerConnection();
 const apiKeyList = ref([]);
 const selectedRow = ref(null);
@@ -29,10 +36,13 @@ function formatApiKeyList(textBlock) {
 async function fetchAndFormatApiKeyList() {
   let apiKeyList = await broker.getApiKeys()
 
-  if (apiKeyList.status !== 200) {
+  if (apiKeyList.status !== 200)
+  {
     //TODO status will be either 200 or 500
-    //console.log error
-    //throw toast with http code 500 and message
+
+    loadErrorToast()
+    console.log("Error while trying to get ApiKeys, code: "+apiKeyList.status)
+
     throw Error(`Error: ${apiKeyList.status}`);
   }
 
@@ -49,7 +59,6 @@ watch(selectedRow, (newVal) => {
   emit("update:selectedApiKey", selectedApiKey.value);
 });
 </script>
-
 <template>
   <DataTable v-model:selection="selectedRow" :value="apiKeyList" selectionMode="single" :meta-key-selection="false" scrollable style="max-height:55rem"  scroll-height="flex">
     <template #empty>No Api Keys found</template>
