@@ -45,12 +45,13 @@ class BrokerConnection {
 
 
     async addApiKeys(ClinicCredentials) {
+
         fetch(this.#brokerUrl + "/api-keys", {
             method: "POST",
             headers: {
                 "Authorization": "Bearer " + this.#adminApiKey, "Content-Type": "application/xml"
             },
-            body: JSON.stringify({ClinicCredentials})
+            body: ClinicCredentials
         })
             .then(response => response.text())
             .then(data => console.log(data))
@@ -76,10 +77,8 @@ class BrokerConnection {
                 "Authorization": "Bearer " + this.#adminApiKey
             },
         })
-            .then(response => response.text())
-            .then(data => console.log(data))
+            .then(response => console.log(response))
             .catch(error => console.error("Error:", error))
     }
 }
-
 export default BrokerConnection;
