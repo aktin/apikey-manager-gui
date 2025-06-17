@@ -1,45 +1,61 @@
 <script setup>
-import {ref, toRaw, watch} from 'vue'
+import {onMounted, ref, watch} from 'vue'
 import BrokerConnection from "./BrokerConnection.js";
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 
 const broker = new BrokerConnection();
-const selectedApiKey = ref("");
-const apiKeyList = ref();
-
+const apiKeyList = ref([]);
 const selectedRow = ref(null);
+const selectedApiKey = ref("");
+const emit = defineEmits(["update:selectedApiKey"]);
 
-const init = () => { showlist()}
-
-async function showlist()
-{
-  apiKeyList.value = await broker.getApiKeys()
+function formatApiKeyList(textBlock) {
+  return textBlock
+      .trim()
+      .split("\n")
+      .map(element => {
+        const [apiKey, , commonName, , organization, , location, status = "ACTIVE"] = element.split(/[=,]/);
+        return {
+          apiKey: apiKey,
+          commonName: commonName,
+          organization: organization,
+          location: location,
+          status: status
+        };
+      });
 }
 
-watch(selectedApiKey, (newVal) => {
-  if(newVal) {
-    console.log(toRaw(newVal).ApiKey);
+async function fetchAndFormatApiKeyList() {
+  let apiKeyList = await broker.getApiKeys()
+
+  if (apiKeyList.status !== 200) {
+    //TODO status will be either 200 or 500
+    //console.log error
+    //throw toast with http code 500 and message
+    throw Error(`Error: ${apiKeyList.status}`);
   }
+
+  return formatApiKeyList(apiKeyList.data);
+}
+
+onMounted(async () => {
+  apiKeyList.value = await fetchAndFormatApiKeyList();
 });
 
-init();
+watch(selectedRow, (newVal) => {
+  selectedApiKey.value = newVal?.apiKey || "";
+  emit("update:selectedApiKey", selectedApiKey.value);
+});
 </script>
 
 <template>
-
-  <div class="card">
-    <DataTable v-model:selection="selectedApiKey" :value="apiKeyList" selectionMode="single" :meta-key-selection="false" tableStyle="width: 100%" scrollable scrollHeight="450px">
-      <Column field="ApiKey" header="ApiKey" style="width: 20%"></Column>
-      <Column field="CommonName" header="Common name" sortable style="width: 20%"></Column>
-      <Column field="Organization" header="Organization" sortable style="width: 20%"></Column>
-      <Column field="Location" header="Location" sortable style="width: 20%"></Column>
-      <Column field="Status" header="Status" sortable style="width: 20%"></Column>
-    </DataTable>
-  </div>
-
+  <DataTable v-model:selection="selectedRow" :value="apiKeyList" selectionMode="single" :meta-key-selection="false" scrollable>
+    <template #empty>No Api Keys found</template>
+    <Column field="apiKey" header="ApiKey" style="width: 10%"></Column>
+    <Column field="commonName" header="Common name" sortable style="width: 35%"></Column>
+    <Column field="organization" header="Organization" sortable style="width: 35%"></Column>
+    <Column field="location" header="Location" sortable style="width: 10%"></Column>
+    <Column field="status" header="Status" sortable style="width: 10%"></Column>
+  </DataTable>
 </template>
-
-<style scoped>
-
-</style>
