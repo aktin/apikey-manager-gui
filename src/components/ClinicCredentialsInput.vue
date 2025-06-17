@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import {ref, watch} from "vue";
 import Button from "primevue/button";
 import BlockUI from "primevue/blockui";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "./BrokerConnection.js";
+import { defineProps } from 'vue';
 
 const broker = new BrokerConnection();
+const selectedStatus = ref("");
 
-// Reactive variables
 const commonNameInput = ref("");
 const blocked = ref(false);
 const apiKeyInput = ref("");
@@ -26,6 +27,13 @@ const isCommonNameInvalid = ref(false);
 const isOrganizationInvalid = ref(false);
 const isLocationInvalid = ref(false);
 
+const props = defineProps({
+  selectedKey: String
+});
+
+watch(() => props.selectedKey, (newValue) => {
+  selectedStatus.value = `${newValue}`.split(";")[1]
+});
 
 function validate() {
   const pattern = /[!@#$%^&*(),.?":{}|<>_-]/;
@@ -53,8 +61,16 @@ function validate() {
   checkInput(locationInput, isLocationInvalid, locationErrorText);
 }
 
-function changeState() {
+async function changeState()
+{
+  const selectedApiKey = props.selectedKey.split(";")[0]
 
+  if(selectedStatus.value === "INACTIVE"){
+    await broker.activateApiKey(selectedApiKey)
+  }
+  else if(selectedStatus.value === "ACTIVE"){
+    await broker.deactivateApiKey(selectedApiKey)
+  }
 }
 
 function generateApiKey()
@@ -116,8 +132,18 @@ function generateApiKey()
         </div>
         <label id="locationErrorText" for="locInput" class="errorLabel" >{{locationErrorText }}</label>
       </div>
-      <Button label="add" @click="validate()"></Button>
-      <Button label="deactivate" @click="changeState()"></Button>
+
+      <div class="flex gap-3">
+         <Button label="add" @click="validate()"></Button>
+        <div v-if="selectedStatus ==='ACTIVE' " class=" flex align-items-center text-green-600 text-xl">
+          <Button label="deactivate" @click="changeState()"></Button>
+        </div>
+        <div v-else class="flex align-items-center text-red-600 text-xl">
+          <Button label="activate" @click="changeState()"></Button>
+        </div>
+      </div>
+
+
     </BlockUI>
   </div>
 </template>
