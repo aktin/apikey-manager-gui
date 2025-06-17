@@ -19,8 +19,6 @@ class BrokerConnection {
         }
     }
 
-
-    // TODO include vars instead of strings
     async getApiKeys() {
         try {
             const response = await fetch(this.#brokerUrl + "/api-keys", {
@@ -31,21 +29,20 @@ class BrokerConnection {
                 },
                 mode: "cors"
             });
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const data = await response.text();
-            if (data) {
-                console.log(data)
-                return data
-            } else {
-                return "List of Api keys is empty";
-            }
+            const text = await response.text();
+            return {
+                status: response.status,
+                data: text
+            };
         } catch (error) {
-            console.error("Error:", error);
-            return "error while trying to retrieve api keys";
+            console.error("Error fetching API keys:", error);
+            return {
+                status: 0,
+                data: ""
+            };
         }
     }
+
 
     async addApiKeys(ClinicCredentials) {
         fetch(this.#brokerUrl + "/api-keys", {
