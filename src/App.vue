@@ -7,10 +7,10 @@ import ClinicCredentialsTable from "./components/ClinicCredentialsTable.vue";
 <template>
   <div class="m-3">
     <div class="grid">
-      <ClinicCredentialsTable class="col-9"/>
+     <ClinicCredentialsTable class="col-9 border-1"/>
       <div class="col-3">
-        <BrokerConnectionChecker/>
-        <ClinicCredentialsInput/>
+        <BrokerConnectionChecker class="border-1"/>
+        <!-- <ClinicCredentialsInput/> -->
       </div>
     </div>
   </div>

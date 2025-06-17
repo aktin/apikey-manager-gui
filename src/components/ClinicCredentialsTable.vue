@@ -28,7 +28,7 @@ init();
 
 <template>
 
-  <div class="card border-1">
+  <div class="card">
     <DataTable v-model:selection="selectedApiKey" :value="apiKeyList" selectionMode="single" :meta-key-selection="false" tableStyle="width: 100%" scrollable scrollHeight="450px">
       <Column field="ApiKey" header="ApiKey" style="width: 20%"></Column>
       <Column field="CommonName" header="Common name" sortable style="width: 20%"></Column>
