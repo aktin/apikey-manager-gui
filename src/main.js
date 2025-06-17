@@ -9,7 +9,6 @@ import ToastService from "primevue/toastservice";
 import "primevue/resources/themes/lara-light-green/theme.css";
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
-import "./style.css";
 
 const app = createApp(App)
     .use(PrimeVue)
