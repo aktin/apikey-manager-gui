@@ -3,6 +3,10 @@ class BrokerConnection {
     #brokerUrl = "http://localhost:8080";
     #adminApiKey = "xxxAdmin1234";
 
+    getBrokerUrl() {
+        return this.#brokerUrl;
+    }
+
     async getBrokerStatus() {
         try {
             const response = await fetch(this.#brokerUrl + "/broker/status", {
@@ -32,6 +36,7 @@ class BrokerConnection {
             }
             const data = await response.text();
             if (data) {
+                console.log(data)
                 return data
             } else {
                 return "List of Api keys is empty";

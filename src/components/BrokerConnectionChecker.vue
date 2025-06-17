@@ -17,7 +17,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex">
+  <div class="flex" v-tooltip.bottom="broker.getBrokerUrl()">
     <div v-if="status === 200" class="flex align-items-center text-green-600 text-xl">
       <i class="pi pi-circle-fill mx-2"/>
       <p class="font-bold">Connected</p>
