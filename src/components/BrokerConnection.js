@@ -1,10 +1,7 @@
 class BrokerConnection {
 
-//TODO make private vars
     #brokerUrl = "http://localhost:8080";
     #adminApiKey = "xxxAdmin1234";
-
-    //TODO async getBrokerStatus()
 
     async getBrokerStatus() {
         try {
@@ -12,13 +9,12 @@ class BrokerConnection {
                 method: "GET",
             });
             return response.status;
-        } catch (error) {
-            console.error("Error:", error);
-            return "Error while trying to retrieve broker status";
+        } catch (e) {
+            console.error("Failed to reach broker:", e);
+            return 0;
         }
-
-
     }
+
 
     // TODO include vars instead of strings
     async getApiKeys() {

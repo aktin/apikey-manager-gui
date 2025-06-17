@@ -1,33 +1,31 @@
 <script setup>
 import BrokerConnection from "./BrokerConnection.js";
-import 'primeicons/primeicons.css'
+import 'primeicons/primeicons.css';
+import {onMounted, ref} from 'vue';
 
 const broker = new BrokerConnection();
-const init = () => {checkConnection()}
+const status = ref(null);
 
-setInterval(checkConnection,5000)
-
-async function checkConnection()
-{
-  var status = await broker.getBrokerStatus()
-
-  if(status == 200) {
-    document.getElementById("connection_status_light").style.color = "#00DD00";
-    document.getElementById("connection_status_text").innerHTML = "connected";
-  }
-  else{
-    document.getElementById("connection_status_light").style.color = "red";
-    document.getElementById("connection_status_text").innerHTML = "no connection";
-  }
+async function checkConnection() {
+  status.value = await broker.getBrokerStatus();
 }
-init();
+
+onMounted(() => {
+  checkConnection();
+  setInterval(checkConnection, 1000 * 10 * 6);
+});
 </script>
 
 <template>
+  <div class="flex">
+    <div v-if="status === 200" class="flex align-items-center text-green-600 text-xl">
+      <i class="pi pi-circle-fill mx-2"/>
+      <p class="font-bold">Connected</p>
+    </div>
 
-  <div class="flex align-items-center justify-content-center border">
-    <i id="connection_status_light" class="pi pi-circle-fill" style="color:gray"></i>
-    <p id="connection_status_text">loading page</p>
+    <div v-else class="flex align-items-center text-red-600 text-xl">
+      <i class="pi pi-circle-fill mx-2"/>
+      <p class="font-bold">No Connection</p>
+    </div>
   </div>
-
 </template>
