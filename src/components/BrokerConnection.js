@@ -36,7 +36,7 @@ class BrokerConnection {
             }
             const data = await response.text();
             if (data) {
-                return this.formatIntoList(data)
+                return data
             } else {
                 return "List of Api keys is empty";
             }
@@ -81,22 +81,6 @@ class BrokerConnection {
             .then(response => response.text())
             .then(data => console.log(data))
             .catch(error => console.error("Error:", error))
-    }
-
-    formatIntoList(textBlock) {
-        return textBlock
-            .trim()
-            .split("\n")
-            .map(element => {
-                const [apiKey, , commonName, , organization, , location, status = "ACTIVE"] = element.split(/[=,]/);
-                return {
-                    ApiKey: apiKey,
-                    CommonName: commonName,
-                    Organization: organization,
-                    Location: location,
-                    Status: status
-                };
-            });
     }
 }
 
