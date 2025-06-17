@@ -35,6 +35,16 @@ watch(() => props.selectedKey, (newValue) => {
   selectedStatus.value = `${newValue}`.split(";")[1]
 });
 
+async function addApikey(){
+  validate();
+  if(!isApiKeyInvalid.value && !isCommonNameInvalid.value && !isOrganizationInvalid.value && !isLocationInvalid.value)
+  {
+    const payload = "CN=" + commonNameInput.value + ",O=" + organizationInput.value + ",L=" + locationInput.value;
+    const xml_data = "<ApiKeyCred><apiKey>" + apiKeyInput.value + "</apiKey><clientDn>" + payload + "</clientDn></ApiKeyCred>";
+    await broker.addApiKeys(xml_data)
+  }
+}
+
 function validate() {
   const pattern = /[!@#$%^&*(),.?":{}|<>_-]/;
 
@@ -134,7 +144,7 @@ function generateApiKey()
       </div>
 
       <div class="flex gap-3">
-         <Button label="add" @click="validate()"></Button>
+         <Button label="add" @click="addApikey()"></Button>
         <div v-if="selectedStatus ==='ACTIVE' " class=" flex align-items-center text-green-600 text-xl">
           <Button label="deactivate" @click="changeState()"></Button>
         </div>
