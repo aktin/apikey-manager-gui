@@ -45,16 +45,25 @@ class BrokerConnection {
 
 
     async addApiKeys(ClinicCredentials) {
+        try {
+            const response = await fetch(this.#brokerUrl + "/api-keys", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + this.#adminApiKey,
+                    "Content-Type": "application/xml"
+                },
+                body: ClinicCredentials
+            });
 
-        fetch(this.#brokerUrl + "/api-keys", {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + this.#adminApiKey, "Content-Type": "application/xml"
-            },
-            body: ClinicCredentials
-        })
-            .then(data => window.callVueFunction && window.callVueFunction())
-            .catch(error => console.error("Error:", error))
+            if (window.callVueFunction) {
+                window.callVueFunction();
+            }
+
+            return response.status;
+        } catch (error) {
+            console.error("Error:", error);
+            throw error;
+        }
     }
 
     async activateApiKey(apiKey) {
