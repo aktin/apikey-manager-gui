@@ -38,10 +38,8 @@ async function fetchAndFormatApiKeyList() {
 
     throw Error(`Error: ${apiKeyList.status}`);
   }
-
-  return formatApiKeyList(apiKeyList.data);
+  return formatApiKeyList(apiKeyList.data).filter(item => item.apiKey !== "xxxAdmin1234");
 }
-
 function formatApiKeyList(textBlock) {
   return textBlock
       .trim()
