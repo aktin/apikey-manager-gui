@@ -6,8 +6,16 @@ import {onMounted, ref} from 'vue';
 const broker = new BrokerConnection();
 const status = ref(null);
 
+const emit = defineEmits(["update:isConnected"]);
+
 async function checkConnection() {
   status.value = await broker.getBrokerStatus();
+  sendConnectionStatus(status.value);
+}
+
+function sendConnectionStatus(statusCode){
+  var isConnected = statusCode === 200;
+  emit("update:isConnected", isConnected);
 }
 
 onMounted(() => {
