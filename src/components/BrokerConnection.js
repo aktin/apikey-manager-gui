@@ -53,8 +53,7 @@ class BrokerConnection {
             },
             body: ClinicCredentials
         })
-            .then(response => response.text())
-            .then(data => console.log(data))
+            .then(data => window.callVueFunction && window.callVueFunction())
             .catch(error => console.error("Error:", error))
     }
 
@@ -65,8 +64,7 @@ class BrokerConnection {
                 "Authorization": "Bearer " + this.#adminApiKey
             },
         })
-            .then(response => response.text())
-            .then(data => console.log(data))
+            .then(data => window.callVueFunction && window.callVueFunction())
             .catch(error => console.error("Error:", error))
     }
 
@@ -77,7 +75,7 @@ class BrokerConnection {
                 "Authorization": "Bearer " + this.#adminApiKey
             },
         })
-            .then(response => console.log(response))
+            .then(data => window.callVueFunction && window.callVueFunction())
             .catch(error => console.error("Error:", error))
     }
 }
