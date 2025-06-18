@@ -45,6 +45,8 @@ function formatApiKeyList(textBlock) {
       .trim()
       .split("\n")
       .map(element => {
+        // TODO filter out admin api key
+        // TODO create JSON for table dynamically, the order of CN,O,L is not fixed
         const [apiKey, , commonName, , organization, , location, aktive = "ACTIVE"] = element.split(/[=,]/);
         return {
           apiKey: apiKey,
@@ -74,9 +76,9 @@ defineExpose({ updateApiKeyList })
     <Column field="location" header="Location" sortable style="width: 10%"/>
     <Column field="aktive" header="Status" sortable style="width: 10%">
       <template #body="{ data }">
-        <div>
-          <i v-if="data.aktive === 'ACTIVE'" v-tooltip="'active'" class="pi pi-check-circle text-green-500"/>
-          <i v-else-if="data.aktive === 'INACTIVE'" v-tooltip="'inactive'" class="pi pi-times-circle text-red-500"/>
+        <div class="flex justify-content-center">
+          <i v-if="data.aktive === 'ACTIVE'" v-tooltip="'Api Key is active'" class="pi pi-check-circle text-green-500"/>
+          <i v-else-if="data.aktive === 'INACTIVE'" v-tooltip="'Api Key is inactive'" class="pi pi-times-circle text-red-500"/>
           <i v-else v-tooltip="'status unknown'" class="pi pi-question-circle text-gray-400"/>
         </div>
       </template>

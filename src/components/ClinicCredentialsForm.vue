@@ -81,9 +81,19 @@ function validate(){
   );
 }
 
+
+// createValidationErrorToast
 function createErrorToast(detail){
   toast.add({severity:"error",summary:"Input Error", detail , life:5000})
 }
+
+// toastLife = 5000
+//
+//function createErrorToast(title, detail){
+//  toast.add({severity:"error",summary: title, detail , life: toastLife})
+// }
+
+// createSuccessToast
 
 async function changeState()
 {
