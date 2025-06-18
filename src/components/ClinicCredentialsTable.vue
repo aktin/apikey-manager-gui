@@ -17,20 +17,13 @@ const selectedRow = ref(null);
 const selectedApiKey = ref("");
 const emit = defineEmits(["update:selectedApiKey"]);
 
-function formatApiKeyList(textBlock) {
-  return textBlock
-      .trim()
-      .split("\n")
-      .map(element => {
-        const [apiKey, , commonName, , organization, , location, aktive = "ACTIVE"] = element.split(/[=,]/);
-        return {
-          apiKey: apiKey,
-          commonName: commonName,
-          organization: organization,
-          location: location,
-          aktive: aktive
-        };
-      });
+onMounted(async () => {
+  await updateApiKeyList();
+  window.callVueFunction = updateApiKeyList;
+});
+
+async function updateApiKeyList() {
+  apiKeyList.value = await fetchAndFormatApiKeyList();
 }
 
 async function fetchAndFormatApiKeyList() {
@@ -49,23 +42,46 @@ async function fetchAndFormatApiKeyList() {
   return formatApiKeyList(apiKeyList.data);
 }
 
-onMounted(async () => {
-  apiKeyList.value = await fetchAndFormatApiKeyList();
-});
+function formatApiKeyList(textBlock) {
+  return textBlock
+      .trim()
+      .split("\n")
+      .map(element => {
+        const [apiKey, , commonName, , organization, , location, aktive = "ACTIVE"] = element.split(/[=,]/);
+        return {
+          apiKey: apiKey,
+          commonName: commonName,
+          organization: organization,
+          location: location,
+          aktive: aktive
+        };
+      });
+}
 
 watch(selectedRow, (newVal) => {
   selectedApiKey.value = newVal?.apiKey || "";
   selectedApiKey.value +=";"+ newVal?.aktive || "";
   emit("update:selectedApiKey", selectedApiKey.value);
 });
+
+defineExpose({ updateApiKeyList })
+
 </script>
 <template>
   <DataTable v-model:selection="selectedRow" :value="apiKeyList" selectionMode="single" :meta-key-selection="false" scrollable style="max-height:55rem"  scroll-height="flex">
     <template #empty>No Api Keys found</template>
-    <Column field="apiKey" header="ApiKey" style="width: 10%"></Column>
-    <Column field="commonName" header="Common name" sortable style="width: 35%"></Column>
-    <Column field="organization" header="Organization" sortable style="width: 35%"></Column>
-    <Column field="location" header="Location" sortable style="width: 10%"></Column>
-    <Column field="aktive" header="Status" sortable style="width: 10%"></Column>
+    <Column field="apiKey" header="ApiKey" style="width: 10%"/>
+    <Column field="commonName" header="Common name" sortable style="width: 35%"/>
+    <Column field="organization" header="Organization" sortable style="width: 35%"/>
+    <Column field="location" header="Location" sortable style="width: 10%"/>
+    <Column field="aktive" header="Status" sortable style="width: 10%">
+      <template #body="{ data }">
+        <div>
+          <i v-if="data.aktive === 'ACTIVE'" v-tooltip="'active'" class="pi pi-check-circle text-green-500"/>
+          <i v-else-if="data.aktive === 'INACTIVE'" v-tooltip="'inactive'" class="pi pi-times-circle text-red-500"/>
+          <i v-else v-tooltip="'status unknown'" class="pi pi-question-circle text-gray-400"/>
+        </div>
+      </template>
+    </Column>
   </DataTable>
 </template>
