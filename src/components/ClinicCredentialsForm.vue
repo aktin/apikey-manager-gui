@@ -33,17 +33,19 @@ async function addApikey(){
   {
     const payload = "CN=" + commonNameInput.value + ",O=" + organizationInput.value + ",L=" + locationInput.value;
     const xml_data = "<ApiKeyCred><apiKey>" + apiKeyInput.value + "</apiKey><clientDn>" + payload + "</clientDn></ApiKeyCred>";
-    await broker.addApiKeys(xml_data)
+    if(await broker.addApiKeys(xml_data) === 409) {
+      createErrorToast("Api Key already exists");
+    }
   }
 }
 
 function validateField(value, inputField) {
   const pattern = /[!@#$%^&*(),.?":{}|<>_-]/;
   if (value === '') {
-    createInputErrorToast(inputField+" cannot be empty");
+    createErrorToast(inputField+" cannot be empty");
     return true;
   } else if (pattern.test(value)) {
-    createInputErrorToast(inputField+" cannot contain special symbols");
+    createErrorToast(inputField+" cannot contain special symbols");
     return true;
   }
   return false;
@@ -52,11 +54,11 @@ function validateField(value, inputField) {
 function validate(){
 
   if (apiKeyInput.value.length !== 12) {
-    createInputErrorToast("Api Key must be 12 characters");
+    createErrorToast("Api Key must be 12 characters");
     isApiKeyInvalid.value = true;
 
   } else if (/[!@#$%^&*(),.?":{}|<>_-]/.test(apiKeyInput.value)) {
-    createInputErrorToast("Api Key cannot contain special symbols");
+    createErrorToast("Api Key cannot contain special symbols");
     isApiKeyInvalid.value = true;
 
   } else {
@@ -79,7 +81,7 @@ function validate(){
   );
 }
 
-function createInputErrorToast(detail){
+function createErrorToast(detail){
   toast.add({severity:"error",summary:"Input Error", detail , life:5000})
 }
 
@@ -175,10 +177,6 @@ button:focus {
   box-shadow: none !important;
 }
 
-.errorLabel {
-  width:50%;
-  margin-left:auto;
-}
 .input_Field{
   width:100%;
 }
