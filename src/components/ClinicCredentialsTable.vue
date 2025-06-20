@@ -4,11 +4,11 @@ import BrokerConnection from "./BrokerConnection.js";
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 
-import { useToast } from "primevue/usetoast";
+import {useToast} from "primevue/usetoast";
 const toast = useToast();
 
 const loadErrorToast = () => {
-  toast.add({ severity: 'error', summary: 'Error', detail: 'Could not retrieve ApiKeys. Code:500'});
+  toast.add({ severity: 'error', summary: 'Connection Error', detail: 'Could not retrieve Api Keys. Code:500'});
 };
 
 const broker = new BrokerConnection();
@@ -31,35 +31,42 @@ async function fetchAndFormatApiKeyList() {
 
   if (apiKeyList.status !== 200)
   {
-    //TODO status will be either 200 or 500
-
     loadErrorToast()
     console.log("Error while trying to get ApiKeys, code: "+apiKeyList.status)
 
     throw Error(`Error: ${apiKeyList.status}`);
   }
-  return formatApiKeyList(apiKeyList.data).filter(item => item.apiKey !== "xxxAdmin1234");
+  return formatApiKeyList(apiKeyList.data);
 }
 function formatApiKeyList(textBlock) {
-  return textBlock
-      .trim()
-      .split("\n")
-      .map(element => {
-        // TODO filter out admin api key
-        // TODO create JSON for table dynamically, the order of CN,O,L is not fixed
-        const [apiKey, , commonName, , organization, , location, aktive = "ACTIVE"] = element.split(/[=,]/);
-        return {
-          apiKey: apiKey,
-          commonName: commonName,
-          organization: organization,
-          location: location,
-          aktive: aktive
-        };
-      });
+
+  const apiList = textBlock.trim().split("\n").filter(item => !item.includes("OU"));
+
+  return apiList.map(entry => {
+    const idx = entry.indexOf('=');
+    const apikey = entry.slice(0, idx);
+    const rest = entry.slice(idx + 1);
+
+    const obj = {apikey};
+    const parts = rest.split(',');
+
+    parts.forEach(part => {
+      if (part.includes('=')) {
+        const [key, value] = part.split('=');
+        obj[key] = value;
+      } else {
+        obj.aktive = part === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE';
+      }
+    });
+
+    if (!obj.aktive) obj.aktive = 'ACTIVE';
+
+    return obj;
+  });
 }
 
 watch(selectedRow, (newVal) => {
-  selectedApiKey.value = newVal?.apiKey || "";
+  selectedApiKey.value = newVal?.apikey || "";
   selectedApiKey.value +=";"+ newVal?.aktive || "";
   emit("update:selectedApiKey", selectedApiKey.value);
 });
@@ -70,10 +77,10 @@ defineExpose({ updateApiKeyList })
 <template>
   <DataTable v-model:selection="selectedRow" :value="apiKeyList" selectionMode="single" :meta-key-selection="false" scrollable style="max-height:55rem"  scroll-height="flex">
     <template #empty>No Api Keys found</template>
-    <Column field="apiKey" header="ApiKey" style="width: 10%"/>
-    <Column field="commonName" header="Common name" sortable style="width: 35%"/>
-    <Column field="organization" header="Organization" sortable style="width: 35%"/>
-    <Column field="location" header="Location" sortable style="width: 10%"/>
+    <Column field="apikey" header="ApiKey" style="width: 10%"/>
+    <Column field="CN" header="Common name" sortable style="width: 35%"/>
+    <Column field="O" header="Organization" sortable style="width: 35%"/>
+    <Column field="L" header="Location" sortable style="width: 10%"/>
     <Column field="aktive" header="Status" sortable style="width: 10%">
       <template #body="{ data }">
         <div class="flex justify-content-center">

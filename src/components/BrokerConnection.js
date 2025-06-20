@@ -3,6 +3,8 @@ class BrokerConnection {
     //TODO make this whole class a Singleton to save memory.
     //What is a Singleton? -> Google is your friend
 
+    //TODO create session to broker
+
     #brokerUrl = "http://localhost:8080";
     #adminApiKey = "xxxAdmin1234";
 
