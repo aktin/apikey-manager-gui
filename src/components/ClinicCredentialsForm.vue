@@ -102,9 +102,9 @@ async function changeState() {
 
   const selectedApiKey = props.selectedKey.split(";")[0]
 
-  if (statusOfSelectedApiKey === "INACTIVE") {
+  if (statusOfSelectedApiKey === "false") {
     await broker.activateApiKey(selectedApiKey)
-  } else if (statusOfSelectedApiKey === "ACTIVE") {
+  } else if (statusOfSelectedApiKey === "true") {
     await broker.deactivateApiKey(selectedApiKey)
   }
 }
@@ -162,7 +162,7 @@ function generateApiKey() {
 
       <div class="flex gap-3 p-3">
         <Button label="add" @click="addApikey()"></Button>
-        <div v-if=" props.selectedKey.split(';')[1]  ==='ACTIVE' " class=" flex align-items-center text-green-600 text-xl">
+        <div v-if=" props.selectedKey.split(';')[1]  ==='true' " class=" flex align-items-center text-green-600 text-xl">
           <Button label="deactivate" @click="changeState()"></Button>
         </div>
         <div v-else class="flex align-items-center text-red-600 text-xl">
