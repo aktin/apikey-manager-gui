@@ -3,12 +3,18 @@ import {onMounted, ref, watch} from 'vue'
 import BrokerConnection from "./BrokerConnection.js";
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import {FilterMatchMode} from "primevue/api";
+import InputText from "primevue/inputtext";
 
 const broker = new BrokerConnection();
 const apiKeyList = ref([]);
 const selectedRow = ref(null);
 const selectedApiKey = ref("");
 const emit = defineEmits(["update:selectedApiKey"]);
+
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
 
 function formatApiKeyList(textBlock) {
   return textBlock
@@ -44,7 +50,7 @@ async function updateApiKeyList() {
 
 onMounted(async () => {
   await updateApiKeyList();
-  window.callVueFunction = updateApiKeyList; // TODO What is this doing?
+  window.callVueFunction = updateApiKeyList;
 });
 
 watch(selectedRow, (newVal) => {
@@ -56,18 +62,22 @@ watch(selectedRow, (newVal) => {
   emit("update:selectedApiKey", selectedApiKey.value);
 });
 
-// defineExpose({updateApiKeyList}) TODO Test if necessary
 </script>
 
 <template>
-  <!-- TODO add filter for api keys -->
   <DataTable v-model:selection="selectedRow"
+             v-model:filters="filters"
              :value="apiKeyList"
              selectionMode="single" :metaKeySelection="false"
              scrollable
              style="max-height:55rem"
-             scroll-height="flex">
+             scroll-height="flex"
+             :globalFilterFields="['CN','O','L']"
+             filterDisplay="row">
     <template #empty>No API Keys found</template>
+    <template #header>
+          <InputText v-model="filters['global'].value" placeholder="Keyword Search" class="text-base text-color surface-overlay p-2 input_Field"/>
+    </template>
     <Column field="apiKey" header="API Key" style="width: 10%"/>
     <Column field="CN" header="Common Name" sortable style="width: 35%"/>
     <Column field="O" header="Organization" sortable style="width: 35%"/>
