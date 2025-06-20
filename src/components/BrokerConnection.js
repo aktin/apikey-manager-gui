@@ -3,6 +3,7 @@ class BrokerConnection {
     //TODO make this whole class a Singleton to save memory.
     //What is a Singleton? -> Google is your friend
 
+
     //TODO create session to broker
 
     #brokerUrl = "http://localhost:8080";
@@ -14,7 +15,7 @@ class BrokerConnection {
 
     async getBrokerStatus() {
         try {
-            const response = await fetch(this.#brokerUrl + "/broker/status", {
+            const response = await fetch(`${this.#brokerUrl}/broker/status`, {
                 method: "GET",
             });
             return response.status;
@@ -26,13 +27,13 @@ class BrokerConnection {
 
     async getApiKeys() {
         try {
-            const response = await fetch(this.#brokerUrl + "/api-keys", {
+            const response = await fetch(`${this.#brokerUrl}/api-keys`, {
                 method: "GET",
                 headers: {
-                    "Authorization": "Bearer " + this.#adminApiKey,
+                    "Authorization": `Bearer ${this.#adminApiKey}`,
                     "Content-Type": "application/json"
                 },
-                mode: "cors"
+                mode: "cors" // TODO Remove me
             });
             const text = await response.text();
             return {
@@ -40,7 +41,7 @@ class BrokerConnection {
                 data: text
             };
         } catch (error) {
-            console.error("Error fetching API keys:", error);
+            console.error("Failed to fetch API keys:", error);
             return {
                 status: 0,
                 data: ""
@@ -48,50 +49,47 @@ class BrokerConnection {
         }
     }
 
-
-    async addApiKeys(ClinicCredentials) {
+    async addApiKeys(clinicCredentials) {
         try {
-            const response = await fetch(this.#brokerUrl + "/api-keys", {
+            const response = await fetch(`${this.#brokerUrl}/api-keys`, {
                 method: "POST",
                 headers: {
-                    "Authorization": "Bearer " + this.#adminApiKey,
+                    "Authorization": `Bearer ${this.#adminApiKey}`,
                     "Content-Type": "application/xml"
                 },
-                body: ClinicCredentials
+                body: clinicCredentials
             });
-
-            if (window.callVueFunction) {
-                window.callVueFunction();
-            }
-
+            if (window.callVueFunction) window.callVueFunction();
             return response.status;
         } catch (error) {
-            console.error("Error:", error); //TODO use descriptive error messages. What did fail here? -> The adding of the api key. So write that. Check how getBrokerStatus() does the console.log()
+            console.error("Failed to add API key:", error);
             return 500;
         }
     }
 
-    //TODO summarize this into one function, everything but one string are identical in these methods
     async activateApiKey(apiKey) {
-        fetch(this.#brokerUrl + "/api-keys/" + apiKey + "/activate", {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + this.#adminApiKey
-            },
-        })
-            .then(data => window.callVueFunction && window.callVueFunction())
-            .catch(error => console.error("Error:", error)) //TODO Here too
+        return await this.#toggleApiKey(apiKey, "activate");
     }
 
     async deactivateApiKey(apiKey) {
-        fetch(this.#brokerUrl + "/api-keys/" + apiKey + "/deactivate", {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + this.#adminApiKey
-            },
-        })
-            .then(data => window.callVueFunction && window.callVueFunction())
-            .catch(error => console.error("Error:", error)) //TODO Here too
+        return await this.#toggleApiKey(apiKey, "deactivate");
+    }
+
+    async #toggleApiKey(apiKey, action) {
+        try {
+            await fetch(`${this.#brokerUrl}/api-keys/${apiKey}/${action}`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${this.#adminApiKey}`
+                },
+            });
+            if (window.callVueFunction) window.callVueFunction();
+            return response.status;
+        } catch (error) {
+            console.error(`Failed to ${action} API key`, error);
+            return 500;
+        }
     }
 }
+
 export default BrokerConnection;
