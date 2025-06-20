@@ -1,16 +1,23 @@
 class BrokerConnection {
 
-    //TODO make this whole class a Singleton to save memory.
-    //What is a Singleton? -> Google is your friend
-
-
-    //TODO create session to broker
+    static #instance;
 
     #brokerUrl = "http://localhost:8080";
     #adminApiKey = "xxxAdmin1234";
 
+    //TODO create session to broker
+    //TODO make this class a Singleton
+
     getBrokerUrl() {
         return this.#brokerUrl;
+    }
+
+    setBrokerUrl(brokerUrl) {
+        this.#brokerUrl = brokerUrl;
+    }
+
+    setAdminApiKey(adminApiKey) {
+        this.#adminApiKey = adminApiKey;
     }
 
     async getBrokerStatus() {
@@ -19,9 +26,9 @@ class BrokerConnection {
                 method: "GET",
             });
             return response.status;
-        } catch (e) {
-            console.error("Failed to reach broker:", e);
-            return 0;
+        } catch (error) {
+            console.error("Failed to reach broker:", error);
+            return 500;
         }
     }
 
