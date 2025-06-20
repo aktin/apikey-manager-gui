@@ -9,6 +9,7 @@ import { defineProps } from 'vue';
 
 import { useToast } from "primevue/usetoast";
 const toast = useToast();
+const toastLife = 1000 * 5;
 
 const broker = new BrokerConnection();
 
@@ -33,8 +34,15 @@ async function addApikey(){
   {
     const payload = "CN=" + commonNameInput.value + ",O=" + organizationInput.value + ",L=" + locationInput.value;
     const xml_data = "<ApiKeyCred><apiKey>" + apiKeyInput.value + "</apiKey><clientDn>" + payload + "</clientDn></ApiKeyCred>";
-    if(await broker.addApiKeys(xml_data) === 409) {
-      createErrorToast("Api Key already exists");
+    const statusCode = await broker.addApiKeys(xml_data)
+    if(statusCode === 409) {
+      createErrorToast("Conflict","Api Key already exists");
+    }else if(statusCode === 500){
+      createErrorToast("Connection Error","Could not send Api Key. Code:500");
+    }else if(statusCode === 201){
+      createSuccessToast("Api Key has been added")
+    }else{
+      createErrorToast("Unknown Error","An unknown error occurred. Code:"+statusCode);
     }
   }
 }
@@ -42,10 +50,10 @@ async function addApikey(){
 function validateField(value, inputField) {
   const pattern = /[!@#$%^&*(),.?":{}|<>_-]/;
   if (value === '') {
-    createErrorToast(inputField+" cannot be empty");
+    createErrorToast("Input Error",inputField+" cannot be empty");
     return true;
   } else if (pattern.test(value)) {
-    createErrorToast(inputField+" cannot contain special symbols");
+    createErrorToast("Input Error",inputField+" cannot contain special symbols");
     return true;
   }
   return false;
@@ -54,11 +62,11 @@ function validateField(value, inputField) {
 function validate(){
 
   if (apiKeyInput.value.length !== 12) {
-    createErrorToast("Api Key must be 12 characters");
+    createErrorToast("Input Error","Api Key must be 12 characters");
     isApiKeyInvalid.value = true;
 
   } else if (/[!@#$%^&*(),.?":{}|<>_-]/.test(apiKeyInput.value)) {
-    createErrorToast("Api Key cannot contain special symbols");
+    createErrorToast("Input Error","Api Key cannot contain special symbols");
     isApiKeyInvalid.value = true;
 
   } else {
@@ -81,19 +89,13 @@ function validate(){
   );
 }
 
-
-// createValidationErrorToast
-function createErrorToast(detail){
-  toast.add({severity:"error",summary:"Input Error", detail , life:5000})
+function createErrorToast(title,detail){
+  toast.add({severity:"error",summary:title, detail , life:toastLife})
 }
 
-// toastLife = 5000
-//
-//function createErrorToast(title, detail){
-//  toast.add({severity:"error",summary: title, detail , life: toastLife})
-// }
-
-// createSuccessToast
+function createSuccessToast(detail){
+  toast.add({severity:"success",summary:"Success", detail , life:toastLife})
+}
 
 async function changeState()
 {
