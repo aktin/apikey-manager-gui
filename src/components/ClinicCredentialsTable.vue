@@ -48,8 +48,11 @@ onMounted(async () => {
 });
 
 watch(selectedRow, (newVal) => {
-  selectedApiKey.value = newVal?.apiKey || "";
-  selectedApiKey.value += ";" + newVal.isActive;
+  if (newVal) {
+    selectedApiKey.value = `${newVal.apiKey};${newVal.isActive}`;
+  } else {
+    selectedApiKey.value = "";
+  }
   emit("update:selectedApiKey", selectedApiKey.value);
 });
 
@@ -60,8 +63,7 @@ watch(selectedRow, (newVal) => {
   <!-- TODO add filter for api keys -->
   <DataTable v-model:selection="selectedRow"
              :value="apiKeyList"
-             selectionMode="single"
-             :meta-key-selection="false"
+             selectionMode="single" :metaKeySelection="false"
              scrollable
              style="max-height:55rem"
              scroll-height="flex">
