@@ -40,7 +40,6 @@ class BrokerConnection {
                     "Authorization": `Bearer ${this.#adminApiKey}`,
                     "Content-Type": "application/json"
                 },
-                mode: "cors" // TODO Remove me
             });
             const text = await response.text();
             return {
