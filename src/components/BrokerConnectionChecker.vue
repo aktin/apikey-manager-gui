@@ -8,20 +8,27 @@ const status = ref(null);
 
 const emit = defineEmits(["update:isConnected"]);
 
-async function checkConnection() {
-  status.value = await broker.getBrokerStatus();
-  sendConnectionStatus(status.value);
-}
-
 function sendConnectionStatus(statusCode) {
   let isConnected = statusCode === 200;
   emit("update:isConnected", isConnected);
+}
+
+async function checkConnection() {
+  status.value = await broker.getBrokerStatus();
+  sendConnectionStatus(status.value);
 }
 
 onMounted(() => {
   checkConnection();
   setInterval(checkConnection, 1000 * 60);
 });
+
+/*
+//TODO move me into BrokerConnectionChecker
+const loadErrorToast = () => {
+  toast.add({severity: 'error', summary: 'Connection Error', detail: 'Could not retrieve Api Keys. Code:500'});
+};
+ */
 </script>
 
 <template>
