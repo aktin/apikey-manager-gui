@@ -62,7 +62,7 @@ class BrokerConnection {
             return response.status;
         } catch (error) {
             console.error("Error:", error);
-            throw error;
+            return 500;
         }
     }
 
