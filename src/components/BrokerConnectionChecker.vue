@@ -14,7 +14,7 @@ async function checkConnection() {
 }
 
 function sendConnectionStatus(statusCode){
-  var isConnected = statusCode === 200;
+  var isConnected = statusCode === 200; // TODO do not use 'var' in your application. Use either 'let' if the value can change or 'const' if it will not
   emit("update:isConnected", isConnected);
 }
 

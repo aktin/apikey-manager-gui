@@ -16,3 +16,5 @@ const app = createApp(App)
     .use(ToastService)
     .directive("tooltip", Tooltip)
     .mount("#app");
+
+//TODO (Optional) Add locale for 'de' and 'en'
