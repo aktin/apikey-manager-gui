@@ -57,6 +57,7 @@ watch(selectedRow, (newVal) => {
 </script>
 
 <template>
+  <!-- TODO add filter for api keys -->
   <DataTable v-model:selection="selectedRow"
              :value="apiKeyList"
              selectionMode="single"
