@@ -23,6 +23,9 @@ const isCommonNameInvalid = ref(false);
 const isOrganizationInvalid = ref(false);
 const isLocationInvalid = ref(false);
 
+const apiKeyPattern = /[!@#$%^&*(),.?":{}|;<>_-]/;
+const dnPattern = /[!@#$%^&*(),?"{}|<>]/;
+
 const props = defineProps({
   selectedKey: String, connectionStatus: Boolean
 });
@@ -45,14 +48,11 @@ async function addApikey() {
   }
 }
 
-
-//TODO DN should be able to include , ; . : - _
 function validateField(value, inputField) {
-  const pattern = /[!@#$%^&*(),.?":{}|<>_-]/;
   if (value === '') {
     createErrorToast("Input Error", inputField + " cannot be empty");
     return true;
-  } else if (pattern.test(value)) {
+  } else if (dnPattern.test(value)) {
     createErrorToast("Input Error", inputField + " cannot contain special symbols");
     return true;
   }
@@ -65,7 +65,7 @@ function validate() {
     createErrorToast("Input Error", "Api Key must be 12 characters");
     isApiKeyInvalid.value = true;
 
-  } else if (/[!@#$%^&*(),.?":{}|<>_-]/.test(apiKeyInput.value)) {
+  } else if (apiKeyPattern.test(apiKeyInput.value)) {
     createErrorToast("Input Error", "Api Key cannot contain special symbols");
     isApiKeyInvalid.value = true;
 
@@ -163,10 +163,10 @@ function generateApiKey() {
       <div class="flex gap-3 p-3">
         <Button label="add" @click="addApikey()"></Button>
         <div v-if=" props.selectedKey.split(';')[1]  ==='true' " class=" flex align-items-center text-green-600 text-xl">
-          <Button label="deactivate" @click="changeState()"></Button>
+          <Button label="deactivate" @click="changeState()"/>
         </div>
         <div v-else class="flex align-items-center text-red-600 text-xl">
-          <Button label="activate" @click="changeState()"></Button>
+          <Button label="activate" @click="changeState()" :disabled="!(props.selectedKey.split(';')[0])"/>
         </div>
       </div>
     </BlockUI>
