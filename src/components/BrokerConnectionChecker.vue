@@ -13,14 +13,14 @@ async function checkConnection() {
   sendConnectionStatus(status.value);
 }
 
-function sendConnectionStatus(statusCode){
-  var isConnected = statusCode === 200; // TODO do not use 'var' in your application. Use either 'let' if the value can change or 'const' if it will not
+function sendConnectionStatus(statusCode) {
+  let isConnected = statusCode === 200;
   emit("update:isConnected", isConnected);
 }
 
 onMounted(() => {
   checkConnection();
-  setInterval(checkConnection, 1000 * 10 * 6);
+  setInterval(checkConnection, 1000 * 60);
 });
 </script>
 
