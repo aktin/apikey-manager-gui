@@ -3,7 +3,6 @@ import BrokerConnection from './BrokerConnection';
 import 'primeicons/primeicons.css';
 import {onMounted, ref} from 'vue';
 
-
 const status = ref(null);
 
 const emit = defineEmits(["update:isConnected"]);
@@ -23,12 +22,6 @@ onMounted(() => {
   setInterval(checkConnection, 1000 * 60);
 });
 
-/*
-//TODO move me into BrokerConnectionChecker//
-const loadErrorToast = () => {
-  toast.add({severity: 'error', summary: 'Connection Error', detail: 'Could not retrieve Api Keys. Code:500'});
-};
- */
 </script>
 
 <template>

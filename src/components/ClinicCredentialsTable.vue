@@ -5,6 +5,9 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import {FilterMatchMode} from "primevue/api";
 import InputText from "primevue/inputtext";
+import {useToast} from "primevue/usetoast";
+
+const toast = useToast();
 
 const apiKeyList = ref([]);
 const selectedRow = ref(null);
@@ -40,6 +43,9 @@ function formatApiKeyList(textBlock) {
 
 async function fetchAndFormatApiKeyList() {
   let apiKeyList = await BrokerConnection.getApiKeys()
+  if(apiKeyList.status !== 200){
+    toast.add({severity: "error", summary: "Connection Error", detail: "could not load API Keys"})
+  }
   return formatApiKeyList(apiKeyList.data);
 }
 
