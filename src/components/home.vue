@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import { useRouter } from 'vue-router'
 import BrokerConnectionChecker from './BrokerConnectionChecker.vue'
 import ClinicCredentialsForm from "./ClinicCredentialsForm.vue";
 import ClinicCredentialsTable from "./ClinicCredentialsTable.vue";
+import {sharedPassword} from './passwordChanger.js'
 
 const router = useRouter();
+
+const password =ref("")
 
 const selectedApiKey = ref("");
 const isConnected = ref(true);
@@ -19,8 +22,16 @@ const handleConnectionUpdate = (newConnectionStatus) => {
 };
 
 const goToPage = () => {
-  router.push('/login')
+  router.push('/')
 }
+
+onMounted(() => {
+  if(sharedPassword.value==="") {
+    goToPage();
+  }else{
+  }
+});
+
 </script>
 
 <template>
