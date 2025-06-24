@@ -19,6 +19,7 @@ const filters = ref({
 });
 
 function formatApiKeyList(textBlock) {
+  if(!textBlock) return "";
   return textBlock
       .trim()
       .split("\n")

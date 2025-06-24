@@ -1,7 +1,8 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import home from './components/home.vue'
-import login from './components/login.vue'
-import {sharedPassword} from './components/passwordChanger.js'
+import { createRouter, createWebHistory } from "vue-router"
+import home from "./components/home.vue"
+import login from "./components/login.vue"
+import {sharedPassword} from "./components/passwordChanger.js"
+import BrokerConnection from "./components/BrokerConnection.js";
 
 const routes = [
     { path: '/app', component: home },
@@ -14,9 +15,13 @@ const router = createRouter({
 })
 
 export let password = "";
-export function updateValue(newPassword) {
+export function updateLoginValues(newPassword,newURL) {
+
     password = newPassword;
-    console.log("new Password : ",password);
+
+    BrokerConnection.setBrokerUrl(newURL)
+    BrokerConnection.setAdminApiKey(newPassword)
+
     sharedPassword.value = password;
 }
 

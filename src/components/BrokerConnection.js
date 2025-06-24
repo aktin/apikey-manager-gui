@@ -8,8 +8,8 @@ class BrokerConnection {
         BrokerConnection.instance = this;
     }
 
-    #brokerUrl = "http://localhost:8080";
-    #adminApiKey = "xxxAdmin1234";
+    #brokerUrl = ""; //     xxxAdmin1234
+    #adminApiKey = ""; //   http://localhost:8080
 
     //TODO create session to broker
 

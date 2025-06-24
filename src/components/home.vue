@@ -8,8 +8,6 @@ import {sharedPassword} from './passwordChanger.js'
 
 const router = useRouter();
 
-const password =ref("")
-
 const selectedApiKey = ref("");
 const isConnected = ref(true);
 
@@ -44,5 +42,4 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <Button @click="goToPage">go to login</Button>
 </template>

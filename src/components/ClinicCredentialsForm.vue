@@ -101,10 +101,16 @@ async function changeState() {
 
   const selectedApiKey = props.selectedKey.split(";")[0]
 
+  let val = 0;
+
   if (statusOfSelectedApiKey === "false") {
-    await BrokerConnection.activateApiKey(selectedApiKey)
+    val = await BrokerConnection.activateApiKey(selectedApiKey)
   } else if (statusOfSelectedApiKey === "true") {
-    await BrokerConnection.deactivateApiKey(selectedApiKey)
+    val = await BrokerConnection.deactivateApiKey(selectedApiKey)
+  }
+
+  if(val !== 200){
+    createErrorToast("Unknown Error", "An unknown error occurred.");
   }
 }
 
