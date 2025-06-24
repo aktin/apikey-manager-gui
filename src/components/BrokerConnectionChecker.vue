@@ -1,9 +1,9 @@
 <script setup>
-import BrokerConnection from "./BrokerConnection.js";
+import BrokerConnection from './BrokerConnection';
 import 'primeicons/primeicons.css';
 import {onMounted, ref} from 'vue';
 
-const broker = new BrokerConnection();
+
 const status = ref(null);
 
 const emit = defineEmits(["update:isConnected"]);
@@ -14,7 +14,7 @@ function sendConnectionStatus(statusCode) {
 }
 
 async function checkConnection() {
-  status.value = await broker.getBrokerStatus();
+  status.value = await BrokerConnection.getBrokerStatus();
   sendConnectionStatus(status.value);
 }
 
@@ -24,7 +24,7 @@ onMounted(() => {
 });
 
 /*
-//TODO move me into BrokerConnectionChecker
+//TODO move me into BrokerConnectionChecker//
 const loadErrorToast = () => {
   toast.add({severity: 'error', summary: 'Connection Error', detail: 'Could not retrieve Api Keys. Code:500'});
 };
@@ -32,7 +32,7 @@ const loadErrorToast = () => {
 </script>
 
 <template>
-  <div class="flex" v-tooltip.bottom="broker.getBrokerUrl()">
+  <div class="flex" v-tooltip.bottom="BrokerConnection.getBrokerUrl()">
     <div v-if="status === 200" class="flex align-items-center text-green-600 text-xl">
       <i class="pi pi-circle-fill mx-2"/>
       <p class="font-bold">Connected</p>

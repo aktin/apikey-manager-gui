@@ -1,12 +1,17 @@
 class BrokerConnection {
 
-    static #instance;
+    constructor() {
+        if (BrokerConnection.instance) {
+            return BrokerConnection.instance;
+        }
+        this.logs = [];
+        BrokerConnection.instance = this;
+    }
 
     #brokerUrl = "http://localhost:8080";
     #adminApiKey = "xxxAdmin1234";
 
     //TODO create session to broker
-    //TODO make this class a Singleton
 
     getBrokerUrl() {
         return this.#brokerUrl;
@@ -98,4 +103,7 @@ class BrokerConnection {
     }
 }
 
-export default BrokerConnection;
+const connector = new BrokerConnection();
+Object.freeze(connector);
+
+export default connector;

@@ -11,7 +11,6 @@ import {useToast} from "primevue/usetoast";
 const toast = useToast();
 const toastLife = 1000 * 5;
 
-const broker = new BrokerConnection();
 
 const commonNameInput = ref("");
 const apiKeyInput = ref("");
@@ -35,7 +34,7 @@ async function addApikey() {
   if (!isApiKeyInvalid.value && !isCommonNameInvalid.value && !isOrganizationInvalid.value && !isLocationInvalid.value) {
     const payload = "CN=" + commonNameInput.value + ",O=" + organizationInput.value + ",L=" + locationInput.value;
     const xml_data = "<ApiKeyCred><apiKey>" + apiKeyInput.value + "</apiKey><clientDn>" + payload + "</clientDn></ApiKeyCred>";
-    const statusCode = await broker.addApiKeys(xml_data)
+    const statusCode = await BrokerConnection.addApiKeys(xml_data)
     if (statusCode === 409) {
       createErrorToast("Conflict", "Api Key already exists");
     } else if (statusCode === 500) {
@@ -103,9 +102,9 @@ async function changeState() {
   const selectedApiKey = props.selectedKey.split(";")[0]
 
   if (statusOfSelectedApiKey === "false") {
-    await broker.activateApiKey(selectedApiKey)
+    await BrokerConnection.activateApiKey(selectedApiKey)
   } else if (statusOfSelectedApiKey === "true") {
-    await broker.deactivateApiKey(selectedApiKey)
+    await BrokerConnection.deactivateApiKey(selectedApiKey)
   }
 }
 
@@ -129,12 +128,12 @@ function generateApiKey() {
         <div class="p-3 mt-3">
           <FloatLabel>
             <InputText id="apiInput" type="text" class="text-base text-color surface-overlay p-2 input_Field" v-model="apiKeyInput" :invalid="isApiKeyInvalid"/>
-            <label for="apiInput" class="col-fixed">api key</label>
+            <label for="apiInput" class="col-fixed">API Key</label>
           </FloatLabel>
         </div>
       </div>
       <div class="input_Div">
-        <Button @click="generateApiKey()">generate ApiKey</Button>
+        <Button @click="generateApiKey()">generate API Key</Button>
       </div>
       <div class="field grid mt-4 p-3">
         <FloatLabel>

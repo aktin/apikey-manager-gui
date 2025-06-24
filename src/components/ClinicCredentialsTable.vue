@@ -6,7 +6,6 @@ import Column from 'primevue/column';
 import {FilterMatchMode} from "primevue/api";
 import InputText from "primevue/inputtext";
 
-const broker = new BrokerConnection();
 const apiKeyList = ref([]);
 const selectedRow = ref(null);
 const selectedApiKey = ref("");
@@ -40,7 +39,7 @@ function formatApiKeyList(textBlock) {
 }
 
 async function fetchAndFormatApiKeyList() {
-  let apiKeyList = await broker.getApiKeys()
+  let apiKeyList = await BrokerConnection.getApiKeys()
   return formatApiKeyList(apiKeyList.data);
 }
 
