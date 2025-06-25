@@ -93,7 +93,7 @@ watch(selectedRow, (newVal) => {
     <template #header>
       <InputText v-model="filters['global'].value" placeholder="Keyword Search"
                  class="text-base text-color surface-overlay p-2 input_Field"/>
-      <i v-tooltip="'search for:\nCommon name,\nOrganization,\nLocation'" class="pi pi-info-circle p-2"/>
+      <i v-tooltip="'Search only available for Common Name, Organization, Location'" class="pi pi-info-circle p-2"/>
     </template>
     <Column field="apiKey" header="API Key" style="width: 10%"/>
     <Column field="CN" header="Common Name" sortable style="width: 35%"/>

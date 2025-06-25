@@ -5,7 +5,6 @@ import BlockUI from "primevue/blockui";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "./BrokerConnection.js";
-import 'primeicons/primeicons.css'
 
 import {useToast} from "primevue/usetoast";
 
@@ -157,18 +156,20 @@ function generateApiKey() {
 <template>
   <div>
 
-    <div class="field grid mt-3 p-2">
+    <div class="field grid p-2 ml-2">
       <BlockUI class="flex align-items-center justify-content-start" :blocked=!props.connectionStatus>
         <FloatLabel>
           <InputText id="apiInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
                      v-model="apiKeyInput" :invalid="isApiKeyInvalid"/>
           <label for="apiInput" class="col-fixed">API Key</label>
         </FloatLabel>
-        <i v-tooltip="'Generate API Key'" class="pi pi-sync p-2" @click="generateApiKey()"/>
+        <span class="ml-2">
+          <Button v-tooltip="'Generate API Key'" icon="pi pi-sync" @click="generateApiKey()"/>
+        </span>
       </BlockUI>
     </div>
 
-    <div class="field grid p-2">
+    <div class="field grid p-2 ml-2">
       <BlockUI :blocked=!props.connectionStatus>
         <FloatLabel>
           <InputText id="nameInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
@@ -179,7 +180,7 @@ function generateApiKey() {
       </BlockUI>
     </div>
 
-    <div class="field grid p-2">
+    <div class="field grid p-2 ml-2">
       <BlockUI :blocked=!props.connectionStatus>
         <FloatLabel>
           <InputText id="orgInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
@@ -190,13 +191,13 @@ function generateApiKey() {
       </BlockUI>
     </div>
 
-    <div class="field grid p-2">
+    <div class="field grid p-2 ml-2">
       <BlockUI :blocked=!props.connectionStatus>
         <FloatLabel>
           <InputText id="locInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
                      v-model="locationInput"
                      :invalid="isLocationInvalid"/>
-          <label for="locInput">Location</label>
+          <label for="locInput" class="col-fixed">Location</label>
         </FloatLabel>
       </BlockUI>
     </div>

@@ -33,10 +33,10 @@ onMounted(() => {
 <template>
   <div class="m-3">
     <div class="grid">
-      <ClinicCredentialsTable @update:selectedApiKey="handleApiKeyUpdate" class="col-9"/>
-      <div class="col-3">
+      <ClinicCredentialsTable @update:selectedApiKey="handleApiKeyUpdate" class="col-10 surface-200 border-round-md"/>
+      <div class="col-2">
         <BrokerConnectionChecker @update:isConnected="handleConnectionUpdate"/>
-        <ClinicCredentialsForm :selectedKey="selectedApiKey" :connectionStatus="isConnected"/>
+        <ClinicCredentialsForm :selectedKey="selectedApiKey" :connectionStatus="isConnected" class="surface-200 border-round-md"/>
       </div>
     </div>
   </div>

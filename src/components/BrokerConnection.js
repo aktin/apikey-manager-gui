@@ -79,7 +79,7 @@ class BrokerConnection {
                 },
                 body: clinicCredentials
             });
-            if (window.callVueFunction) window.callVueFunction();
+            if (window.callVueFunction) await window.callVueFunction();
             return response.status;
         } catch (error) {
             console.error("Failed to add API key:", error);
@@ -103,7 +103,7 @@ class BrokerConnection {
                     "Authorization": `Bearer ${this.#adminApiKey}`
                 },
             });
-            if (window.callVueFunction) window.callVueFunction();
+            if (window.callVueFunction) await window.callVueFunction();
             return response.status;
         } catch (error) {
             console.error(`Failed to ${action} API key`, error);
