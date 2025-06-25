@@ -109,8 +109,14 @@ async function changeState() {
     val = await BrokerConnection.deactivateApiKey(selectedApiKey)
   }
 
-  if(val !== 200){
-    createErrorToast("Unknown Error", "An unknown error occurred.");
+  switch(val){
+    case 200:
+      break;
+    case 404:
+      createErrorToast("Error", "could not find API Key.");
+      break;
+    default:
+      createErrorToast("Unknown Error", "An unknown error occurred.");
   }
 }
 
