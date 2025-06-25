@@ -3,7 +3,6 @@ import {useRouter} from 'vue-router'
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import {onMounted, ref} from "vue";
-import {updateLoginValues} from '../router.js';
 import Password from 'primevue/password';
 import BrokerConnection from "./BrokerConnection.js";
 import Button from "primevue/button";
@@ -23,8 +22,7 @@ function logIn() {
 }
 
 function validateInput() {
-  if (BrokerConnection.getCredentials().key === "xxxAdmin1234") {
-    updateLoginValues(BrokerConnection.getCredentials().key)
+  if (BrokerConnection.getCredentials().key !== "") {
     goToPage();
   }
 }
@@ -40,7 +38,7 @@ onMounted(() => {
     <div class="p-3 mt-3">
       <FloatLabel>
         <Password id="passwordInput" v-model="password" size="small" toggleMask :feedback="false"/>
-        <label for="passwordInput" class="col-fixed">Password</label>
+        <label for="passwordInput" class="col-fixed">Admin API Key</label>
       </FloatLabel>
     </div>
   </div>

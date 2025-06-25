@@ -44,10 +44,19 @@ function formatApiKeyList(textBlock) {
 
 async function fetchAndFormatApiKeyList() {
   let apiKeyList = await BrokerConnection.getApiKeys()
-  if (apiKeyList.status !== 200) {
-    toast.add({severity: "error", summary: "Connection Error", detail: "could not load API Keys"})
+
+  switch (apiKeyList.status) {
+    case 200:
+      return formatApiKeyList(apiKeyList.data);
+    case 404:
+      toast.add({severity: "error", summary: "Error", detail: "could not find API Keys"})
+      break;
+    case 401:
+      toast.add({severity: "error", summary: "Access Denied", detail: "You are not authorized to view API Keys"})
+      break;
+    default:
+      toast.add({severity: "error", summary: "Connection Error", detail: "could not load API Keys"})
   }
-  return formatApiKeyList(apiKeyList.data);
 }
 
 async function updateApiKeyList() {
@@ -84,6 +93,7 @@ watch(selectedRow, (newVal) => {
     <template #header>
       <InputText v-model="filters['global'].value" placeholder="Keyword Search"
                  class="text-base text-color surface-overlay p-2 input_Field"/>
+      <i v-tooltip="'search for:\nCommon name,\nOrganization,\nLocation'" class="pi pi-info-circle p-2"/>
     </template>
     <Column field="apiKey" header="API Key" style="width: 10%"/>
     <Column field="CN" header="Common Name" sortable style="width: 35%"/>

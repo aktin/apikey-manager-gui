@@ -4,7 +4,7 @@ import {useRouter} from 'vue-router'
 import BrokerConnectionChecker from './BrokerConnectionChecker.vue'
 import ClinicCredentialsForm from "./ClinicCredentialsForm.vue";
 import ClinicCredentialsTable from "./ClinicCredentialsTable.vue";
-import {sharedPassword} from './passwordChanger.js'
+import BrokerConnection from "./BrokerConnection";
 
 const router = useRouter();
 
@@ -24,7 +24,7 @@ const goToPage = () => {
 }
 
 onMounted(() => {
-  if (sharedPassword.value === "") {
+  if (BrokerConnection.getCredentials().key === "") {
     goToPage();
   }
 });
@@ -34,9 +34,9 @@ onMounted(() => {
 <template>
   <div class="m-3">
     <div class="grid">
-      <ClinicCredentialsTable @update:selectedApiKey="handleApiKeyUpdate" class="col-9 border-1"/>
+      <ClinicCredentialsTable @update:selectedApiKey="handleApiKeyUpdate" class="col-9"/>
       <div class="col-3">
-        <BrokerConnectionChecker @update:isConnected="handleConnectionUpdate" class="border-1"/>
+        <BrokerConnectionChecker @update:isConnected="handleConnectionUpdate"/>
         <ClinicCredentialsForm :selectedKey="selectedApiKey" :connectionStatus="isConnected"/>
       </div>
     </div>

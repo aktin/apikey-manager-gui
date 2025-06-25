@@ -5,6 +5,7 @@ import BlockUI from "primevue/blockui";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "./BrokerConnection.js";
+import 'primeicons/primeicons.css'
 
 import {useToast} from "primevue/usetoast";
 
@@ -35,56 +36,67 @@ async function addApikey() {
     const payload = "CN=" + commonNameInput.value + ",O=" + organizationInput.value + ",L=" + locationInput.value;
     const xml_data = "<ApiKeyCred><apiKey>" + apiKeyInput.value + "</apiKey><clientDn>" + payload + "</clientDn></ApiKeyCred>";
     const statusCode = await BrokerConnection.addApiKeys(xml_data)
-    if (statusCode === 409) {
-      createErrorToast("Conflict", "Api Key already exists");
-    } else if (statusCode === 500) {
-      createErrorToast("Connection Error", "Could not send Api Key. Code:500");
-    } else if (statusCode === 201) {
-      createSuccessToast("Api Key has been added")
-    } else {
-      createErrorToast("Unknown Error", "An unknown error occurred. Code:" + statusCode);
+
+    switch (statusCode) {
+      case 201:
+        createSuccessToast("API Key has been added")
+        break;
+      case 404:
+        createErrorToast("Error", "could not find list to add API Key in.");
+        break;
+      case 401:
+        createErrorToast("Access Denied", "You are not authorized to perform this action.");
+        break;
+      case 409:
+        createErrorToast("Conflict", "API Key already exists");
+        break;
+      case 500:
+        createErrorToast("Connection Error", "Could not reach Server.");
+        break;
+      default:
+        createErrorToast("Unexpected Error", "An unexpected error occurred. Code:" + statusCode);
     }
   }
 }
 
-function validateField(value, inputField) {
-  if (value === '') {
-    createErrorToast("Input Error", inputField + " cannot be empty");
+function validateField(value, label, pattern) {
+  if (value.trim() === "") {
+    createErrorToast("Input Error", `${label} cannot be empty`);
     return true;
-  } else if (dnPattern.test(value)) {
-    createErrorToast("Input Error", inputField + " cannot contain special symbols");
+  }
+  if (pattern.test(value)) {
+    createErrorToast("Input Error", `${label} cannot contain special characters`);
     return true;
   }
   return false;
 }
 
 function validate() {
-
+  isApiKeyInvalid.value = false;
   if (apiKeyInput.value.length !== 12) {
-    createErrorToast("Input Error", "Api Key must be 12 characters");
+    createErrorToast("Input Error", "API Key must be 12 characters");
     isApiKeyInvalid.value = true;
-
   } else if (apiKeyPattern.test(apiKeyInput.value)) {
-    createErrorToast("Input Error", "Api Key cannot contain special symbols");
+    createErrorToast("Input Error", "API Key cannot contain special characters");
     isApiKeyInvalid.value = true;
-
-  } else {
-    isApiKeyInvalid.value = false;
   }
+
+  isOrganizationInvalid.value = validateField(
+      organizationInput.value,
+      "Organization",
+      apiKeyPattern
+  );
 
   isCommonNameInvalid.value = validateField(
       commonNameInput.value,
       "Common name",
-  );
-
-  isOrganizationInvalid.value = validateField(
-      organizationInput.value,
-      "Organization"
+      dnPattern
   );
 
   isLocationInvalid.value = validateField(
       locationInput.value,
-      "Location"
+      "Location",
+      dnPattern
   );
 }
 
@@ -111,12 +123,23 @@ async function changeState() {
 
   switch (val) {
     case 200:
+      if (statusOfSelectedApiKey === "false") {
+        createSuccessToast("API Key has been activated")
+      } else {
+        createSuccessToast("API Key has been deactivated")
+      }
       break;
     case 404:
       createErrorToast("Error", "could not find API Key.");
       break;
+    case 401:
+      createErrorToast("Access Denied", "You are not authorized to perform this action.");
+      break;
+    case 500:
+      createErrorToast("Connection Error", "Could not reach Server.");
+      break;
     default:
-      createErrorToast("Unknown Error", "An unknown error occurred.");
+      createErrorToast("Unexpected Error", "An unexpected error occurred. Code:"+val);
   }
 }
 
@@ -132,60 +155,65 @@ function generateApiKey() {
 </script>
 
 <template>
-  <div class="bg-gray-300">
+  <div>
 
-    <BlockUI :blocked=!props.connectionStatus>
+    <div class="field grid mt-3 p-2">
+      <BlockUI class="flex align-items-center justify-content-start" :blocked=!props.connectionStatus>
+        <FloatLabel>
+          <InputText id="apiInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+                     v-model="apiKeyInput" :invalid="isApiKeyInvalid"/>
+          <label for="apiInput" class="col-fixed">API Key</label>
+        </FloatLabel>
+        <i v-tooltip="'Generate API Key'" class="pi pi-sync p-2" @click="generateApiKey()"/>
+      </BlockUI>
+    </div>
 
-      <div class="field grid">
-        <div class="p-3 mt-3">
-          <FloatLabel>
-            <InputText id="apiInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
-                       v-model="apiKeyInput" :invalid="isApiKeyInvalid"/>
-            <label for="apiInput" class="col-fixed">API Key</label>
-          </FloatLabel>
-        </div>
-      </div>
-      <div class="input_Div">
-        <Button @click="generateApiKey()">generate API Key</Button>
-      </div>
-      <div class="field grid mt-4 p-3">
+    <div class="field grid p-2">
+      <BlockUI :blocked=!props.connectionStatus>
         <FloatLabel>
           <InputText id="nameInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
                      v-model="commonNameInput"
                      :invalid="isCommonNameInvalid"/>
-          <label for="nameInput" class="col-fixed">common name</label>
+          <label for="nameInput" class="col-fixed">Common Name</label>
         </FloatLabel>
-      </div>
+      </BlockUI>
+    </div>
 
-      <div class="field grid p-3">
+    <div class="field grid p-2">
+      <BlockUI :blocked=!props.connectionStatus>
         <FloatLabel>
           <InputText id="orgInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
                      v-model="organizationInput"
                      :invalid="isOrganizationInvalid"/>
-          <label for="orgInput" class="col-fixed">organization</label>
+          <label for="orgInput" class="col-fixed">Organization</label>
         </FloatLabel>
-      </div>
+      </BlockUI>
+    </div>
 
-      <div class="field grid p-3">
+    <div class="field grid p-2">
+      <BlockUI :blocked=!props.connectionStatus>
         <FloatLabel>
           <InputText id="locInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
                      v-model="locationInput"
                      :invalid="isLocationInvalid"/>
-          <label for="locInput">location</label>
+          <label for="locInput">Location</label>
         </FloatLabel>
-      </div>
+      </BlockUI>
+    </div>
 
-      <div class="flex gap-3 p-3">
-        <Button label="add" @click="addApikey()"></Button>
+    <div class="flex">
+      <BlockUI :blocked=!props.connectionStatus class="flex gap-3 p-3">
+        <Button label="Add" @click="addApikey()"></Button>
         <div v-if=" props.selectedKey.split(';')[1]  ==='true' "
              class=" flex align-items-center text-green-600 text-xl">
-          <Button label="deactivate" @click="changeState()"/>
+          <Button label="Deactivate" @click="changeState()"/>
         </div>
         <div v-else class="flex align-items-center text-red-600 text-xl">
-          <Button label="activate" @click="changeState()" :disabled="!(props.selectedKey.split(';')[0])"/>
+          <Button label="Activate" @click="changeState()" :disabled="!(props.selectedKey.split(';')[0])"/>
         </div>
-      </div>
-    </BlockUI>
+      </BlockUI>
+    </div>
+
   </div>
 </template>
 
