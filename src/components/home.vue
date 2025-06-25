@@ -26,7 +26,6 @@ const goToPage = () => {
 onMounted(() => {
   if(sharedPassword.value==="") {
     goToPage();
-  }else{
   }
 });
 
