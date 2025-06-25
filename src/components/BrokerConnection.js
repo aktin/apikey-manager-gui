@@ -13,6 +13,9 @@ class BrokerConnection {
         BrokerConnection.instance = this;
     }
 
+    #brokerURL = "";
+    #adminApiKey = "";
+
     setCredentials(url, key) {
         this.credentials.brokerUrl = url;
         this.credentials.adminApiKey = key;
@@ -22,6 +25,9 @@ class BrokerConnection {
             this.credentials.brokerUrl = '';
             this.credentials.adminApiKey = '';
         }, 5 * 60 * 1000);
+
+        this.#brokerURL = this.credentials.brokerUrl;
+        this.#adminApiKey = this.credentials.adminApiKey;
     }
 
     //     xxxAdmin1234
@@ -33,7 +39,7 @@ class BrokerConnection {
 
     async getBrokerStatus() {
         try {
-            const response = await fetch(`${this.credentials.brokerUrl}/broker/status`, {
+            const response = await fetch(`${this.#brokerURL}/broker/status`, {
                 method: "GET",
             });
             return response.status;
@@ -45,17 +51,17 @@ class BrokerConnection {
 
     async getApiKeys() {
         try {
-            const response = await fetch(`${this.credentials.brokerUrl}/api-keys`, {
+            const response = await fetch(`${this.#brokerURL}/api-keys`, {
                 method: "GET",
                 headers: {
-                    "Authorization": `Bearer ${this.credentials.adminApiKey}`,
+                    "Authorization": `Bearer ${this.#adminApiKey}`,
                     "Content-Type": "application/json"
                 },
             });
             const text = await response.text();
             return {
                 status: response.status,
-                data: text
+                data: text,
             };
         } catch (error) {
             console.error("Failed to fetch API keys:", error);
@@ -68,10 +74,10 @@ class BrokerConnection {
 
     async addApiKeys(clinicCredentials) {
         try {
-            const response = await fetch(`${this.credentials.brokerUrl}/api-keys`, {
+            const response = await fetch(`${this.#brokerURL}/api-keys`, {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${this.credentials.adminApiKey}`,
+                    "Authorization": `Bearer ${this.#adminApiKey}`,
                     "Content-Type": "application/xml"
                 },
                 body: clinicCredentials
@@ -94,10 +100,10 @@ class BrokerConnection {
 
     async #toggleApiKey(apiKey, action) {
         try {
-            const response = await fetch(`${this.credentials.brokerUrl}/api-keys/${apiKey}/${action}`, {
+            const response = await fetch(`${this.#brokerURL}/api-keys/${apiKey}/${action}`, {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${this.credentials.adminApiKey}`
+                    "Authorization": `Bearer ${this.#adminApiKey}`
                 },
             });
             if (window.callVueFunction) window.callVueFunction();
