@@ -30,9 +30,6 @@ class BrokerConnection {
         this.#adminApiKey = this.credentials.adminApiKey;
     }
 
-    //     xxxAdmin1234
-    //   http://localhost:8080
-
     getCredentials() {
         return {url: this.credentials.brokerUrl, key: this.credentials.adminApiKey}
     }

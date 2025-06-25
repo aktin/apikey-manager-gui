@@ -28,7 +28,6 @@ onMounted(() => {
     goToPage();
   }
 });
-
 </script>
 
 <template>

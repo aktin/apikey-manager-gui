@@ -139,7 +139,7 @@ async function changeState() {
       createErrorToast("Connection Error", "Could not reach Server.");
       break;
     default:
-      createErrorToast("Unexpected Error", "An unexpected error occurred. Code:"+val);
+      createErrorToast("Unexpected Error", "An unexpected error occurred. Code:" + val);
   }
 }
 
