@@ -16,17 +16,24 @@ const goToPage = () => {
   router.push('/app')
 }
 
+function logIn(){
+  setCookie("password",password.value,5)
+  setCookie("url",url.value,5)
+  validateInput()
+}
+
 function validateInput(){
   if (password.value === "xxxAdmin1234" && url.value!="") {
     updateLoginValues(password.value , url.value)
-    setCookie("password",password.value)
-    setCookie("url",url.value)
     goToPage();
   }
 }
 
-function setCookie(key: string, value: string) {
-  document.cookie = key + "=" + value
+function setCookie(key: string, value: string,exdays) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays*60*1000));
+  let expires = "expires="+ d.toUTCString();
+  document.cookie = key + "=" + value + ";" + expires + ";secure"
 }
 
 function getCookie(key) {
@@ -80,7 +87,7 @@ onMounted(() => {
     </div>
 
     <div class="field grid p-3 flex justify-content-center flex-wrap">
-      <Button @click="validateInput">log in</Button>
+      <Button @click="logIn">log in</Button>
     </div>
 
 </template>
