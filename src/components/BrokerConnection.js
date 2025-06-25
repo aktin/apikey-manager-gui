@@ -88,7 +88,7 @@ class BrokerConnection {
 
     async #toggleApiKey(apiKey, action) {
         try {
-            await fetch(`${this.#brokerUrl}/api-keys/${apiKey}/${action}`, {
+            const response = await fetch(`${this.#brokerUrl}/api-keys/${apiKey}/${action}`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${this.#adminApiKey}`
