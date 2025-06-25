@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
-import { useRouter } from 'vue-router'
+import {useRouter} from 'vue-router'
 import BrokerConnectionChecker from './BrokerConnectionChecker.vue'
 import ClinicCredentialsForm from "./ClinicCredentialsForm.vue";
 import ClinicCredentialsTable from "./ClinicCredentialsTable.vue";
@@ -24,7 +24,7 @@ const goToPage = () => {
 }
 
 onMounted(() => {
-  if(sharedPassword.value==="") {
+  if (sharedPassword.value === "") {
     goToPage();
   }
 });

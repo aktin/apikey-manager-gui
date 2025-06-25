@@ -109,7 +109,7 @@ async function changeState() {
     val = await BrokerConnection.deactivateApiKey(selectedApiKey)
   }
 
-  switch(val){
+  switch (val) {
     case 200:
       break;
     case 404:
@@ -139,7 +139,8 @@ function generateApiKey() {
       <div class="field grid">
         <div class="p-3 mt-3">
           <FloatLabel>
-            <InputText id="apiInput" type="text" class="text-base text-color surface-overlay p-2 input_Field" v-model="apiKeyInput" :invalid="isApiKeyInvalid"/>
+            <InputText id="apiInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+                       v-model="apiKeyInput" :invalid="isApiKeyInvalid"/>
             <label for="apiInput" class="col-fixed">API Key</label>
           </FloatLabel>
         </div>
@@ -149,7 +150,8 @@ function generateApiKey() {
       </div>
       <div class="field grid mt-4 p-3">
         <FloatLabel>
-          <InputText id="nameInput" type="text" class="text-base text-color surface-overlay p-2 input_Field" v-model="commonNameInput"
+          <InputText id="nameInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+                     v-model="commonNameInput"
                      :invalid="isCommonNameInvalid"/>
           <label for="nameInput" class="col-fixed">common name</label>
         </FloatLabel>
@@ -157,7 +159,8 @@ function generateApiKey() {
 
       <div class="field grid p-3">
         <FloatLabel>
-          <InputText id="orgInput" type="text" class="text-base text-color surface-overlay p-2 input_Field" v-model="organizationInput"
+          <InputText id="orgInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+                     v-model="organizationInput"
                      :invalid="isOrganizationInvalid"/>
           <label for="orgInput" class="col-fixed">organization</label>
         </FloatLabel>
@@ -165,7 +168,8 @@ function generateApiKey() {
 
       <div class="field grid p-3">
         <FloatLabel>
-          <InputText id="locInput" type="text" class="text-base text-color surface-overlay p-2 input_Field" v-model="locationInput"
+          <InputText id="locInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+                     v-model="locationInput"
                      :invalid="isLocationInvalid"/>
           <label for="locInput">location</label>
         </FloatLabel>
@@ -173,7 +177,8 @@ function generateApiKey() {
 
       <div class="flex gap-3 p-3">
         <Button label="add" @click="addApikey()"></Button>
-        <div v-if=" props.selectedKey.split(';')[1]  ==='true' " class=" flex align-items-center text-green-600 text-xl">
+        <div v-if=" props.selectedKey.split(';')[1]  ==='true' "
+             class=" flex align-items-center text-green-600 text-xl">
           <Button label="deactivate" @click="changeState()"/>
         </div>
         <div v-else class="flex align-items-center text-red-600 text-xl">

@@ -1,11 +1,11 @@
-import { createRouter, createWebHistory } from "vue-router"
+import {createRouter, createWebHistory} from "vue-router"
 import home from "./components/home.vue"
 import login from "./components/login.vue"
 import {sharedPassword} from "./components/passwordChanger.js"
 
 const routes = [
-    { path: '/app', component: home },
-    { path: '/', component: login }
+    {path: '/app', component: home},
+    {path: '/', component: login}
 ]
 
 const router = createRouter({

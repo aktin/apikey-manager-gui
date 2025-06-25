@@ -23,14 +23,13 @@ class BrokerConnection {
             this.credentials.adminApiKey = '';
         }, 5 * 60 * 1000);
     }
- //     xxxAdmin1234
- //   http://localhost:8080
+
+    //     xxxAdmin1234
+    //   http://localhost:8080
 
     getCredentials() {
-        return {url:this.credentials.brokerUrl , key: this.credentials.adminApiKey}
+        return {url: this.credentials.brokerUrl, key: this.credentials.adminApiKey}
     }
-
-    //TODO create session to broker
 
     async getBrokerStatus() {
         try {

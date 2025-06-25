@@ -15,11 +15,11 @@ const selectedApiKey = ref("");
 const emit = defineEmits(["update:selectedApiKey"]);
 
 const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  global: {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 
 function formatApiKeyList(textBlock) {
-  if(!textBlock) return "";
+  if (!textBlock) return "";
   return textBlock
       .trim()
       .split("\n")
@@ -44,7 +44,7 @@ function formatApiKeyList(textBlock) {
 
 async function fetchAndFormatApiKeyList() {
   let apiKeyList = await BrokerConnection.getApiKeys()
-  if(apiKeyList.status !== 200){
+  if (apiKeyList.status !== 200) {
     toast.add({severity: "error", summary: "Connection Error", detail: "could not load API Keys"})
   }
   return formatApiKeyList(apiKeyList.data);
@@ -82,17 +82,19 @@ watch(selectedRow, (newVal) => {
              filterDisplay="row">
     <template #empty>No API Keys found</template>
     <template #header>
-          <InputText v-model="filters['global'].value" placeholder="Keyword Search" class="text-base text-color surface-overlay p-2 input_Field"/>
+      <InputText v-model="filters['global'].value" placeholder="Keyword Search"
+                 class="text-base text-color surface-overlay p-2 input_Field"/>
     </template>
     <Column field="apiKey" header="API Key" style="width: 10%"/>
     <Column field="CN" header="Common Name" sortable style="width: 35%"/>
     <Column field="O" header="Organization" sortable style="width: 35%"/>
     <Column field="L" header="Location" sortable style="width: 10%"/>
-    <Column field="aktive" header="Status" sortable style="width: 10%">
+    <Column field="aktive" header="Status" style="width: 10%">
       <template #body="{ data }">
         <div class="flex justify-content-center">
           <i v-if="data.isActive === true" v-tooltip="'API Key is active'" class="pi pi-check-circle text-green-500"/>
-          <i v-else-if="data.isActive === false" v-tooltip="'API Key is inactive'" class="pi pi-times-circle text-red-500"/>
+          <i v-else-if="data.isActive === false" v-tooltip="'API Key is inactive'"
+             class="pi pi-times-circle text-red-500"/>
           <i v-else v-tooltip="'Status unknown'" class="pi pi-question-circle text-gray-400"/>
         </div>
       </template>
