@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {defineProps, ref} from "vue";
+import {computed, defineProps, ref} from "vue";
 import Button from "primevue/button";
 import BlockUI from "primevue/blockui";
 import InputText from "primevue/inputtext";
@@ -28,6 +28,10 @@ const dnPattern = /[!@#$%^&*(),?"{}|<>]/;
 const props = defineProps({
   selectedKey: String, connectionStatus: Boolean
 });
+
+const isChangeStateButtonActive = computed(() =>
+    props.selectedKey !== '' && props.connectionStatus
+);
 
 async function addApikey() {
   validate();
@@ -202,17 +206,15 @@ function generateApiKey() {
       </BlockUI>
     </div>
 
-    <div class="flex">
-      <BlockUI :blocked=!props.connectionStatus class="flex gap-3 p-3">
-        <Button label="Add" @click="addApikey()"></Button>
+    <div class="flex gap-3 p-3">
+        <Button label="Add" @click="addApikey()" :disabled="!props.connectionStatus"></Button>
         <div v-if=" props.selectedKey.split(';')[1]  ==='true' "
              class=" flex align-items-center text-green-600 text-xl">
-          <Button label="Deactivate" @click="changeState()"/>
+          <Button label="Deactivate" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
         </div>
         <div v-else class="flex align-items-center text-red-600 text-xl">
-          <Button label="Activate" @click="changeState()" :disabled="!(props.selectedKey.split(';')[0])"/>
+          <Button label="Activate" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
         </div>
-      </BlockUI>
     </div>
 
   </div>
