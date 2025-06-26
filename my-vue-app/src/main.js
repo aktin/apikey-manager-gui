@@ -23,6 +23,24 @@ const createWindow = () => {
     } else {
         mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
     }
+
+    mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
+        (details, callback) => {
+            callback({ requestHeaders: { Origin: '*', ...details.requestHeaders } });
+        },
+    );
+
+    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+        callback({
+            responseHeaders: {
+                'Access-Control-Allow-Origin': ['*'],
+                // We use this to bypass headers
+                'Access-Control-Allow-Headers': ['*'],
+                ...details.responseHeaders,
+            },
+        });
+    });
+
 };
 
 // This method will be called when Electron has finished
