@@ -12,10 +12,7 @@
     "lint": "echo \"No linting configured\""
   },
   "keywords": [],
-  "author": {
-    "name": "kombeizD",
-    "email": "kombeiz.daniel@gmail.com"
-  },
+  "author": "anonym",
   "license": "MIT",
   "devDependencies": {
     "@electron-forge/cli": "^7.8.1",
