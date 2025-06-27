@@ -1,6 +1,5 @@
 {
-  "name": "my-vue-app",
-  "productName": "my-vue-app",
+  "name": "apikey-manager-gui",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
@@ -29,7 +28,9 @@
     "primeicons": "^7.0.0",
     "primevue": "^3.53.1",
     "vue": "^3.5.17",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "vite": "^6.3.5"
   },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.1"
