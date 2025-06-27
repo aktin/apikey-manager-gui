@@ -5,6 +5,9 @@ import BlockUI from "primevue/blockui";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "./BrokerConnection.js";
+import Store from 'electron-store';
+
+const store = new Store();
 
 import {useToast} from "primevue/usetoast";
 
@@ -24,6 +27,8 @@ const isLocationInvalid = ref(false);
 
 const apiKeyPattern = /[!@#$%^&*(),.?":{}|;<>_-]/;
 const dnPattern = /[!@#$%^&*(),?"{}|<>]/;
+
+const codes = ref("");
 
 const props = defineProps({
   selectedKey: String, connectionStatus: Boolean
@@ -155,6 +160,12 @@ function generateApiKey() {
   apiKeyInput.value = key;
 }
 
+function saver(){
+  store.set('data', codes);
+}
+function loader(){
+  console.log("stored data :",store.get("data"))
+}
 </script>
 
 <template>
@@ -218,6 +229,11 @@ function generateApiKey() {
     </div>
 
   </div>
+
+  <InputText id="code" v-model="codes"></InputText>
+  <label for="code">enter text</label>
+  <Button @click="saver">save</Button>
+  <Button @click="loader">load</Button>
 </template>
 
 <style scoped>
