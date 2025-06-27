@@ -44,20 +44,20 @@ onMounted(() => {
 <template>
   <div class="flex align-items-baseline justify-content-between">
 
-    <div v-if="status === 200" class="flex align-items-center text-green-600 text-xl" v-tooltip="BrokerConnection.getCredentials().url">
+    <div v-if="status === 200" class="flex align-items-center text-green-600 text-xl" v-tooltip.left="BrokerConnection.getCredentials().url">
       <i class="pi pi-circle-fill mx-2"/>
       <p class="font-bold">Connected</p>
     </div>
 
-    <div v-else class="flex align-items-center text-red-600 text-xl" v-tooltip="BrokerConnection.getCredentials().url">
+    <div v-else class="flex align-items-center text-red-600 text-xl" v-tooltip.left="BrokerConnection.getCredentials().url">
       <i class="pi pi-circle-fill mx-2"/>
       <p class="font-bold">No Connection</p>
     </div>
 
-    <span class="pi pi-cog p-3 text-2xl" @click="visible = true"/>
+    <span class="pi pi-cog p-3 text-2xl" @click="visible = true" v-tooltip.left="'Set Credentials'"/>
   </div>
 
-  <Dialog v-model:visible="visible" modal header="Edit Profile" :style="{ width: '25rem' }">
+  <Dialog v-model:visible="visible" modal header="Edit Credentials" :style="{ width: '25rem' }">
     <div class="field grid flex justify-content-center flex-wrap">
       <div class="p-3 mt-3">
         <FloatLabel>
@@ -75,7 +75,7 @@ onMounted(() => {
     </div>
 
     <div class="field grid p-3 flex justify-content-center flex-wrap">
-      <Button @click="logIn">log in</Button>
+      <Button @click="logIn">Set</Button>
     </div>
   </Dialog>
 </template>

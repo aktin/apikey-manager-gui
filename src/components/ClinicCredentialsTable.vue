@@ -64,7 +64,6 @@ async function updateApiKeyList() {
 }
 
 onMounted(async () => {
-  await updateApiKeyList();
   window.callVueFunction = updateApiKeyList;
 });
 
