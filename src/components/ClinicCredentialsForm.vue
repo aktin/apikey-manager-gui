@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, defineProps, onMounted, ref} from "vue";
+import {computed, defineProps, ref} from "vue";
 import Button from "primevue/button";
 import BlockUI from "primevue/blockui";
 import InputText from "primevue/inputtext";
@@ -157,14 +157,12 @@ function generateApiKey() {
   apiKeyInput.value = key;
 }
 
-const username = ref('');
-
-onMounted(async () => {
-  username.value = await window.storeAPI.get('username') || '';
-});
-
-function saveUsername() {
-  window.storeAPI.set('username', username.value);
+function saver() {
+  window.storeAPI.set('username', codes.value);
+}
+async function loader() {
+  const AAA = await window.storeAPI.get('username');
+  console.log(AAA)
 }
 
 
