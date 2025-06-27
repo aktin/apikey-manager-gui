@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="updated dependencies" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+        <option value="JavaScript File" />
+        <option value="Vue Composition API Component" />
+        <option value="HTML File" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="vue-rework" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;kombeizD&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/aktin/apikey-manager-gui.git&quot;,
+    &quot;accountId&quot;: &quot;0ed29705-3a7a-4f7c-ac0f-18b0a0168de1&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2y2IDlEktKbyFuk6BWao0W2ObLM" />
+  <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Node.js.main.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.nodejs.js.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for AddApiKeyTestCase.AddApiKeyTestCase.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for AddApiKeyTestCase.AddApiKeyTestCase.test_add_api_key.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for AddApiKeyTestCase.AddApiKeyTestCase.test_add_api_key_with_empty_api_key.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for AddApiKeyTestCase.AddApiKeyTestCase.test_add_api_key_with_no_api_key.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for AddApiKeyTestCase.AddApiKeyTestCase.test_add_api_key_with_no_client_dn.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests in AddApiKeyTestCase.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ApiKeyManager.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ApikeyManager.executor&quot;: &quot;Run&quot;,
+    &quot;Python.temporaryFile.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;electron&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;22.16.0&quot;,
+    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;22.15.33&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/IMI/PycharmProjects/apikey-manager-gui/my-vue-app/node_modules&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.build.executor&quot;: &quot;Run&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;ECMA Script Level 4&quot;
+    ],
+    &quot;vue.recent.templates&quot;: [
+      &quot;Vue Composition API Component&quot;
+    ]
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\IMI\PycharmProjects\apikey-manager-gui\my-vue-app\node_modules" />
+      <recent name="C:\Users\IMI\PycharmProjects\apikey-manager-gui\my-vue-app" />
+      <recent name="C:\Users\IMI\PycharmProjects\apikey-manager-gui\src" />
+      <recent name="C:\Users\IMI\PycharmProjects\apikey-manager-gui\vue-electron-app\src\components" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\IMI\PycharmProjects\apikey-manager-gui" />
+      <recent name="C:\Users\IMI\PycharmProjects\apikey-manager-gui\my-vue-app" />
+      <recent name="C:\Users\IMI\PycharmProjects\apikey-manager-gui\my-vue-app\src" />
+      <recent name="C:\Users\IMI\PycharmProjects\apikey-manager-gui\vue-electron-app\src" />
+      <recent name="C:\Users\IMI\PycharmProjects\apikey-manager-gui\src\components" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Node.js.nodejs.js">
+    <configuration name="nodejs.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/nodejs.js" working-dir="$PROJECT_DIR$">
+      <method v="2" />
+    </configuration>
+    <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="build" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.build" />
+        <item itemvalue="Node.js.nodejs.js" />
+        <item itemvalue="npm.build" />
+        <item itemvalue="Node.js.nodejs.js" />
+        <item itemvalue="Node.js.nodejs.js" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-WS-251.26094.131" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="" />
+      <created>1749026123832</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1749026123832</updated>
+      <workItem from="1749026125299" duration="17502000" />
+      <workItem from="1749105306126" duration="7873000" />
+      <workItem from="1749113428732" duration="19323000" />
+      <workItem from="1749134730307" duration="161000" />
+      <workItem from="1749192032231" duration="19055000" />
+      <workItem from="1749539175686" duration="42988000" />
+      <workItem from="1749711703156" duration="1792000" />
+      <workItem from="1749713680593" duration="2305000" />
+      <workItem from="1749726411650" duration="844000" />
+      <workItem from="1749729659488" duration="100000" />
+      <workItem from="1749730993176" duration="81000" />
+      <workItem from="1749734240926" duration="6582000" />
+      <workItem from="1749799156388" duration="23069000" />
+      <workItem from="1750059194501" duration="23175000" />
+      <workItem from="1750143517900" duration="19011000" />
+      <workItem from="1750230327569" duration="20494000" />
+      <workItem from="1750403761393" duration="14986000" />
+      <workItem from="1750749379690" duration="21241000" />
+      <workItem from="1750835127627" duration="26149000" />
+      <workItem from="1750921230529" duration="15434000" />
+      <workItem from="1750937933237" duration="716000" />
+      <workItem from="1750938702537" duration="797000" />
+      <workItem from="1750939537904" duration="227000" />
+      <workItem from="1750939784955" duration="9970000" />
+      <workItem from="1751007690248" duration="1425000" />
+    </task>
+    <task id="LOCAL-00071" summary="removed mode:cors">
+      <option name="closed" value="true" />
+      <created>1750421153496</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1750421153496</updated>
+    </task>
+    <task id="LOCAL-00072" summary="turned BrokerConnection.js into singleton">
+      <option name="closed" value="true" />
+      <created>1750751139153</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1750751139154</updated>
+    </task>
+    <task id="LOCAL-00073" summary="created router">
+      <option name="closed" value="true" />
+      <created>1750753342282</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1750753342282</updated>
+    </task>
+    <task id="LOCAL-00074" summary="finished ToDo">
+      <option name="closed" value="true" />
+      <created>1750756003344</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1750756003344</updated>
+    </task>
+    <task id="LOCAL-00075" summary="added routing to other page">
+      <option name="closed" value="true" />
+      <created>1750756044476</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1750756044476</updated>
+    </task>
+    <task id="LOCAL-00076" summary="created separate login screen and main app">
+      <option name="closed" value="true" />
+      <created>1750756915017</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1750756915017</updated>
+    </task>
+    <task id="LOCAL-00077" summary="created shared js file">
+      <option name="closed" value="true" />
+      <created>1750768339575</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1750768339575</updated>
+    </task>
+    <task id="LOCAL-00078" summary="redirects to login before password's been entered">
+      <option name="closed" value="true" />
+      <created>1750768911170</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1750768911170</updated>
+    </task>
+    <task id="LOCAL-00079" summary="added login">
+      <option name="closed" value="true" />
+      <created>1750768957318</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1750768957318</updated>
+    </task>
+    <task id="LOCAL-00080" summary="sends password for redirecting">
+      <option name="closed" value="true" />
+      <created>1750769257879</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1750769257879</updated>
+    </task>
+    <task id="LOCAL-00081" summary="refactoring">
+      <option name="closed" value="true" />
+      <created>1750773392243</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1750773392243</updated>
+    </task>
+    <task id="LOCAL-00082" summary="changing APIkey status now gives response">
+      <option name="closed" value="true" />
+      <created>1750840291681</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1750840291681</updated>
+    </task>
+    <task id="LOCAL-00083" summary="checks status code of changing APIkey status">
+      <option name="closed" value="true" />
+      <created>1750840329261</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1750840329261</updated>
+    </task>
+    <task id="LOCAL-00084" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1750840349622</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1750840349622</updated>
+    </task>
+    <task id="LOCAL-00085" summary="added cookies to check if already logged in">
+      <option name="closed" value="true" />
+      <created>1750840430825</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1750840430825</updated>
+    </task>
+    <task id="LOCAL-00086" summary="cookies will only be updated when clicking log in button">
+      <option name="closed" value="true" />
+      <created>1750842640874</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1750842640874</updated>
+    </task>
+    <task id="LOCAL-00087" summary="added credentials in constructor">
+      <option name="closed" value="true" />
+      <created>1750849084157</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1750849084157</updated>
+    </task>
+    <task id="LOCAL-00088" summary="refactored to use credentials instead of cookies">
+      <option name="closed" value="true" />
+      <created>1750849157902</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1750849157902</updated>
+    </task>
+    <task id="LOCAL-00089" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1750849166428</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1750849166428</updated>
+    </task>
+    <task id="LOCAL-00090" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1750850618625</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1750850618625</updated>
+    </task>
+    <task id="LOCAL-00091" summary="refactored session">
+      <option name="closed" value="true" />
+      <created>1750859865262</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1750859865262</updated>
+    </task>
+    <task id="LOCAL-00092" summary="refactored, improved style">
+      <option name="closed" value="true" />
+      <created>1750859974424</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1750859974425</updated>
+    </task>
+    <task id="LOCAL-00093" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1750860090351</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1750860090351</updated>
+    </task>
+    <task id="LOCAL-00094" summary="removed unused image">
+      <option name="closed" value="true" />
+      <created>1750860896895</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1750860896895</updated>
+    </task>
+    <task id="LOCAL-00095" summary="refactored code and styling">
+      <option name="closed" value="true" />
+      <created>1750863505720</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1750863505721</updated>
+    </task>
+    <task id="LOCAL-00096" summary="button get disabled if not connected">
+      <option name="closed" value="true" />
+      <created>1750923792500</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1750923792500</updated>
+    </task>
+    <task id="LOCAL-00097" summary="installed electron">
+      <option name="closed" value="true" />
+      <created>1750926384585</created>
+      <option name="number" value="00097" />
+      <option name="presentableId" value="LOCAL-00097" />
+      <option name="project" value="LOCAL" />
+      <updated>1750926384585</updated>
+    </task>
+    <task id="LOCAL-00098" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1750927298203</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1750927298203</updated>
+    </task>
+    <task id="LOCAL-00099" summary="added electron-builder">
+      <option name="closed" value="true" />
+      <created>1750927734365</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1750927734365</updated>
+    </task>
+    <task id="LOCAL-00100" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1750928497175</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1750928497175</updated>
+    </task>
+    <task id="LOCAL-00101" summary="copied gui to vue-electron-app">
+      <option name="closed" value="true" />
+      <created>1750938503503</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
+      <option name="project" value="LOCAL" />
+      <updated>1750938503503</updated>
+    </task>
+    <task id="LOCAL-00102" summary="copied gui to vue-electron-app">
+      <option name="closed" value="true" />
+      <created>1750938525800</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1750938525800</updated>
+    </task>
+    <task id="LOCAL-00103" summary="installed electron">
+      <option name="closed" value="true" />
+      <created>1750939349682</created>
+      <option name="number" value="00103" />
+      <option name="presentableId" value="LOCAL-00103" />
+      <option name="project" value="LOCAL" />
+      <updated>1750939349683</updated>
+    </task>
+    <task id="LOCAL-00104" summary="installed electron">
+      <option name="closed" value="true" />
+      <created>1750940047176</created>
+      <option name="number" value="00104" />
+      <option name="presentableId" value="LOCAL-00104" />
+      <option name="project" value="LOCAL" />
+      <updated>1750940047177</updated>
+    </task>
+    <task id="LOCAL-00105" summary="installed electron">
+      <option name="closed" value="true" />
+      <created>1750940992242</created>
+      <option name="number" value="00105" />
+      <option name="presentableId" value="LOCAL-00105" />
+      <option name="project" value="LOCAL" />
+      <updated>1750940992242</updated>
+    </task>
+    <task id="LOCAL-00106" summary="configured electron">
+      <option name="closed" value="true" />
+      <created>1750941098911</created>
+      <option name="number" value="00106" />
+      <option name="presentableId" value="LOCAL-00106" />
+      <option name="project" value="LOCAL" />
+      <updated>1750941098911</updated>
+    </task>
+    <task id="LOCAL-00107" summary="forced working gui into electron folder">
+      <option name="closed" value="true" />
+      <created>1750941332094</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
+      <option name="project" value="LOCAL" />
+      <updated>1750941332094</updated>
+    </task>
+    <task id="LOCAL-00108" summary="redid electrons main.js">
+      <option name="closed" value="true" />
+      <created>1750941946215</created>
+      <option name="number" value="00108" />
+      <option name="presentableId" value="LOCAL-00108" />
+      <option name="project" value="LOCAL" />
+      <updated>1750941946215</updated>
+    </task>
+    <task id="LOCAL-00109" summary="reconfigured electrons">
+      <option name="closed" value="true" />
+      <created>1750943736890</created>
+      <option name="number" value="00109" />
+      <option name="presentableId" value="LOCAL-00109" />
+      <option name="project" value="LOCAL" />
+      <updated>1750943736890</updated>
+    </task>
+    <task id="LOCAL-00110" summary="reconfigured electrons">
+      <option name="closed" value="true" />
+      <created>1750943741917</created>
+      <option name="number" value="00110" />
+      <option name="presentableId" value="LOCAL-00110" />
+      <option name="project" value="LOCAL" />
+      <updated>1750943741917</updated>
+    </task>
+    <task id="LOCAL-00111" summary="inserted working gui into electron app">
+      <option name="closed" value="true" />
+      <created>1750944525678</created>
+      <option name="number" value="00111" />
+      <option name="presentableId" value="LOCAL-00111" />
+      <option name="project" value="LOCAL" />
+      <updated>1750944525678</updated>
+    </task>
+    <task id="LOCAL-00112" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1750945387674</created>
+      <option name="number" value="00112" />
+      <option name="presentableId" value="LOCAL-00112" />
+      <option name="project" value="LOCAL" />
+      <updated>1750945387674</updated>
+    </task>
+    <task id="LOCAL-00113" summary="renamed app">
+      <option name="closed" value="true" />
+      <created>1750945705829</created>
+      <option name="number" value="00113" />
+      <option name="presentableId" value="LOCAL-00113" />
+      <option name="project" value="LOCAL" />
+      <updated>1750945705829</updated>
+    </task>
+    <task id="LOCAL-00114" summary="bypassed CORS">
+      <option name="closed" value="true" />
+      <created>1750946851359</created>
+      <option name="number" value="00114" />
+      <option name="presentableId" value="LOCAL-00114" />
+      <option name="project" value="LOCAL" />
+      <updated>1750946851359</updated>
+    </task>
+    <task id="LOCAL-00115" summary="extracted directory my-vue-app">
+      <option name="closed" value="true" />
+      <created>1750947993835</created>
+      <option name="number" value="00115" />
+      <option name="presentableId" value="LOCAL-00115" />
+      <option name="project" value="LOCAL" />
+      <updated>1750947993835</updated>
+    </task>
+    <task id="LOCAL-00116" summary="refactor">
+      <option name="closed" value="true" />
+      <created>1750949480708</created>
+      <option name="number" value="00116" />
+      <option name="presentableId" value="LOCAL-00116" />
+      <option name="project" value="LOCAL" />
+      <updated>1750949480708</updated>
+    </task>
+    <task id="LOCAL-00117" summary="updated dependencies">
+      <option name="closed" value="true" />
+      <created>1750949916582</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
+      <option name="project" value="LOCAL" />
+      <updated>1750949916582</updated>
+    </task>
+    <task id="LOCAL-00118" summary="moved electron out of own directory">
+      <option name="closed" value="true" />
+      <created>1751008104332</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
+      <option name="project" value="LOCAL" />
+      <updated>1751008104332</updated>
+    </task>
+    <task id="LOCAL-00119" summary="updated dependencies">
+      <option name="closed" value="true" />
+      <created>1751009253297</created>
+      <option name="number" value="00119" />
+      <option name="presentableId" value="LOCAL-00119" />
+      <option name="project" value="LOCAL" />
+      <updated>1751009253297</updated>
+    </task>
+    <option name="localTasksCounter" value="120" />
+    <servers />
+  </component>
+  <component name="TerminalProjectNonSharedOptionsProvider">
+    <option name="startingDirectory" value="C:\Users\IMI\PycharmProjects\apikey-manager-gui\vue-electron-app" />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.py" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="origin/electron" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="origin/vue-rework" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/electron" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="checks status code of changing APIkey status" />
+    <MESSAGE value="added cookies to check if already logged in" />
+    <MESSAGE value="cookies will only be updated when clicking log in button" />
+    <MESSAGE value="added credentials in constructor" />
+    <MESSAGE value="refactored to use credentials instead of cookies" />
+    <MESSAGE value="refactored session" />
+    <MESSAGE value="refactored, improved style" />
+    <MESSAGE value="removed unused image" />
+    <MESSAGE value="refactored code and styling" />
+    <MESSAGE value="button get disabled if not connected" />
+    <MESSAGE value="added electron-builder" />
+    <MESSAGE value="copied gui to vue-electron-app" />
+    <MESSAGE value="installed electron" />
+    <MESSAGE value="configured electron" />
+    <MESSAGE value="forced working gui into electron folder" />
+    <MESSAGE value="redid electrons main.js" />
+    <MESSAGE value="reconfigured electrons" />
+    <MESSAGE value="inserted working gui into electron app" />
+    <MESSAGE value="refactored" />
+    <MESSAGE value="renamed app" />
+    <MESSAGE value="bypassed CORS" />
+    <MESSAGE value="extracted directory my-vue-app" />
+    <MESSAGE value="refactor" />
+    <MESSAGE value="moved electron out of own directory" />
+    <MESSAGE value="updated dependencies" />
+    <option name="LAST_COMMIT_MESSAGE" value="updated dependencies" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/apikey_manager_gui$temporaryFile.coverage" NAME="temporaryFile Coverage Results" MODIFIED="1749648656733" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/templates" />
+    <SUITE FILE_PATH="coverage/apikey_manager_gui$ApikeyManager.coverage" NAME="ApikeyManager Coverage Results" MODIFIED="1749642065534" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/apikey_manager_gui$.coverage" NAME=" Coverage Results" MODIFIED="1749653898470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/apikey_manager_gui$ApiKeyManager.coverage" NAME="ApiKeyManager Coverage Results" MODIFIED="1749726450727" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+  </component>
+</project>
