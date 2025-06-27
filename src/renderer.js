@@ -1,6 +1,5 @@
 import {createApp} from "vue"
 import App from "./App.vue"
-import router from "./router"
 
 // PrimeVue imports
 import PrimeVue from "primevue/config";
@@ -15,7 +14,6 @@ import "primeflex/primeflex.css";
 const app = createApp(App)
     .use(PrimeVue)
     .use(ToastService)
-    .use(router)
     .directive("tooltip", Tooltip)
     .mount("#app");
 
