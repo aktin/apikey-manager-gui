@@ -39,6 +39,17 @@ onMounted(() => {
   setInterval(checkConnection, 1000 * 60);
 });
 
+function saveCredentials() {
+  window.storeAPI.set('adminApiKey', password.value);
+  window.storeAPI.set('url', url.value);
+}
+async function loadCredentials() {
+  const savedUrl = await window.storeAPI.get('url');
+  const savedAdminApiKey = await window.storeAPI.get('adminApiKey');
+  url.value = savedUrl;
+  password.value = savedAdminApiKey;
+}
+
 </script>
 
 <template>
@@ -75,7 +86,9 @@ onMounted(() => {
     </div>
 
     <div class="field grid p-3 flex justify-content-center flex-wrap">
-      <Button @click="logIn">Set</Button>
+      <Button class="ml-auto" @click="logIn">Set</Button>
+      <span class="pi pi-save p-3 text-2xl ml-auto" @click="saveCredentials" v-tooltip.bottom="'Save Credentials'"/>
+      <span class="pi pi-download p-3 text-2xl" @click="loadCredentials" v-tooltip.bottom="'Load Credentials'"/>
     </div>
   </Dialog>
 </template>

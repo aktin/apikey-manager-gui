@@ -156,16 +156,6 @@ function generateApiKey() {
   }
   apiKeyInput.value = key;
 }
-
-function saver() {
-  window.storeAPI.set('username', codes.value);
-}
-async function loader() {
-  const AAA = await window.storeAPI.get('username');
-  console.log(AAA)
-}
-
-
 </script>
 
 <template>
@@ -230,11 +220,6 @@ async function loader() {
     </div>
 
   </div>
-
-  <InputText id="code" v-model="codes"></InputText>
-  <label for="code">enter text</label>
-  <Button @click="saver">save</Button>
-  <Button @click="loader">load</Button>
 </template>
 
 <style scoped>
