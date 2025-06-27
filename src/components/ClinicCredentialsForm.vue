@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import {computed, defineProps, ref} from "vue";
+import {computed, defineProps, onMounted, ref} from "vue";
 import Button from "primevue/button";
 import BlockUI from "primevue/blockui";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "./BrokerConnection.js";
-import Store from 'electron-store';
-
-const store = new Store();
 
 import {useToast} from "primevue/usetoast";
 
@@ -160,15 +157,21 @@ function generateApiKey() {
   apiKeyInput.value = key;
 }
 
-function saver(){
-  store.set('data', codes);
+const username = ref('');
+
+onMounted(async () => {
+  username.value = await window.storeAPI.get('username') || '';
+});
+
+function saveUsername() {
+  window.storeAPI.set('username', username.value);
 }
-function loader(){
-  console.log("stored data :",store.get("data"))
-}
+
+
 </script>
 
 <template>
+
   <div>
 
     <div class="field grid p-2 ml-2">

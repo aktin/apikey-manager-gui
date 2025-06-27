@@ -6,11 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="replaced login screen with popup">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/BrokerConnectionChecker.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BrokerConnectionChecker.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/ClinicCredentialsForm.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ClinicCredentialsForm.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ClinicCredentialsTable.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ClinicCredentialsTable.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/preload.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/preload.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
