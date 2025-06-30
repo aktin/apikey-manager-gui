@@ -18,6 +18,12 @@ const filters = ref({
   global: {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 
+const toastLife = 1000 * 5;
+
+function createErrorToast(title, detail) {
+  toast.add({severity: "error", summary: title, detail, life: toastLife})
+}
+
 function formatApiKeyList(textBlock) {
   if (!textBlock) return "";
   return textBlock
@@ -49,13 +55,13 @@ async function fetchAndFormatApiKeyList() {
     case 200:
       return formatApiKeyList(apiKeyList.data);
     case 404:
-      toast.add({severity: "error", summary: "Error", detail: "could not find API Keys"})
+      createErrorToast("Error", "could not find API Keys")
       break;
     case 401:
-      toast.add({severity: "error", summary: "Access Denied", detail: "You are not authorized to view API Keys"})
+      createErrorToast("Access Denied", "You are not authorized to view API Keys")
       break;
     default:
-      toast.add({severity: "error", summary: "Connection Error", detail: "could not load API Keys"})
+      createErrorToast("Connection Error", "could not load API Keys")
   }
 }
 

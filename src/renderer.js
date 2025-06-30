@@ -5,6 +5,8 @@ import App from "./App.vue"
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
+import ConfirmationService from 'primevue/confirmationservice';
+import ConfirmPopup from 'primevue/confirmpopup';
 
 // Styles imports
 import "primevue/resources/themes/lara-light-green/theme.css";
@@ -14,7 +16,9 @@ import "primeflex/primeflex.css";
 const app = createApp(App)
     .use(PrimeVue)
     .use(ToastService)
+    .use(ConfirmationService)
     .directive("tooltip", Tooltip)
-    .mount("#app");
+    .mount("#app")
+
 
 //TODO (Optional) Add locale for 'de' and 'en'

@@ -5,12 +5,10 @@ import BlockUI from "primevue/blockui";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "./BrokerConnection.js";
-
 import {useToast} from "primevue/usetoast";
 
 const toast = useToast();
 const toastLife = 1000 * 5;
-
 
 const commonNameInput = ref("");
 const apiKeyInput = ref("");
@@ -24,8 +22,6 @@ const isLocationInvalid = ref(false);
 
 const apiKeyPattern = /[!@#$%^&*(),.?":{}|;<>_-]/;
 const dnPattern = /[!@#$%^&*(),?"{}|<>]/;
-
-const codes = ref("");
 
 const props = defineProps({
   selectedKey: String, connectionStatus: Boolean

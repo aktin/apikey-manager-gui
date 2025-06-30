@@ -8,6 +8,9 @@ import Password from "primevue/password";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Dropdown from 'primevue/dropdown';
+import {useToast} from "primevue/usetoast";
+import ConfirmPopup from 'primevue/confirmpopup';
+import { useConfirm } from "primevue/useconfirm";
 
 const visible = ref(false);
 
@@ -22,9 +25,35 @@ const userName = ref("");
 const password = ref("");
 const url = ref("");
 
+const connected = ref(false);
+
+const confirm = useConfirm();
+const toast = useToast();
+const toastLife = 1000 * 5;
+
+function createErrorToast(title, detail) {
+  toast.add({severity: "error", summary: title, detail, life: toastLife})
+}
+
+const confirmDelete = (event) => {
+  confirm.require({
+    target: event.currentTarget,
+    message: 'Do you want to delete this?',
+    icon: 'pi pi-info-circle',
+    rejectClass: 'p-button-secondary p-button-outlined p-button-sm',
+    acceptClass: 'p-button-danger p-button-sm',
+    rejectLabel: 'Cancel',
+    acceptLabel: 'Delete',
+    accept: () => {
+      deleteCredentials();
+    },
+    reject: () => {}
+  });
+};
+
 function sendConnectionStatus(statusCode) {
-  let isConnected = statusCode === 200;
-  emit("update:isConnected", isConnected);
+  connected.value = statusCode === 200;
+  emit("update:isConnected", connected.value);
 }
 
 async function checkConnection() {
@@ -34,18 +63,30 @@ async function checkConnection() {
 
 onMounted(() => {
   checkConnection();
-  visible.value = true;
-  loadCredentials()
-  setInterval(checkConnection, 1000 * 60);
+  loadCredentialList();
+  loadLastSaved();
+  setInterval(checkConnection, 1000 * 30);
 });
 
-function saveCredentials() {
-  const combined = userName.value + ";" + password.value + ";" + url.value;
-  window.storeAPI.set(userName.value, combined);
-  savedCredentials.value.push({name: userName.value, adminApiKey: password.value, url: url.value})
+async function loadLastSaved() {
+  selectedCredentials.value = await window.storeAPI.get("LastSelected")
+  await insertCredentials(selectedCredentials.value);
 }
 
-async function loadCredentials() {
+function saveCredentials() {
+  if (!url.value.startsWith('http://')) {
+    url.value = "http://" + url.value
+  }
+  if (userName.value === "" || password.value === "" || url.value === "") {
+    createErrorToast("Input Error", "All Fields must be filled")
+  } else {
+    const combined = userName.value + ";" + password.value + ";" + url.value;
+    window.storeAPI.set(userName.value, combined);
+    loadCredentialList()
+  }
+}
+
+async function loadCredentialList() {
   savedCredentials.value = [];
   (await formatCredentials()).forEach((credential) => {
     savedCredentials.value.push({name: credential.name})
@@ -53,15 +94,20 @@ async function loadCredentials() {
 }
 
 async function deleteCredentials() {
-  await window.storeAPI.delete(selectedCredentials.value.name);
+  const toDelete = selectedCredentials.value.name
+  await window.storeAPI.delete(toDelete);
   selectedCredentials.value = ""
-  await loadCredentials()
+  toast.add({ severity: 'info', summary: 'Confirmed', detail: toDelete+' deleted', life: toastLife });
+  await loadCredentialList()
 }
 
 async function formatCredentials() {
   const rawData = await window.storeAPI.get()
+  const data = Object.fromEntries(
+      Object.entries(rawData).filter(([key]) => key !== 'LastSelected')
+  );
   const formattedList = computed(() =>
-      Object.values(rawData).map(entry => {
+      Object.values(data).map(entry => {
         const [name, key, url] = entry.split(';')
         return {name, key, url}
       })
@@ -69,9 +115,9 @@ async function formatCredentials() {
   return formattedList.value
 }
 
-watch(selectedCredentials, async (newVal) => {
-  const credentialsRaw = await window.storeAPI.get(newVal.name)
-  if (newVal.name) {
+async function insertCredentials(nameValue) {
+  const credentialsRaw = await window.storeAPI.get(nameValue)
+  if (nameValue) {
     const credentialsList = credentialsRaw.split(';');
     userName.value = credentialsList[0];
     password.value = credentialsList[1];
@@ -82,15 +128,42 @@ watch(selectedCredentials, async (newVal) => {
     url.value = "";
   }
   BrokerConnection.setCredentials(url.value, password.value)
+  window.storeAPI.set("LastSelected", nameValue);
   await window.callVueFunction();
+}
+
+watch(selectedCredentials, async (newVal) => {
+  if (newVal.name) {
+    await insertCredentials(newVal.name).then(() => {
+      checkConnection()
+    });
+  }
 })
 
+function nameChanged() {
+  if (userName.value === "") {
+    createErrorToast("Input Error", "Name cannot be empty")
+  }
+}
+
+function keyChanged() {
+  if (password.value === "") {
+    createErrorToast("Input Error", "Admin Api Key cannot be empty")
+  }
+}
+
+function urlChanged() {
+  if (url.value === "") {
+    createErrorToast("Input Error", "Url cannot be empty")
+  }
+}
 </script>
 
 <template>
+  <ConfirmPopup></ConfirmPopup>
   <div class="flex align-items-center">
 
-    <div v-if="status === 200" class="flex align-items-center text-green-600 text-xl"
+    <div v-if="connected" class="flex align-items-center text-green-600 text-xl"
          v-tooltip.left="BrokerConnection.getCredentials().url">
       <i class="pi pi-circle-fill mx-2"/>
       <p class="font-bold">Connected</p>
@@ -103,9 +176,9 @@ watch(selectedCredentials, async (newVal) => {
     </div>
 
     <div class="ml-auto p-1">
+      <Button v-tooltip.left="'Config'" icon="pi pi-cog" @click="visible = true"/>
       <span v-if="url === ''|| password === '' " class="pi pi-exclamation-triangle text-3xl text-yellow-500 mr-2"
             v-tooltip.left="'Missing Credentials'"></span>
-      <Button v-tooltip.left="'Config'" icon="pi pi-cog" @click="visible = true"/>
     </div>
 
   </div>
@@ -114,7 +187,7 @@ watch(selectedCredentials, async (newVal) => {
     <div class="field grid mt-4 p-3 flex justify-content-center flex-wrap">
       <FloatLabel>
         <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
-                   v-model="userName"/>
+                   v-model="userName" @input="nameChanged"/>
         <label for="urlInput" class="col-fixed">Name</label>
       </FloatLabel>
     </div>
@@ -122,7 +195,8 @@ watch(selectedCredentials, async (newVal) => {
     <div class="field grid flex justify-content-center flex-wrap">
       <div class="p-3 mt-3">
         <FloatLabel>
-          <Password id="passwordInput" v-model="password" size="small" toggleMask :feedback="false"/>
+          <Password id="passwordInput" v-model="password" size="small" toggleMask :feedback="false"
+                    @input="keyChanged"/>
           <label for="passwordInput" class="col-fixed">Admin API Key</label>
         </FloatLabel>
       </div>
@@ -131,7 +205,7 @@ watch(selectedCredentials, async (newVal) => {
     <div class="field grid mt-4 p-3 flex justify-content-center flex-wrap">
       <FloatLabel>
         <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
-                   v-model="url"/>
+                   v-model="url" @input="urlChanged"/>
         <label for="urlInput" class="col-fixed">URL</label>
       </FloatLabel>
     </div>
@@ -143,7 +217,7 @@ watch(selectedCredentials, async (newVal) => {
                   class="w-full md:w-14rem"/>
       </div>
       <Button icon="pi pi-save" class="ml-auto" @click="saveCredentials" v-tooltip.bottom="'Save Credentials'"/>
-      <Button icon="pi pi-trash" class="ml-auto" @click="deleteCredentials" v-tooltip.bottom="'Delete Credentials'"/>
+      <Button icon="pi pi-trash" class="ml-auto" @click="confirmDelete($event)" v-tooltip.bottom="'Delete Credentials'"/>
     </div>
   </Dialog>
 
