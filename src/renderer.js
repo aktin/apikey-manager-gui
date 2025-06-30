@@ -6,7 +6,7 @@ import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
 import ConfirmationService from 'primevue/confirmationservice';
-import ConfirmPopup from 'primevue/confirmpopup';
+
 
 // Styles imports
 import "primevue/resources/themes/lara-light-green/theme.css";
