@@ -205,7 +205,7 @@ function generateApiKey() {
     </div>
 
     <div class="flex gap-3 p-3">
-        <Button label="Add" @click="addApikey()" :disabled="!props.connectionStatus"></Button>
+        <Button label="Add API Key" @click="addApikey()" :disabled="!props.connectionStatus"></Button>
         <div v-if=" props.selectedKey.split(';')[1]  ==='true' "
              class=" flex align-items-center text-green-600 text-xl">
           <Button label="Deactivate" @click="changeState()" :disabled="!isChangeStateButtonActive"/>

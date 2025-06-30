@@ -56,6 +56,8 @@ class BrokerConnection {
                 },
             });
             const text = await response.text();
+            //TODO check what a good response looks like
+            //TODO throw errro if necessary element is not in response text
             return {
                 status: response.status,
                 data: text,

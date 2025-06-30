@@ -10,9 +10,10 @@ import Button from "primevue/button";
 import Dropdown from 'primevue/dropdown';
 import {useToast} from "primevue/usetoast";
 import ConfirmPopup from 'primevue/confirmpopup';
-import { useConfirm } from "primevue/useconfirm";
+import {useConfirm} from "primevue/useconfirm";
 
 const visible = ref(false);
+const disabled = ref(false);
 
 const selectedCredentials = ref();
 const savedCredentials = ref([]);
@@ -35,22 +36,6 @@ function createErrorToast(title, detail) {
   toast.add({severity: "error", summary: title, detail, life: toastLife})
 }
 
-const confirmDelete = (event) => {
-  confirm.require({
-    target: event.currentTarget,
-    message: 'Do you want to delete these Credentials?',
-    icon: 'pi pi-info-circle',
-    rejectClass: 'p-button-secondary p-button-outlined p-button-sm',
-    acceptClass: 'p-button-danger p-button-sm',
-    rejectLabel: 'Cancel',
-    acceptLabel: 'Delete',
-    accept: () => {
-      deleteCredentials();
-    },
-    reject: () => {}
-  });
-};
-
 function sendConnectionStatus(statusCode) {
   connected.value = statusCode === 200;
   emit("update:isConnected", connected.value);
@@ -61,44 +46,26 @@ async function checkConnection() {
   sendConnectionStatus(status.value);
 }
 
-onMounted(() => {
-  checkConnection();
-  loadCredentialList();
-  loadLastSaved();
-  setInterval(checkConnection, 1000 * 30);
-});
+async function insertCredentials(nameValue) {
 
-async function loadLastSaved() {
-  selectedCredentials.value = await window.storeAPI.get("LastSelected")
-  await insertCredentials(selectedCredentials.value);
-}
+  const credentialsRaw = await window.storeAPI.get(nameValue)
 
-function saveCredentials() {
-  if (!url.value.startsWith('http://')) {
-    url.value = "http://" + url.value
-  }
-  if (userName.value === "" || password.value === "" || url.value === "") {
-    createErrorToast("Input Error", "All Fields must be filled")
+  if (credentialsRaw) {
+    const credentialsList = credentialsRaw.split(';');
+    userName.value = credentialsList[0];
+    password.value = credentialsList[1];
+    url.value = credentialsList[2];
+    disabled.value = false
   } else {
-    const combined = userName.value + ";" + password.value + ";" + url.value;
-    window.storeAPI.set(userName.value, combined);
-    loadCredentialList()
+    selectedCredentials.value = "";
+    userName.value = "";
+    password.value = "";
+    url.value = "";
+    disabled.value = true
   }
-}
-
-async function loadCredentialList() {
-  savedCredentials.value = [];
-  (await formatCredentials()).forEach((credential) => {
-    savedCredentials.value.push({name: credential.name})
-  })
-}
-
-async function deleteCredentials() {
-  const toDelete = selectedCredentials.value.name
-  await window.storeAPI.delete(toDelete);
-  selectedCredentials.value = ""
-  toast.add({ severity: 'info', summary: 'Confirmed', detail: toDelete+' deleted', life: toastLife });
-  await loadCredentialList()
+  BrokerConnection.setCredentials(url.value, password.value)
+  window.storeAPI.set("LastSelected", nameValue);
+  await window.callVueFunction();
 }
 
 async function formatCredentials() {
@@ -115,30 +82,62 @@ async function formatCredentials() {
   return formattedList.value
 }
 
-async function insertCredentials(nameValue) {
-  const credentialsRaw = await window.storeAPI.get(nameValue)
-  if (nameValue) {
-    const credentialsList = credentialsRaw.split(';');
-    userName.value = credentialsList[0];
-    password.value = credentialsList[1];
-    url.value = credentialsList[2];
-  } else {
-    userName.value = "";
-    password.value = "";
-    url.value = "";
-  }
-  BrokerConnection.setCredentials(url.value, password.value)
-  window.storeAPI.set("LastSelected", nameValue);
-  await window.callVueFunction();
+async function loadLastSaved() {
+  const lastSelected = await window.storeAPI.get("LastSelected")
+  selectedCredentials.value = {name: lastSelected}
+  await insertCredentials(lastSelected);
 }
 
-watch(selectedCredentials, async (newVal) => {
-  if (newVal.name) {
-    await insertCredentials(newVal.name).then(() => {
-      checkConnection()
-    });
+async function loadCredentialList() {
+  savedCredentials.value = [];
+  (await formatCredentials()).forEach((credential) => {
+    savedCredentials.value.push({name: credential.name})
+  })
+}
+
+function saveCredentials() {
+  if (!url.value.startsWith('http://')) {
+    url.value = "http://" + url.value
   }
-})
+  if (userName.value === "" || password.value === "" || url.value === "") {
+    createErrorToast("Input Error", "All Fields must be filled")
+  } else {
+    const combined = userName.value + ";" + password.value + ";" + url.value;
+    window.storeAPI.set(userName.value, combined);
+    loadCredentialList()
+  }
+}
+
+async function deleteCredentials() {
+  const toDelete = selectedCredentials.value.name
+  await window.storeAPI.delete(toDelete);
+  toast.add({severity: 'success', summary: 'Confirmed', detail: toDelete + ' deleted', life: toastLife});
+  await loadCredentialList()
+
+  if(savedCredentials.value[0]) {
+    selectedCredentials.value.name = savedCredentials.value[0].name
+    await insertCredentials(selectedCredentials.value.name)
+  }else{
+    await insertCredentials("")
+  }
+}
+
+const confirmDelete = (event) => {
+  confirm.require({
+    target: event.currentTarget,
+    message: 'Do you want to delete these Credentials?',
+    icon: 'pi pi-info-circle',
+    rejectClass: 'p-button-secondary p-button-outlined p-button-sm',
+    acceptClass: 'p-button-danger p-button-sm',
+    rejectLabel: 'Cancel',
+    acceptLabel: 'Delete',
+    accept: () => {
+      deleteCredentials();
+    },
+    reject: () => {
+    }
+  });
+};
 
 function nameChanged() {
   if (userName.value === "") {
@@ -157,6 +156,22 @@ function urlChanged() {
     createErrorToast("Input Error", "Url cannot be empty")
   }
 }
+
+watch(selectedCredentials, async (newVal) => {
+  if (newVal) {
+    await insertCredentials(newVal.name).then(() => {
+      checkConnection()
+    });
+  }
+})
+
+onMounted(() => {
+  loadLastSaved();
+  loadCredentialList();
+  checkConnection();
+  setInterval(checkConnection, 1000 * 400);
+});
+
 </script>
 
 <template>
@@ -177,7 +192,7 @@ function urlChanged() {
 
     <div class="ml-auto p-1">
       <Button v-tooltip.left="'Config'" icon="pi pi-cog" @click="visible = true"/>
-      <span v-if="url === ''|| password === '' " class="pi pi-exclamation-triangle text-3xl text-yellow-500 mr-2"
+      <span v-if="url === ''|| password === '' " class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2"
             v-tooltip.left="'Missing Credentials'"></span>
     </div>
 
@@ -217,7 +232,8 @@ function urlChanged() {
                   class="w-full md:w-14rem"/>
       </div>
       <Button icon="pi pi-save" class="ml-auto" @click="saveCredentials" v-tooltip.bottom="'Save Credentials'"/>
-      <Button icon="pi pi-trash" class="ml-auto" @click="confirmDelete($event)" v-tooltip.bottom="'Delete Credentials'"/>
+      <Button icon="pi pi-trash" class="ml-auto" @click="confirmDelete($event)" v-tooltip.bottom="'Delete Credentials'"
+              :disabled="disabled"/>
     </div>
   </Dialog>
 
