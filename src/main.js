@@ -7,6 +7,7 @@ const store = new Store();
 
 ipcMain.handle('store-get', (_, key) => store.get(key));
 ipcMain.handle('store-set', (_, key, value) => store.set(key, value));
+ipcMain.handle('store-delete', (_, key) => store.delete(key));
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
