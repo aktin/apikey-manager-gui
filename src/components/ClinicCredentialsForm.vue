@@ -124,6 +124,10 @@ async function changeState() {
 
   switch (val) {
     case 200:
+
+      console.log("selectedKey",props.selectedKey)
+      console.log("connectionStatus",props.connectionStatus)
+
       if (statusOfSelectedApiKey === "false") {
         createSuccessToast("API Key has been activated")
       } else {
