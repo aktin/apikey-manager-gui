@@ -105,6 +105,7 @@ function saveCredentials() {
     const combined = userName.value + ";" + password.value + ";" + url.value;
     window.storeAPI.set(userName.value, combined);
     loadCredentialList()
+    selectedCredentials.value = userName.value;
   }
 }
 
