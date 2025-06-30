@@ -38,7 +38,7 @@ function createErrorToast(title, detail) {
 const confirmDelete = (event) => {
   confirm.require({
     target: event.currentTarget,
-    message: 'Do you want to delete this?',
+    message: 'Do you want to delete these Credentials?',
     icon: 'pi pi-info-circle',
     rejectClass: 'p-button-secondary p-button-outlined p-button-sm',
     acceptClass: 'p-button-danger p-button-sm',
