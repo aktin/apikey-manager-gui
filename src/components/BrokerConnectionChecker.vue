@@ -35,6 +35,7 @@ async function checkConnection() {
 onMounted(() => {
   checkConnection();
   visible.value = true;
+  loadCredentials()
   setInterval(checkConnection, 1000 * 60);
 });
 
