@@ -12,7 +12,7 @@ const toast = useToast();
 const apiKeyList = ref([]);
 const selectedRow = ref(null);
 const selectedApiKey = ref("");
-const emit = defineEmits(["update:selectedApiKey"]);
+const emit = defineEmits(["update:selectedApiKey", "update:isAuthorized"]);
 
 const filters = ref({
   global: {value: null, matchMode: FilterMatchMode.CONTAINS},
@@ -50,10 +50,10 @@ function formatApiKeyList(textBlock) {
 
 async function fetchAndFormatApiKeyList() {
   let apiKeyList = await BrokerConnection.getApiKeys()
+  emit("update:isAuthorized", apiKeyList.status !== 401);
 
   switch (apiKeyList.status) {
     case 200:
-      toast.add({severity: "success", summary: "Loading Success", detail:"API Keys have been loaded", life: toastLife})
       return formatApiKeyList(apiKeyList.data);
     case 404:
       createErrorToast("Error", "could not find API Keys")

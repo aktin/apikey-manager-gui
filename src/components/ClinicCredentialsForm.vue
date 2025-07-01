@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {computed, defineProps, ref, watch} from "vue";
 import Button from "primevue/button";
-import BlockUI from "primevue/blockui";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "./BrokerConnection.js";
@@ -24,7 +23,7 @@ const apiKeyPattern = /[!@#$%^&*(),.?":{}|;<>_-]/;
 const dnPattern = /[!@#$%^&*(),?"{}|<>]/;
 
 const props = defineProps({
-  selectedKey: String, connectionStatus: Boolean
+  selectedKey: String, connectionStatus: Boolean, authorizationState: Boolean,
 });
 const localSelectedKey = ref(props.selectedKey);
 
@@ -35,6 +34,11 @@ watch(() => props.selectedKey, (newVal) => {
 const isChangeStateButtonActive = computed(() =>
     localSelectedKey.value !== '' && props.connectionStatus
 );
+
+const isAddButtonActive = computed(() =>
+    props.authorizationState  && props.connectionStatus
+);
+
 
 async function addApikey() {
   validate();
@@ -163,7 +167,7 @@ function generateApiKey() {
   <div>
 
     <div class="field grid p-2 ml-2">
-      <BlockUI class="flex align-items-center justify-content-start" :blocked=!props.connectionStatus>
+      <div class="flex align-items-center justify-content-start">
         <FloatLabel>
           <InputText id="apiInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
                      v-model="apiKeyInput" :invalid="isApiKeyInvalid"/>
@@ -172,44 +176,38 @@ function generateApiKey() {
         <span class="ml-2">
           <Button v-tooltip="'Generate API Key'" icon="pi pi-sync" @click="generateApiKey()"/>
         </span>
-      </BlockUI>
+      </div>
     </div>
 
     <div class="field grid p-2 ml-2">
-      <BlockUI :blocked=!props.connectionStatus>
-        <FloatLabel>
-          <InputText id="nameInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
-                     v-model="commonNameInput"
-                     :invalid="isCommonNameInvalid"/>
-          <label for="nameInput" class="col-fixed">Common Name</label>
-        </FloatLabel>
-      </BlockUI>
+      <FloatLabel>
+        <InputText id="nameInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+                   v-model="commonNameInput"
+                   :invalid="isCommonNameInvalid"/>
+        <label for="nameInput" class="col-fixed">Common Name</label>
+      </FloatLabel>
     </div>
 
     <div class="field grid p-2 ml-2">
-      <BlockUI :blocked=!props.connectionStatus>
-        <FloatLabel>
-          <InputText id="orgInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
-                     v-model="organizationInput"
-                     :invalid="isOrganizationInvalid"/>
-          <label for="orgInput" class="col-fixed">Organization</label>
-        </FloatLabel>
-      </BlockUI>
+      <FloatLabel>
+        <InputText id="orgInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+                   v-model="organizationInput"
+                   :invalid="isOrganizationInvalid"/>
+        <label for="orgInput" class="col-fixed">Organization</label>
+      </FloatLabel>
     </div>
 
     <div class="field grid p-2 ml-2">
-      <BlockUI :blocked=!props.connectionStatus>
-        <FloatLabel>
-          <InputText id="locInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
-                     v-model="locationInput"
-                     :invalid="isLocationInvalid"/>
-          <label for="locInput" class="col-fixed">Location</label>
-        </FloatLabel>
-      </BlockUI>
+      <FloatLabel>
+        <InputText id="locInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+                   v-model="locationInput"
+                   :invalid="isLocationInvalid"/>
+        <label for="locInput" class="col-fixed">Location</label>
+      </FloatLabel>
     </div>
 
     <div class="flex gap-3 p-3">
-      <Button label="Add API Key" @click="addApikey()" :disabled="!props.connectionStatus"></Button>
+      <Button label="Add API Key" @click="addApikey()" :disabled="!isAddButtonActive"></Button>
       <div v-if=" props.selectedKey.split(';')[1]  ==='true' "
            class=" flex align-items-center text-green-600 text-xl">
         <Button label="Deactivate" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
