@@ -1,7 +1,7 @@
 <script setup>
 import BrokerConnection from './BrokerConnection';
 import 'primeicons/primeicons.css';
-import {computed, onMounted, ref, watch} from 'vue';
+import {computed, defineProps, onMounted, ref, watch} from 'vue';
 import Dialog from 'primevue/dialog';
 import FloatLabel from "primevue/floatlabel";
 import Password from "primevue/password";
@@ -11,8 +11,7 @@ import Dropdown from 'primevue/dropdown';
 import {useToast} from "primevue/usetoast";
 import ConfirmPopup from 'primevue/confirmpopup';
 import {useConfirm} from "primevue/useconfirm";
-
-import BlockUI from 'primevue/blockui';
+import ProgressSpinner from 'primevue/progressspinner';
 
 const logInBlocked = ref(false);
 
@@ -48,6 +47,10 @@ const toastLife = 1000 * 5;
 function createErrorToast(title, detail) {
   toast.add({severity: "error", summary: title, detail, life: toastLife})
 }
+
+const props = defineProps({
+  authorizationState: Boolean,
+});
 
 function sendConnectionStatus(statusCode) {
   if (url.value === "") {
@@ -209,10 +212,7 @@ function urlChanged() {
 }
 
 watch(selectedCredentials, async (newVal) => {
-
   logInBlocked.value = true
-  toast.add({severity: "info", summary: "Loading API Keys", life: toastLife})
-
   saveDisabled.value = true;
   if (newVal) {
     await insertCredentials(newVal.name).then(() => {
@@ -252,42 +252,49 @@ onMounted(() => {
     </div>
 
     <div class="ml-auto p-1">
-      <Button v-tooltip.left="'Config'" icon="pi pi-cog" @click="visible = true"/>
+      <Button v-tooltip.left="'Configuration'" icon="pi pi-cog" @click="visible = true"/>
       <span v-if="url === ''|| password === '' " class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
             v-tooltip.left="'Missing Credentials'"></span>
+      <span v-if="!props.authorizationState" class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
+            v-tooltip.left="'Unauthorized'"></span>
     </div>
 
   </div>
 
-  <Dialog v-model:visible="visible" modal header="Edit Credentials" :style="{ width: '25rem' }">
-    <BlockUI :blocked="logInBlocked">
-      <div class="field grid mt-4 p-3 flex justify-content-center flex-wrap">
+  <Dialog v-model:visible="visible" modal header="Edit Credentials" class="w-25rem h-27rem">
+
+    <div v-if="logInBlocked" class="h-20rem flex align-items-center">
+      <ProgressSpinner class="justify-content-center"/>
+    </div>
+
+    <div v-else class="h-19rem">
+      <div class="field grid mt-3 p-2 flex flex-wrap">
         <FloatLabel>
-          <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+          <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field w-20rem"
                      v-model="userName" @input="nameChanged"/>
-          <label for="urlInput" class="col-fixed">Name</label>
+          <label for="urlInput" class="col-fixed">Profile</label>
         </FloatLabel>
       </div>
 
-      <div class="field grid flex justify-content-center flex-wrap">
-        <div class="p-3 mt-3">
+      <div class="field grid flex flex-wrap">
+        <div class="p-2">
           <FloatLabel>
-            <Password id="passwordInput" v-model="password" size="small" toggleMask :feedback="false"
+            <Password id="passwordInput" v-model="password" toggleMask :feedback="false"
                       @input="keyChanged"/>
             <label for="passwordInput" class="col-fixed">Admin API Key</label>
           </FloatLabel>
         </div>
       </div>
 
-      <div class="field grid mt-4 p-3 flex justify-content-center flex-wrap">
+      <div class="field grid p-2 flex flex-wrap">
         <FloatLabel>
-          <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+          <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field w-20rem"
                      v-model="url" @input="urlChanged"/>
           <label for="urlInput" class="col-fixed">URL</label>
         </FloatLabel>
       </div>
 
-      <div class="field grid p-3 flex justify-content-center flex-wrap">
+      <div class="field grid p-2 flex justify-content-center flex-wrap">
         <div class="card flex justify-content-center">
           <Dropdown v-model="selectedCredentials" editable :options="savedCredentials" optionLabel="name"
                     placeholder="Select Option"
@@ -299,7 +306,7 @@ onMounted(() => {
                 v-tooltip.bottom="'Delete Credentials'"
                 :disabled="deleteDisabled"/>
       </div>
-    </BlockUI>
+    </div>
   </Dialog>
 
 </template>
@@ -307,5 +314,9 @@ onMounted(() => {
 <style scoped>
 /deep/ .p-button-icon {
   font-size: 1.25rem;
+}
+
+/deep/ .p-password-input {
+  width: 20rem
 }
 </style>
