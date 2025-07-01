@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, defineProps, ref} from "vue";
+import {computed, defineProps, ref, watch} from "vue";
 import Button from "primevue/button";
 import BlockUI from "primevue/blockui";
 import InputText from "primevue/inputtext";
@@ -26,9 +26,14 @@ const dnPattern = /[!@#$%^&*(),?"{}|<>]/;
 const props = defineProps({
   selectedKey: String, connectionStatus: Boolean
 });
+const localSelectedKey = ref(props.selectedKey);
+
+watch(() => props.selectedKey, (newVal) => {
+  localSelectedKey.value = newVal;
+});
 
 const isChangeStateButtonActive = computed(() =>
-    props.selectedKey !== '' && props.connectionStatus
+    localSelectedKey.value !== '' && props.connectionStatus
 );
 
 async function addApikey() {
@@ -110,10 +115,9 @@ function createSuccessToast(detail) {
 }
 
 async function changeState() {
-  const statusOfSelectedApiKey = props.selectedKey.split(";")[1]
-
-  const selectedApiKey = props.selectedKey.split(";")[0]
-
+  const statusOfSelectedApiKey = localSelectedKey.value.split(";")[1]
+  const selectedApiKey = localSelectedKey.value.split(";")[0]
+  localSelectedKey.value = ""
   let val = 0;
 
   if (statusOfSelectedApiKey === "false") {
@@ -124,10 +128,6 @@ async function changeState() {
 
   switch (val) {
     case 200:
-
-      console.log("selectedKey",props.selectedKey)
-      console.log("connectionStatus",props.connectionStatus)
-
       if (statusOfSelectedApiKey === "false") {
         createSuccessToast("API Key has been activated")
       } else {
@@ -209,14 +209,14 @@ function generateApiKey() {
     </div>
 
     <div class="flex gap-3 p-3">
-        <Button label="Add API Key" @click="addApikey()" :disabled="!props.connectionStatus"></Button>
-        <div v-if=" props.selectedKey.split(';')[1]  ==='true' "
-             class=" flex align-items-center text-green-600 text-xl">
-          <Button label="Deactivate" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
-        </div>
-        <div v-else class="flex align-items-center text-red-600 text-xl">
-          <Button label="Activate" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
-        </div>
+      <Button label="Add API Key" @click="addApikey()" :disabled="!props.connectionStatus"></Button>
+      <div v-if=" props.selectedKey.split(';')[1]  ==='true' "
+           class=" flex align-items-center text-green-600 text-xl">
+        <Button label="Deactivate" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
+      </div>
+      <div v-else class="flex align-items-center text-red-600 text-xl">
+        <Button label="Activate" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
+      </div>
     </div>
 
   </div>
