@@ -217,9 +217,9 @@ watch(selectedCredentials, async (newVal) => {
   if (newVal) {
     await insertCredentials(newVal.name).then(() => {
       checkConnection();
-      logInBlocked.value = false
     });
   }
+  logInBlocked.value = false
 })
 
 function changeSaveButton() {

@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="got electron-store to work">
+    <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="finished ToDos, refactored">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/BrokerConnectionChecker.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BrokerConnectionChecker.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ClinicCredentialsForm.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ClinicCredentialsForm.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -195,150 +194,8 @@
       <workItem from="1750939784955" duration="9970000" />
       <workItem from="1751007690248" duration="1425000" />
       <workItem from="1751009381485" duration="3678000" />
-    </task>
-    <task id="LOCAL-00075" summary="added routing to other page">
-      <option name="closed" value="true" />
-      <created>1750756044476</created>
-      <option name="number" value="00075" />
-      <option name="presentableId" value="LOCAL-00075" />
-      <option name="project" value="LOCAL" />
-      <updated>1750756044476</updated>
-    </task>
-    <task id="LOCAL-00076" summary="created separate login screen and main app">
-      <option name="closed" value="true" />
-      <created>1750756915017</created>
-      <option name="number" value="00076" />
-      <option name="presentableId" value="LOCAL-00076" />
-      <option name="project" value="LOCAL" />
-      <updated>1750756915017</updated>
-    </task>
-    <task id="LOCAL-00077" summary="created shared js file">
-      <option name="closed" value="true" />
-      <created>1750768339575</created>
-      <option name="number" value="00077" />
-      <option name="presentableId" value="LOCAL-00077" />
-      <option name="project" value="LOCAL" />
-      <updated>1750768339575</updated>
-    </task>
-    <task id="LOCAL-00078" summary="redirects to login before password's been entered">
-      <option name="closed" value="true" />
-      <created>1750768911170</created>
-      <option name="number" value="00078" />
-      <option name="presentableId" value="LOCAL-00078" />
-      <option name="project" value="LOCAL" />
-      <updated>1750768911170</updated>
-    </task>
-    <task id="LOCAL-00079" summary="added login">
-      <option name="closed" value="true" />
-      <created>1750768957318</created>
-      <option name="number" value="00079" />
-      <option name="presentableId" value="LOCAL-00079" />
-      <option name="project" value="LOCAL" />
-      <updated>1750768957318</updated>
-    </task>
-    <task id="LOCAL-00080" summary="sends password for redirecting">
-      <option name="closed" value="true" />
-      <created>1750769257879</created>
-      <option name="number" value="00080" />
-      <option name="presentableId" value="LOCAL-00080" />
-      <option name="project" value="LOCAL" />
-      <updated>1750769257879</updated>
-    </task>
-    <task id="LOCAL-00081" summary="refactoring">
-      <option name="closed" value="true" />
-      <created>1750773392243</created>
-      <option name="number" value="00081" />
-      <option name="presentableId" value="LOCAL-00081" />
-      <option name="project" value="LOCAL" />
-      <updated>1750773392243</updated>
-    </task>
-    <task id="LOCAL-00082" summary="changing APIkey status now gives response">
-      <option name="closed" value="true" />
-      <created>1750840291681</created>
-      <option name="number" value="00082" />
-      <option name="presentableId" value="LOCAL-00082" />
-      <option name="project" value="LOCAL" />
-      <updated>1750840291681</updated>
-    </task>
-    <task id="LOCAL-00083" summary="checks status code of changing APIkey status">
-      <option name="closed" value="true" />
-      <created>1750840329261</created>
-      <option name="number" value="00083" />
-      <option name="presentableId" value="LOCAL-00083" />
-      <option name="project" value="LOCAL" />
-      <updated>1750840329261</updated>
-    </task>
-    <task id="LOCAL-00084" summary="refactored">
-      <option name="closed" value="true" />
-      <created>1750840349622</created>
-      <option name="number" value="00084" />
-      <option name="presentableId" value="LOCAL-00084" />
-      <option name="project" value="LOCAL" />
-      <updated>1750840349622</updated>
-    </task>
-    <task id="LOCAL-00085" summary="added cookies to check if already logged in">
-      <option name="closed" value="true" />
-      <created>1750840430825</created>
-      <option name="number" value="00085" />
-      <option name="presentableId" value="LOCAL-00085" />
-      <option name="project" value="LOCAL" />
-      <updated>1750840430825</updated>
-    </task>
-    <task id="LOCAL-00086" summary="cookies will only be updated when clicking log in button">
-      <option name="closed" value="true" />
-      <created>1750842640874</created>
-      <option name="number" value="00086" />
-      <option name="presentableId" value="LOCAL-00086" />
-      <option name="project" value="LOCAL" />
-      <updated>1750842640874</updated>
-    </task>
-    <task id="LOCAL-00087" summary="added credentials in constructor">
-      <option name="closed" value="true" />
-      <created>1750849084157</created>
-      <option name="number" value="00087" />
-      <option name="presentableId" value="LOCAL-00087" />
-      <option name="project" value="LOCAL" />
-      <updated>1750849084157</updated>
-    </task>
-    <task id="LOCAL-00088" summary="refactored to use credentials instead of cookies">
-      <option name="closed" value="true" />
-      <created>1750849157902</created>
-      <option name="number" value="00088" />
-      <option name="presentableId" value="LOCAL-00088" />
-      <option name="project" value="LOCAL" />
-      <updated>1750849157902</updated>
-    </task>
-    <task id="LOCAL-00089" summary="refactored">
-      <option name="closed" value="true" />
-      <created>1750849166428</created>
-      <option name="number" value="00089" />
-      <option name="presentableId" value="LOCAL-00089" />
-      <option name="project" value="LOCAL" />
-      <updated>1750849166428</updated>
-    </task>
-    <task id="LOCAL-00090" summary="refactored">
-      <option name="closed" value="true" />
-      <created>1750850618625</created>
-      <option name="number" value="00090" />
-      <option name="presentableId" value="LOCAL-00090" />
-      <option name="project" value="LOCAL" />
-      <updated>1750850618625</updated>
-    </task>
-    <task id="LOCAL-00091" summary="refactored session">
-      <option name="closed" value="true" />
-      <created>1750859865262</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
-      <option name="project" value="LOCAL" />
-      <updated>1750859865262</updated>
-    </task>
-    <task id="LOCAL-00092" summary="refactored, improved style">
-      <option name="closed" value="true" />
-      <created>1750859974424</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
-      <option name="project" value="LOCAL" />
-      <updated>1750859974425</updated>
+      <workItem from="1751267326040" duration="27234000" />
+      <workItem from="1751352217475" duration="20339000" />
     </task>
     <task id="LOCAL-00093" summary="refactored">
       <option name="closed" value="true" />
@@ -588,7 +445,151 @@
       <option name="project" value="LOCAL" />
       <updated>1751017556628</updated>
     </task>
-    <option name="localTasksCounter" value="124" />
+    <task id="LOCAL-00124" summary="one set of credentials can now be saved and loaded in login popup">
+      <option name="closed" value="true" />
+      <created>1751018207575</created>
+      <option name="number" value="00124" />
+      <option name="presentableId" value="LOCAL-00124" />
+      <option name="project" value="LOCAL" />
+      <updated>1751018207575</updated>
+    </task>
+    <task id="LOCAL-00125" summary="added deleting of stored objects">
+      <option name="closed" value="true" />
+      <created>1751273211117</created>
+      <option name="number" value="00125" />
+      <option name="presentableId" value="LOCAL-00125" />
+      <option name="project" value="LOCAL" />
+      <updated>1751273211117</updated>
+    </task>
+    <task id="LOCAL-00126" summary="save multiple login credentials">
+      <option name="closed" value="true" />
+      <created>1751273337099</created>
+      <option name="number" value="00126" />
+      <option name="presentableId" value="LOCAL-00126" />
+      <option name="project" value="LOCAL" />
+      <updated>1751273337099</updated>
+    </task>
+    <task id="LOCAL-00127" summary="fixed loading saved login credentials">
+      <option name="closed" value="true" />
+      <created>1751273393393</created>
+      <option name="number" value="00127" />
+      <option name="presentableId" value="LOCAL-00127" />
+      <option name="project" value="LOCAL" />
+      <updated>1751273393393</updated>
+    </task>
+    <task id="LOCAL-00128" summary="finished ToDos">
+      <option name="closed" value="true" />
+      <created>1751287537925</created>
+      <option name="number" value="00128" />
+      <option name="presentableId" value="LOCAL-00128" />
+      <option name="project" value="LOCAL" />
+      <updated>1751287537925</updated>
+    </task>
+    <task id="LOCAL-00129" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1751287651888</created>
+      <option name="number" value="00129" />
+      <option name="presentableId" value="LOCAL-00129" />
+      <option name="project" value="LOCAL" />
+      <updated>1751287651889</updated>
+    </task>
+    <task id="LOCAL-00130" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1751287707371</created>
+      <option name="number" value="00130" />
+      <option name="presentableId" value="LOCAL-00130" />
+      <option name="project" value="LOCAL" />
+      <updated>1751287707372</updated>
+    </task>
+    <task id="LOCAL-00131" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1751294855288</created>
+      <option name="number" value="00131" />
+      <option name="presentableId" value="LOCAL-00131" />
+      <option name="project" value="LOCAL" />
+      <updated>1751294855288</updated>
+    </task>
+    <task id="LOCAL-00132" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1751295320039</created>
+      <option name="number" value="00132" />
+      <option name="presentableId" value="LOCAL-00132" />
+      <option name="project" value="LOCAL" />
+      <updated>1751295320039</updated>
+    </task>
+    <task id="LOCAL-00133" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1751296712353</created>
+      <option name="number" value="00133" />
+      <option name="presentableId" value="LOCAL-00133" />
+      <option name="project" value="LOCAL" />
+      <updated>1751296712353</updated>
+    </task>
+    <task id="LOCAL-00134" summary="de/activate button disables after use">
+      <option name="closed" value="true" />
+      <created>1751359811738</created>
+      <option name="number" value="00134" />
+      <option name="presentableId" value="LOCAL-00134" />
+      <option name="project" value="LOCAL" />
+      <updated>1751359811739</updated>
+    </task>
+    <task id="LOCAL-00135" summary="save Button disables if no changes">
+      <option name="closed" value="true" />
+      <created>1751359855452</created>
+      <option name="number" value="00135" />
+      <option name="presentableId" value="LOCAL-00135" />
+      <option name="project" value="LOCAL" />
+      <updated>1751359855452</updated>
+    </task>
+    <task id="LOCAL-00136" summary="finished ToDos">
+      <option name="closed" value="true" />
+      <created>1751361679407</created>
+      <option name="number" value="00136" />
+      <option name="presentableId" value="LOCAL-00136" />
+      <option name="project" value="LOCAL" />
+      <updated>1751361679407</updated>
+    </task>
+    <task id="LOCAL-00137" summary="won't load apikey list with standard url">
+      <option name="closed" value="true" />
+      <created>1751369185994</created>
+      <option name="number" value="00137" />
+      <option name="presentableId" value="LOCAL-00137" />
+      <option name="project" value="LOCAL" />
+      <updated>1751369185994</updated>
+    </task>
+    <task id="LOCAL-00138" summary="refactored, added loading info">
+      <option name="closed" value="true" />
+      <created>1751369251874</created>
+      <option name="number" value="00138" />
+      <option name="presentableId" value="LOCAL-00138" />
+      <option name="project" value="LOCAL" />
+      <updated>1751369251874</updated>
+    </task>
+    <task id="LOCAL-00139" summary="added loading info">
+      <option name="closed" value="true" />
+      <created>1751369268933</created>
+      <option name="number" value="00139" />
+      <option name="presentableId" value="LOCAL-00139" />
+      <option name="project" value="LOCAL" />
+      <updated>1751369268933</updated>
+    </task>
+    <task id="LOCAL-00140" summary="finished ToDos">
+      <option name="closed" value="true" />
+      <created>1751374423089</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
+      <option name="project" value="LOCAL" />
+      <updated>1751374423089</updated>
+    </task>
+    <task id="LOCAL-00141" summary="finished ToDos, refactored">
+      <option name="closed" value="true" />
+      <created>1751374485047</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
+      <option name="project" value="LOCAL" />
+      <updated>1751374485047</updated>
+    </task>
+    <option name="localTasksCounter" value="142" />
     <servers />
   </component>
   <component name="TerminalProjectNonSharedOptionsProvider">
@@ -649,22 +650,10 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added credentials in constructor" />
-    <MESSAGE value="refactored to use credentials instead of cookies" />
-    <MESSAGE value="refactored session" />
-    <MESSAGE value="refactored, improved style" />
-    <MESSAGE value="removed unused image" />
-    <MESSAGE value="refactored code and styling" />
-    <MESSAGE value="button get disabled if not connected" />
-    <MESSAGE value="added electron-builder" />
-    <MESSAGE value="copied gui to vue-electron-app" />
-    <MESSAGE value="installed electron" />
-    <MESSAGE value="configured electron" />
     <MESSAGE value="forced working gui into electron folder" />
     <MESSAGE value="redid electrons main.js" />
     <MESSAGE value="reconfigured electrons" />
     <MESSAGE value="inserted working gui into electron app" />
-    <MESSAGE value="refactored" />
     <MESSAGE value="renamed app" />
     <MESSAGE value="bypassed CORS" />
     <MESSAGE value="extracted directory my-vue-app" />
@@ -674,7 +663,19 @@
     <MESSAGE value="replaced login screen with popup" />
     <MESSAGE value="tried to get electron-store to work" />
     <MESSAGE value="got electron-store to work" />
-    <option name="LAST_COMMIT_MESSAGE" value="got electron-store to work" />
+    <MESSAGE value="one set of credentials can now be saved and loaded in login popup" />
+    <MESSAGE value="added deleting of stored objects" />
+    <MESSAGE value="save multiple login credentials" />
+    <MESSAGE value="fixed loading saved login credentials" />
+    <MESSAGE value="refactored" />
+    <MESSAGE value="de/activate button disables after use" />
+    <MESSAGE value="save Button disables if no changes" />
+    <MESSAGE value="won't load apikey list with standard url" />
+    <MESSAGE value="refactored, added loading info" />
+    <MESSAGE value="added loading info" />
+    <MESSAGE value="finished ToDos" />
+    <MESSAGE value="finished ToDos, refactored" />
+    <option name="LAST_COMMIT_MESSAGE" value="finished ToDos, refactored" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/apikey_manager_gui$temporaryFile.coverage" NAME="temporaryFile Coverage Results" MODIFIED="1749648656733" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/templates" />
