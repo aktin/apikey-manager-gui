@@ -56,8 +56,11 @@ class BrokerConnection {
                 },
             });
             const text = await response.text();
-            //TODO check what a good response looks like
-            //TODO throw errro if necessary element is not in response text
+
+            const pattern = /[<>]/;
+            if (pattern.test(text)) {
+                throw new Error("No valid API Keys found.");
+            }
             return {
                 status: response.status,
                 data: text,
