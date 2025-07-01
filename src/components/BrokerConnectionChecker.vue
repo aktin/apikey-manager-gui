@@ -12,6 +12,10 @@ import {useToast} from "primevue/usetoast";
 import ConfirmPopup from 'primevue/confirmpopup';
 import {useConfirm} from "primevue/useconfirm";
 
+import BlockUI from 'primevue/blockui';
+
+const logInBlocked = ref(false);
+
 const visible = ref(false);
 const deleteDisabled = ref(true);
 const saveDisabled = ref(true);
@@ -46,8 +50,12 @@ function createErrorToast(title, detail) {
 }
 
 function sendConnectionStatus(statusCode) {
-  connected.value = statusCode === 200;
-  emit("update:isConnected", connected.value);
+  if (url.value === "") {
+    emit("update:isConnected", false);
+  } else {
+    connected.value = statusCode === 200;
+    emit("update:isConnected", connected.value);
+  }
 }
 
 async function checkConnection() {
@@ -63,7 +71,6 @@ function changeSavedCreds() {
 
 async function insertCredentials(nameValue) {
   const credentialsRaw = await window.storeAPI.get(nameValue)
-
   if (credentialsRaw) {
     const credentialsList = credentialsRaw.split(';');
     userName.value = credentialsList[0];
@@ -101,7 +108,6 @@ async function formatCredentials() {
 async function loadLastSaved() {
   const lastSelected = await window.storeAPI.get("LastSelected")
   selectedCredentials.value = {name: lastSelected}
-  await insertCredentials(lastSelected);
 }
 
 async function loadCredentialList() {
@@ -120,11 +126,13 @@ async function saveCredentials() {
   } else {
     const combined = userName.value + ";" + password.value + ";" + url.value;
     window.storeAPI.set(userName.value, combined);
-    loadCredentialList()
-    selectedCredentials.value = userName.value;
+
+    await loadCredentialList().then(() => {
+      selectedCredentials.value = {name: userName.value};
+    });
+
     changeSavedCreds();
     allInputChanged()
-    await insertCredentials(userName.value);
   }
 }
 
@@ -138,7 +146,7 @@ async function deleteCredentials() {
   await loadCredentialList()
 
   if (savedCredentials.value[0]) {
-    selectedCredentials.value.name = savedCredentials.value[0].name
+    selectedCredentials.value = savedCredentials.value[0]
     await insertCredentials(selectedCredentials.value.name)
   } else {
     await insertCredentials("")
@@ -164,7 +172,7 @@ const confirmDelete = (event) => {
   });
 };
 
-function allInputChanged(){
+function allInputChanged() {
   nameChanged();
   keyChanged();
   urlChanged()
@@ -201,10 +209,15 @@ function urlChanged() {
 }
 
 watch(selectedCredentials, async (newVal) => {
+
+  logInBlocked.value = true
+  toast.add({severity: "info", summary: "Loading API Keys", life: toastLife})
+
   saveDisabled.value = true;
   if (newVal) {
     await insertCredentials(newVal.name).then(() => {
       checkConnection();
+      logInBlocked.value = false
     });
   }
 })
@@ -247,43 +260,46 @@ onMounted(() => {
   </div>
 
   <Dialog v-model:visible="visible" modal header="Edit Credentials" :style="{ width: '25rem' }">
-    <div class="field grid mt-4 p-3 flex justify-content-center flex-wrap">
-      <FloatLabel>
-        <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
-                   v-model="userName" @input="nameChanged"/>
-        <label for="urlInput" class="col-fixed">Name</label>
-      </FloatLabel>
-    </div>
-
-    <div class="field grid flex justify-content-center flex-wrap">
-      <div class="p-3 mt-3">
+    <BlockUI :blocked="logInBlocked">
+      <div class="field grid mt-4 p-3 flex justify-content-center flex-wrap">
         <FloatLabel>
-          <Password id="passwordInput" v-model="password" size="small" toggleMask :feedback="false"
-                    @input="keyChanged"/>
-          <label for="passwordInput" class="col-fixed">Admin API Key</label>
+          <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+                     v-model="userName" @input="nameChanged"/>
+          <label for="urlInput" class="col-fixed">Name</label>
         </FloatLabel>
       </div>
-    </div>
 
-    <div class="field grid mt-4 p-3 flex justify-content-center flex-wrap">
-      <FloatLabel>
-        <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
-                   v-model="url" @input="urlChanged"/>
-        <label for="urlInput" class="col-fixed">URL</label>
-      </FloatLabel>
-    </div>
-
-    <div class="field grid p-3 flex justify-content-center flex-wrap">
-      <div class="card flex justify-content-center">
-        <Dropdown v-model="selectedCredentials" editable :options="savedCredentials" optionLabel="name"
-                  placeholder="Select Option"
-                  class="w-full md:w-14rem"/>
+      <div class="field grid flex justify-content-center flex-wrap">
+        <div class="p-3 mt-3">
+          <FloatLabel>
+            <Password id="passwordInput" v-model="password" size="small" toggleMask :feedback="false"
+                      @input="keyChanged"/>
+            <label for="passwordInput" class="col-fixed">Admin API Key</label>
+          </FloatLabel>
+        </div>
       </div>
-      <Button icon="pi pi-save" class="ml-auto" @click="saveCredentials" v-tooltip.bottom="'Save Credentials'"
-              :disabled="saveDisabled"/>
-      <Button icon="pi pi-trash" class="ml-auto" @click="confirmDelete($event)" v-tooltip.bottom="'Delete Credentials'"
-              :disabled="deleteDisabled"/>
-    </div>
+
+      <div class="field grid mt-4 p-3 flex justify-content-center flex-wrap">
+        <FloatLabel>
+          <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
+                     v-model="url" @input="urlChanged"/>
+          <label for="urlInput" class="col-fixed">URL</label>
+        </FloatLabel>
+      </div>
+
+      <div class="field grid p-3 flex justify-content-center flex-wrap">
+        <div class="card flex justify-content-center">
+          <Dropdown v-model="selectedCredentials" editable :options="savedCredentials" optionLabel="name"
+                    placeholder="Select Option"
+                    class="w-full md:w-14rem"/>
+        </div>
+        <Button icon="pi pi-save" class="ml-auto" @click="saveCredentials" v-tooltip.bottom="'Save Credentials'"
+                :disabled="saveDisabled"/>
+        <Button icon="pi pi-trash" class="ml-auto" @click="confirmDelete($event)"
+                v-tooltip.bottom="'Delete Credentials'"
+                :disabled="deleteDisabled"/>
+      </div>
+    </BlockUI>
   </Dialog>
 
 </template>
