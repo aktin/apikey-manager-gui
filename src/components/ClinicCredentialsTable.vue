@@ -53,6 +53,7 @@ async function fetchAndFormatApiKeyList() {
 
   switch (apiKeyList.status) {
     case 200:
+      toast.add({severity: "success", summary: "Loading Success", detail:"API Keys have been loaded", life: toastLife})
       return formatApiKeyList(apiKeyList.data);
     case 404:
       createErrorToast("Error", "could not find API Keys")
