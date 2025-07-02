@@ -12,7 +12,7 @@
   "Checker.connected": "Connected",
   "Checker.noConnection": "No Connection",
   "Checker.configuration": "Configuration",
-  "Checker.profile": "Profile",
+  "Checker.profile": "Profile Name",
   "Checker.selectOption": "Select Credentials",
   "Checker.missingCredentials": "Missing Credentials",
   "Checker.unauthorized": "Unauthorized",
