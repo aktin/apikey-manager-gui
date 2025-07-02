@@ -1,5 +1,5 @@
 <script setup>
-import BrokerConnection from './BrokerConnection';
+import BrokerConnection from './BrokerConnection.js';
 import 'primeicons/primeicons.css';
 import {computed, defineProps, onMounted, ref, watch} from 'vue';
 import Dialog from 'primevue/dialog';
@@ -274,7 +274,7 @@ function changeSaveButton() {
   saveDisabled.value = nameNotChanged.value === true && urlNotChanged.value === true && passwordNotChanged.value === true;
 }
 
-onMounted(async () => {
+onMounted(() => {
   loadLastSaved();
   loadCredentialList();
   checkConnection();
