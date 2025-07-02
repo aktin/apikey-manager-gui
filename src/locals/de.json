@@ -54,7 +54,7 @@
   "Table.emptyList": "Keine API Keys gefunden",
   "Table.unauthorized": "Sie sind nicht autorisiert API Keys einzusehen",
   "Table.keywordSearch": "Stichwortsuche",
-  "Table.keywordSearchInfo": "Suche nur verfügbar für Gebräuchlicher Name, Organisation, Ort",
+  "Table.keywordSearchInfo": "Suche nur verfügbar für Organisation, Ort, Gebräuchlicher Name",
   "Table.apiKeyActive": "API Key ist aktiv",
   "Table.apiKeyInactive": "API Key ist inaktiv",
   "Table.statusUnknown": "Unbekannter Status"

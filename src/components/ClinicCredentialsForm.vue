@@ -169,7 +169,7 @@ function generateApiKey() {
   <div>
 
     <div class="field grid p-2 ml-2">
-      <div class="flex align-items-center justify-content-start">
+      <div class="flex align-items-center justify-content-start mt-3">
         <FloatLabel>
           <InputText id="apiInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
                      v-model="apiKeyInput" :invalid="isApiKeyInvalid"/>
