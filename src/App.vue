@@ -6,11 +6,6 @@ import ClinicCredentialsTable from "./components/ClinicCredentialsTable.vue";
 
 import Toast from "primevue/toast";
 
-import { useI18n } from 'vue-i18n';
-import LanguageSwitcher from './components/BrokerConnectionChecker.vue';
-
-const { t } = useI18n();
-
 const selectedApiKey = ref("");
 const isConnected = ref(true);
 const isAuthorized = ref(false);
