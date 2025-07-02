@@ -72,12 +72,12 @@ function createErrorToast(title, detail) {
   toast.add({severity: "error", summary: title, detail, life: toastLife})
 }
 
-const changeLocalLabel = computed(() => t('Checker.changeLocal'))
-
+const changeLocalsLabel = computed(() => t('Checker.changeLocal'))
+const changeNoCredsLabel = computed(() => t("Checker.noSavedCredentials"))
 const languageMenu = ref();
 const languages = ref([
   {
-    label: changeLocalLabel,
+    label: changeLocalsLabel,
     items: [
       {
         label: 'English',
@@ -93,6 +93,19 @@ const languages = ref([
 
 const toggleLanguage = (event) => {
   languageMenu.value.toggle(event);
+};
+
+const changeCredsLabel = computed(() => t('Checker.selectOption'))
+const credentialMenu = ref();
+const credentials = ref([
+  {
+    label: changeCredsLabel,
+    items: []
+  }
+]);
+
+const changeCredentials = (event) => {
+  credentialMenu.value.toggle(event);
 };
 
 function sendConnectionStatus(statusCode) {
@@ -161,10 +174,42 @@ async function loadCredentialList() {
   (await formatCredentials()).forEach((credential) => {
     savedCredentials.value.push({name: credential.name})
   })
+
+
+  credentials.value = [
+    {
+      label: changeCredsLabel,
+      items: []
+    }
+  ]
+
+  savedCredentials.value.forEach((cred) => {
+
+    credentials.value[0].items.push({
+      label: cred.name,
+      command: async () => {
+        selectedCredentials.value = cred
+        logInBlocked.value = true
+        saveDisabled.value = true;
+        await insertCredentials(cred.name).then(() => {
+          checkConnection();
+          logInBlocked.value = false
+        })
+      }
+    })
+
+  });
+
+  if (credentials.value[0].items.length === 0) {
+    credentials.value[0] = {
+      ...credentials.value[0],
+      label: changeNoCredsLabel
+    };
+  }
 }
 
 async function saveCredentials() {
-  if (!url.value.startsWith('http://') && !url.value.startsWith('https://') ) {
+  if (!url.value.startsWith('http://') && !url.value.startsWith('https://')) {
     url.value = "http://" + url.value
   }
   if (userName.value === "" || password.value === "" || url.value === "") {
@@ -315,50 +360,58 @@ onMounted(() => {
       <ProgressSpinner class="justify-content-center"/>
     </div>
 
-    <div v-else class="h-17rem">
-      <div class="field grid mt-3 p-2 flex flex-wrap align-items-center">
-        <FloatLabel>
-          <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field w-20rem"
-                     v-model="userName" @input="nameChanged"/>
-          <label for="urlInput" class="col-fixed">{{ t("Checker.profile") }}</label>
-        </FloatLabel>
-
-        <Button type="button" icon="pi pi-language" @click="toggleLanguage" aria-haspopup="true" aria-controls="overlay_menu" class="ml-auto" />
-        <Menu ref="languageMenu" id="overlay_menu" :model="languages" :popup="true" />
-      </div>
+    <div v-else class="flex flex-row flex-wrap h-18rem">
+      <div class="flex flex-column justify-content-between">
+        <div class="field grid mt-3 p-2 flex flex-wrap align-items-center ">
+          <FloatLabel>
+            <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field w-20rem"
+                       v-model="userName" @input="nameChanged"/>
+            <label for="urlInput" class="col-fixed">{{ t("Checker.profile") }}</label>
+          </FloatLabel>
+        </div>
 
 
-      <div class="field grid p-2 flex flex-wrap align-items-center">
+        <div class="field grid p-2 flex flex-wrap align-items-center">
           <FloatLabel>
             <Password id="passwordInput" v-model="password" toggleMask :feedback="false"
                       @input="keyChanged"/>
             <label for="passwordInput" class="col-fixed">Admin API Key</label>
           </FloatLabel>
+        </div>
 
-          <Button icon="pi pi-save" class="ml-auto" @click="saveCredentials"
-                  v-tooltip.bottom="t('Checker.saveCredentials')"
-                  :disabled="saveDisabled"/>
+        <div class="field grid p-2 flex flex-wrap align-items-center">
+          <FloatLabel>
+            <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field w-20rem"
+                       v-model="url" @input="urlChanged"/>
+            <label for="urlInput" class="col-fixed">URL</label>
+          </FloatLabel>
+        </div>
+
+
+        <!--
+        <Dropdown v-model="selectedCredentials" editable :options="savedCredentials" optionLabel="name"
+                  :placeholder="t('Checker.selectOption')"
+                  :emptyMessage="t('Checker.noSavedCredentials')"
+                  class="w-full md:w-14rem"/>
+        -->
+
       </div>
+      <div class="flex flex-column justify-content-between ml-auto">
+        <Button type="button" icon="pi pi-language" @click="toggleLanguage" aria-haspopup="true"
+                aria-controls="locals_menu" class="" v-tooltip.bottom="t('Checker.changeLocal')"/>
+        <Menu ref="languageMenu" id="locals_menu" :model="languages" :popup="true"/>
 
-      <div class="field grid p-2 flex flex-wrap align-items-center">
-        <FloatLabel>
-          <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field w-20rem"
-                     v-model="url" @input="urlChanged"/>
-          <label for="urlInput" class="col-fixed">URL</label>
-        </FloatLabel>
+        <Button icon="pi pi-save" class="" @click="saveCredentials"
+                v-tooltip.bottom="t('Checker.saveCredentials')"
+                :disabled="saveDisabled"/>
 
-        <Button icon="pi pi-trash" class="ml-auto" @click="confirmDelete($event)"
+        <Button icon="pi pi-trash" class="" @click="confirmDelete($event)"
                 v-tooltip.bottom="t('Checker.deleteCredentials')"
                 :disabled="deleteDisabled"/>
-      </div>
 
-      <div class="field grid p-2 flex justify-content-center flex-wrap">
-        <div class="card flex justify-content-center">
-          <Dropdown v-model="selectedCredentials" editable :options="savedCredentials" optionLabel="name"
-                    :placeholder="t('Checker.selectOption')"
-                    :emptyMessage="t('Checker.noSavedCredentials')"
-                    class="w-full md:w-14rem"/>
-        </div>
+        <Button type="button" icon="pi pi-arrow-right-arrow-left" @click="changeCredentials" aria-haspopup="true"
+                aria-controls="creds_menu" class="" v-tooltip.bottom="t('Checker.selectOption')"/>
+        <Menu ref="credentialMenu" id="creds_menu" :model="credentials" :popup="true"/>
       </div>
     </div>
   </Dialog>

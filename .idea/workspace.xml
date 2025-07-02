@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="refactored locals">
+    <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="updated gitignore">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/BrokerConnectionChecker.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BrokerConnectionChecker.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ClinicCredentialsTable.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ClinicCredentialsTable.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/locals/de.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/locals/de.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/locals/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/locals/en.json" afterDir="false" />
     </list>
@@ -199,63 +198,7 @@
       <workItem from="1751009381485" duration="3678000" />
       <workItem from="1751267326040" duration="27234000" />
       <workItem from="1751352217475" duration="23492000" />
-      <workItem from="1751440583496" duration="13854000" />
-    </task>
-    <task id="LOCAL-00098" summary="refactored">
-      <option name="closed" value="true" />
-      <created>1750927298203</created>
-      <option name="number" value="00098" />
-      <option name="presentableId" value="LOCAL-00098" />
-      <option name="project" value="LOCAL" />
-      <updated>1750927298203</updated>
-    </task>
-    <task id="LOCAL-00099" summary="added electron-builder">
-      <option name="closed" value="true" />
-      <created>1750927734365</created>
-      <option name="number" value="00099" />
-      <option name="presentableId" value="LOCAL-00099" />
-      <option name="project" value="LOCAL" />
-      <updated>1750927734365</updated>
-    </task>
-    <task id="LOCAL-00100" summary="refactored">
-      <option name="closed" value="true" />
-      <created>1750928497175</created>
-      <option name="number" value="00100" />
-      <option name="presentableId" value="LOCAL-00100" />
-      <option name="project" value="LOCAL" />
-      <updated>1750928497175</updated>
-    </task>
-    <task id="LOCAL-00101" summary="copied gui to vue-electron-app">
-      <option name="closed" value="true" />
-      <created>1750938503503</created>
-      <option name="number" value="00101" />
-      <option name="presentableId" value="LOCAL-00101" />
-      <option name="project" value="LOCAL" />
-      <updated>1750938503503</updated>
-    </task>
-    <task id="LOCAL-00102" summary="copied gui to vue-electron-app">
-      <option name="closed" value="true" />
-      <created>1750938525800</created>
-      <option name="number" value="00102" />
-      <option name="presentableId" value="LOCAL-00102" />
-      <option name="project" value="LOCAL" />
-      <updated>1750938525800</updated>
-    </task>
-    <task id="LOCAL-00103" summary="installed electron">
-      <option name="closed" value="true" />
-      <created>1750939349682</created>
-      <option name="number" value="00103" />
-      <option name="presentableId" value="LOCAL-00103" />
-      <option name="project" value="LOCAL" />
-      <updated>1750939349683</updated>
-    </task>
-    <task id="LOCAL-00104" summary="installed electron">
-      <option name="closed" value="true" />
-      <created>1750940047176</created>
-      <option name="number" value="00104" />
-      <option name="presentableId" value="LOCAL-00104" />
-      <option name="project" value="LOCAL" />
-      <updated>1750940047177</updated>
+      <workItem from="1751440583496" duration="24379000" />
     </task>
     <task id="LOCAL-00105" summary="installed electron">
       <option name="closed" value="true" />
@@ -593,7 +536,63 @@
       <option name="project" value="LOCAL" />
       <updated>1751451215795</updated>
     </task>
-    <option name="localTasksCounter" value="147" />
+    <task id="LOCAL-00147" summary="improved styling">
+      <option name="closed" value="true" />
+      <created>1751456565475</created>
+      <option name="number" value="00147" />
+      <option name="presentableId" value="LOCAL-00147" />
+      <option name="project" value="LOCAL" />
+      <updated>1751456565475</updated>
+    </task>
+    <task id="LOCAL-00148" summary="fixed automatically adding http:// to url, that starts with https://">
+      <option name="closed" value="true" />
+      <created>1751456848442</created>
+      <option name="number" value="00148" />
+      <option name="presentableId" value="LOCAL-00148" />
+      <option name="project" value="LOCAL" />
+      <updated>1751456848442</updated>
+    </task>
+    <task id="LOCAL-00149" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1751458003762</created>
+      <option name="number" value="00149" />
+      <option name="presentableId" value="LOCAL-00149" />
+      <option name="project" value="LOCAL" />
+      <updated>1751458003762</updated>
+    </task>
+    <task id="LOCAL-00150" summary="fixed bug where a local would not change language">
+      <option name="closed" value="true" />
+      <created>1751458103452</created>
+      <option name="number" value="00150" />
+      <option name="presentableId" value="LOCAL-00150" />
+      <option name="project" value="LOCAL" />
+      <updated>1751458103452</updated>
+    </task>
+    <task id="LOCAL-00151" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1751459275430</created>
+      <option name="number" value="00151" />
+      <option name="presentableId" value="LOCAL-00151" />
+      <option name="project" value="LOCAL" />
+      <updated>1751459275430</updated>
+    </task>
+    <task id="LOCAL-00152" summary="changed styling">
+      <option name="closed" value="true" />
+      <created>1751459295020</created>
+      <option name="number" value="00152" />
+      <option name="presentableId" value="LOCAL-00152" />
+      <option name="project" value="LOCAL" />
+      <updated>1751459295020</updated>
+    </task>
+    <task id="LOCAL-00153" summary="updated gitignore">
+      <option name="closed" value="true" />
+      <created>1751459553463</created>
+      <option name="number" value="00153" />
+      <option name="presentableId" value="LOCAL-00153" />
+      <option name="project" value="LOCAL" />
+      <updated>1751459553463</updated>
+    </task>
+    <option name="localTasksCounter" value="154" />
     <servers />
   </component>
   <component name="TerminalProjectNonSharedOptionsProvider">
@@ -654,11 +653,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="renamed app" />
-    <MESSAGE value="bypassed CORS" />
-    <MESSAGE value="extracted directory my-vue-app" />
-    <MESSAGE value="refactor" />
-    <MESSAGE value="updated dependencies" />
     <MESSAGE value="moved electron out of own directory" />
     <MESSAGE value="replaced login screen with popup" />
     <MESSAGE value="tried to get electron-store to work" />
@@ -674,12 +668,17 @@
     <MESSAGE value="added loading info" />
     <MESSAGE value="finished ToDos" />
     <MESSAGE value="finished ToDos, refactored" />
-    <MESSAGE value="refactored" />
     <MESSAGE value="added icon" />
     <MESSAGE value="added locals" />
     <MESSAGE value="implemented locals &quot;en&quot; and &quot;de&quot;" />
     <MESSAGE value="refactored locals" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactored locals" />
+    <MESSAGE value="improved styling" />
+    <MESSAGE value="fixed automatically adding http:// to url, that starts with https://" />
+    <MESSAGE value="fixed bug where a local would not change language" />
+    <MESSAGE value="refactored" />
+    <MESSAGE value="changed styling" />
+    <MESSAGE value="updated gitignore" />
+    <option name="LAST_COMMIT_MESSAGE" value="updated gitignore" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/apikey_manager_gui$temporaryFile.coverage" NAME="temporaryFile Coverage Results" MODIFIED="1749648656733" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/templates" />
