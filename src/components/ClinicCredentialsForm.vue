@@ -6,6 +6,9 @@ import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "./BrokerConnection.js";
 import {useToast} from "primevue/usetoast";
 
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
+
 const toast = useToast();
 const toastLife = 1000 * 5;
 
@@ -49,33 +52,33 @@ async function addApikey() {
 
     switch (statusCode) {
       case 201:
-        createSuccessToast("API Key has been added")
+        createSuccessToast(t("Form.apiKeyAdded"))
         break;
       case 404:
-        createErrorToast("Error", "could not find list to add API Key in.");
+        createErrorToast(t("Form.error"), t("Form.noList"));
         break;
       case 401:
-        createErrorToast("Access Denied", "You are not authorized to perform this action.");
+        createErrorToast(t("Form.accessDenied"), t("Form.noAuthorization"));
         break;
       case 409:
-        createErrorToast("Conflict", "API Key already exists");
+        createErrorToast(t("Form.conflict"), t("Form.apiKeyAlreadyExists"));
         break;
       case 500:
-        createErrorToast("Connection Error", "Could not reach Server.");
+        createErrorToast(t("connectionError"), t("noConnection"));
         break;
       default:
-        createErrorToast("Unexpected Error", "An unexpected error occurred. Code:" + statusCode);
+        createErrorToast(t("Form.unexpectedError"), t("Form.unexpectedErrorText") + statusCode);
     }
   }
 }
 
 function validateField(value, label, pattern) {
   if (value.trim() === "") {
-    createErrorToast("Input Error", `${label} cannot be empty`);
+    createErrorToast(t("inputError"), `${label} ${t("Form.lengthError")}`);
     return true;
   }
   if (pattern.test(value)) {
-    createErrorToast("Input Error", `${label} cannot contain special characters`);
+    createErrorToast(t("inputError"), `${label} ${t("Form.symbolError")}`);
     return true;
   }
   return false;
@@ -84,28 +87,28 @@ function validateField(value, label, pattern) {
 function validate() {
   isApiKeyInvalid.value = false;
   if (apiKeyInput.value.length !== 12) {
-    createErrorToast("Input Error", "API Key must be 12 characters");
+    createErrorToast(t("inputError"), t("Form.apiLengthError"));
     isApiKeyInvalid.value = true;
   } else if (apiKeyPattern.test(apiKeyInput.value)) {
-    createErrorToast("Input Error", "API Key cannot contain special characters");
+    createErrorToast(t("inputError"), "API Key "+t("Form.symbolError"));
     isApiKeyInvalid.value = true;
   }
 
   isOrganizationInvalid.value = validateField(
       organizationInput.value,
-      "Organization",
+      t("organization"),
       apiKeyPattern
   );
 
   isCommonNameInvalid.value = validateField(
       commonNameInput.value,
-      "Common name",
+      t("commonName"),
       dnPattern
   );
 
   isLocationInvalid.value = validateField(
       locationInput.value,
-      "Location",
+      t("location"),
       dnPattern
   );
 }
@@ -115,7 +118,7 @@ function createErrorToast(title, detail) {
 }
 
 function createSuccessToast(detail) {
-  toast.add({severity: "success", summary: "Success", detail, life: toastLife})
+  toast.add({severity: "success", summary: t("success"), detail, life: toastLife})
 }
 
 async function changeState() {
@@ -133,22 +136,22 @@ async function changeState() {
   switch (val) {
     case 200:
       if (statusOfSelectedApiKey === "false") {
-        createSuccessToast("API Key has been activated")
+        createSuccessToast(t("Form.apiKeyActivated"))
       } else {
-        createSuccessToast("API Key has been deactivated")
+        createSuccessToast(t("Form.apiKeyDeactivated"))
       }
       break;
     case 404:
-      createErrorToast("Error", "could not find API Key.");
+      createErrorToast(t("Form.error"), t("Form.noApiKey"));
       break;
     case 401:
-      createErrorToast("Access Denied", "You are not authorized to perform this action.");
+      createErrorToast(t("Form.accessDenied"), t("Form.noAuthorization"));
       break;
     case 500:
-      createErrorToast("Connection Error", "Could not reach Server.");
+      createErrorToast(t("connectionError"), t("noConnection"));
       break;
     default:
-      createErrorToast("Unexpected Error", "An unexpected error occurred. Code:" + val);
+      createErrorToast(t("Form.unexpectedError"), t("Form.unexpectedErrorText") + val);
   }
 }
 
@@ -163,7 +166,6 @@ function generateApiKey() {
 </script>
 
 <template>
-
   <div>
 
     <div class="field grid p-2 ml-2">
@@ -174,7 +176,7 @@ function generateApiKey() {
           <label for="apiInput" class="col-fixed">API Key</label>
         </FloatLabel>
         <span class="ml-2">
-          <Button v-tooltip="'Generate API Key'" icon="pi pi-sync" @click="generateApiKey()"/>
+          <Button v-tooltip="t('Form.generate')" icon="pi pi-sync" @click="generateApiKey()"/>
         </span>
       </div>
     </div>
@@ -184,7 +186,7 @@ function generateApiKey() {
         <InputText id="nameInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
                    v-model="commonNameInput"
                    :invalid="isCommonNameInvalid"/>
-        <label for="nameInput" class="col-fixed">Common Name</label>
+        <label for="nameInput" class="col-fixed">{{ t("commonName") }}</label>
       </FloatLabel>
     </div>
 
@@ -193,7 +195,7 @@ function generateApiKey() {
         <InputText id="orgInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
                    v-model="organizationInput"
                    :invalid="isOrganizationInvalid"/>
-        <label for="orgInput" class="col-fixed">Organization</label>
+        <label for="orgInput" class="col-fixed">{{ t("organization") }}</label>
       </FloatLabel>
     </div>
 
@@ -202,18 +204,18 @@ function generateApiKey() {
         <InputText id="locInput" type="text" class="text-base text-color surface-overlay p-2 input_Field"
                    v-model="locationInput"
                    :invalid="isLocationInvalid"/>
-        <label for="locInput" class="col-fixed">Location</label>
+        <label for="locInput" class="col-fixed">{{ t("location") }}</label>
       </FloatLabel>
     </div>
 
     <div class="flex gap-3 p-3">
-      <Button label="Add API Key" @click="addApikey()" :disabled="!isAddButtonActive"></Button>
+      <Button :label="t('Form.addAPIKey')" @click="addApikey()" :disabled="!isAddButtonActive"></Button>
       <div v-if=" props.selectedKey.split(';')[1]  ==='true' "
            class=" flex align-items-center text-green-600 text-xl">
-        <Button label="Deactivate" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
+        <Button :label="t('Form.deactivate')" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
       </div>
       <div v-else class="flex align-items-center text-red-600 text-xl">
-        <Button label="Activate" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
+        <Button :label="t('Form.activate')" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
       </div>
     </div>
 

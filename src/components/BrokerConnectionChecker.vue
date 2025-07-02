@@ -13,6 +13,25 @@ import ConfirmPopup from 'primevue/confirmpopup';
 import {useConfirm} from "primevue/useconfirm";
 import ProgressSpinner from 'primevue/progressspinner';
 
+import {useI18n} from 'vue-i18n';
+import {watchEffect} from 'vue';
+
+const {locale} = useI18n();
+
+const setLanguage = (newLang) => {
+  locale.value = newLang;
+  localStorage.setItem('lang', newLang);
+};
+
+watchEffect(() => {
+  const storedLang = localStorage.getItem('lang');
+  if (storedLang) {
+    locale.value = storedLang;
+  }
+});
+
+const {t} = useI18n();
+
 const logInBlocked = ref(false);
 
 const visible = ref(false);
@@ -125,7 +144,7 @@ async function saveCredentials() {
     url.value = "http://" + url.value
   }
   if (userName.value === "" || password.value === "" || url.value === "") {
-    createErrorToast("Input Error", "All Fields must be filled")
+    createErrorToast(t("inputError"), t("Checker.fieldsMustBeFilled"))
   } else {
     const combined = userName.value + ";" + password.value + ";" + url.value;
     window.storeAPI.set(userName.value, combined);
@@ -145,7 +164,12 @@ async function deleteCredentials() {
 
   const toDelete = selectedCredentials.value.name
   await window.storeAPI.delete(toDelete);
-  toast.add({severity: 'success', summary: 'Confirmed', detail: toDelete + ' deleted', life: toastLife});
+  toast.add({
+    severity: "success",
+    summary: t("Checker.confirmed"),
+    detail: toDelete + t("Checker.deleted"),
+    life: toastLife
+  });
   await loadCredentialList()
 
   if (savedCredentials.value[0]) {
@@ -161,12 +185,12 @@ async function deleteCredentials() {
 const confirmDelete = (event) => {
   confirm.require({
     target: event.currentTarget,
-    message: 'Do you want to delete these Credentials?',
+    message: t("Checker.deleteConfirm"),
     icon: 'pi pi-info-circle',
     rejectClass: 'p-button-secondary p-button-outlined p-button-sm',
     acceptClass: 'p-button-danger p-button-sm',
-    rejectLabel: 'Cancel',
-    acceptLabel: 'Delete',
+    rejectLabel: t("Checker.cancel"),
+    acceptLabel: t("Checker.delete"),
     accept: () => {
       deleteCredentials();
     },
@@ -183,7 +207,7 @@ function allInputChanged() {
 
 function nameChanged() {
   if (userName.value === "") {
-    createErrorToast("Input Error", "Name cannot be empty")
+    createErrorToast(t("inputError"), t("Checker.profileEmpty"))
     nameNotChanged.value = true
   } else {
     nameNotChanged.value = savedName.value === userName.value;
@@ -193,7 +217,7 @@ function nameChanged() {
 
 function keyChanged() {
   if (password.value === "") {
-    createErrorToast("Input Error", "Admin Api Key cannot be empty")
+    createErrorToast(t("inputError"), t("Checker.apiKeyEmpty"))
     passwordNotChanged.value = true
   } else {
     passwordNotChanged.value = savedPassword.value === password.value;
@@ -203,7 +227,7 @@ function keyChanged() {
 
 function urlChanged() {
   if (url.value === "") {
-    createErrorToast("Input Error", "Url cannot be empty")
+    createErrorToast(t("inputError"), t("Checker.urlEmpty"))
     urlNotChanged.value = true
   } else {
     urlNotChanged.value = savedUrl.value === url.value;
@@ -226,7 +250,7 @@ function changeSaveButton() {
   saveDisabled.value = nameNotChanged.value === true && urlNotChanged.value === true && passwordNotChanged.value === true;
 }
 
-onMounted(() => {
+onMounted(async () => {
   loadLastSaved();
   loadCredentialList();
   checkConnection();
@@ -242,26 +266,26 @@ onMounted(() => {
     <div v-if="connected" class="flex align-items-center text-green-600 text-xl"
          v-tooltip.left="BrokerConnection.getCredentials().url">
       <i class="pi pi-circle-fill mx-2"/>
-      <p class="font-bold">Connected</p>
+      <p class="font-bold">{{ t("Checker.connected") }}</p>
     </div>
 
     <div v-else class="flex align-items-center text-red-600 text-xl"
          v-tooltip.left="BrokerConnection.getCredentials().url">
       <i class="pi pi-circle-fill mx-2"/>
-      <p class="font-bold">No Connection</p>
+      <p class="font-bold">{{ t("Checker.noConnection") }}</p>
     </div>
 
     <div class="ml-auto p-1">
-      <Button v-tooltip.left="'Configuration'" icon="pi pi-cog" @click="visible = true"/>
+      <Button v-tooltip.left="t('Checker.configuration')" icon="pi pi-cog" @click="visible = true"/>
       <span v-if="url === ''|| password === '' " class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
-            v-tooltip.left="'Missing Credentials'"></span>
+            v-tooltip.left="t('Checker.missingCredentials')"></span>
       <span v-if="!props.authorizationState" class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
-            v-tooltip.left="'Unauthorized'"></span>
+            v-tooltip.left="t('Checker.unauthorized')"></span>
     </div>
 
   </div>
 
-  <Dialog v-model:visible="visible" modal header="Edit Credentials" class="w-25rem h-27rem">
+  <Dialog v-model:visible="visible" modal :header="t('Checker.editCredentials')" class="w-25rem h-27rem">
 
     <div v-if="logInBlocked" class="h-20rem flex align-items-center">
       <ProgressSpinner class="justify-content-center"/>
@@ -272,7 +296,7 @@ onMounted(() => {
         <FloatLabel>
           <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field w-20rem"
                      v-model="userName" @input="nameChanged"/>
-          <label for="urlInput" class="col-fixed">Profile</label>
+          <label for="urlInput" class="col-fixed">{{ t("Checker.profile") }}</label>
         </FloatLabel>
       </div>
 
@@ -297,18 +321,23 @@ onMounted(() => {
       <div class="field grid p-2 flex justify-content-center flex-wrap">
         <div class="card flex justify-content-center">
           <Dropdown v-model="selectedCredentials" editable :options="savedCredentials" optionLabel="name"
-                    placeholder="Select Option"
+                    :placeholder="t('Checker.selectOption')"
+                    :emptyMessage="t('Checker.noSavedCredentials')"
                     class="w-full md:w-14rem"/>
         </div>
-        <Button icon="pi pi-save" class="ml-auto" @click="saveCredentials" v-tooltip.bottom="'Save Credentials'"
+        <Button icon="pi pi-save" class="ml-auto" @click="saveCredentials"
+                v-tooltip.bottom="t('Checker.saveCredentials')"
                 :disabled="saveDisabled"/>
         <Button icon="pi pi-trash" class="ml-auto" @click="confirmDelete($event)"
-                v-tooltip.bottom="'Delete Credentials'"
+                v-tooltip.bottom="t('Checker.deleteCredentials')"
                 :disabled="deleteDisabled"/>
       </div>
     </div>
-  </Dialog>
 
+    <button @click="setLanguage('en')">English</button>
+    <button @click="setLanguage('de')">Deutsch</button>
+
+  </Dialog>
 </template>
 
 <style scoped>

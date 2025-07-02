@@ -7,6 +7,9 @@ import {FilterMatchMode} from "primevue/api";
 import InputText from "primevue/inputtext";
 import {useToast} from "primevue/usetoast";
 
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
+
 const toast = useToast();
 
 const apiKeyList = ref([]);
@@ -56,13 +59,13 @@ async function fetchAndFormatApiKeyList() {
     case 200:
       return formatApiKeyList(apiKeyList.data);
     case 404:
-      createErrorToast("Error", "could not find API Keys")
+      createErrorToast(t("error"), t("Table.noApiKey"))
       break;
     case 401:
-      createErrorToast("Access Denied", "You are not authorized to view API Keys")
+      createErrorToast(t("accessDenied"), t("Table.unauthorized"))
       break;
     default:
-      createErrorToast("Connection Error", "could not load API Keys")
+      createErrorToast(t("connectionError"), t("noConnection"))
   }
 }
 
@@ -95,23 +98,23 @@ watch(selectedRow, (newVal) => {
              scroll-height="flex"
              :globalFilterFields="['CN','O','L']"
              filterDisplay="row">
-    <template #empty>No API Keys found</template>
+    <template #empty>{{t("Table.emptyList")}}</template>
     <template #header>
-      <InputText v-model="filters['global'].value" placeholder="Keyword Search"
+      <InputText v-model="filters['global'].value" :placeholder="t('Table.keywordSearch')"
                  class="text-base text-color surface-overlay p-2 input_Field"/>
-      <i v-tooltip="'Search only available for Common Name, Organization, Location'" class="pi pi-info-circle p-2"/>
+      <i v-tooltip="t('Table.keywordSearchInfo')" class="pi pi-info-circle p-2"/>
     </template>
     <Column field="apiKey" header="API Key" style="width: 10%"/>
-    <Column field="CN" header="Common Name" sortable style="width: 35%"/>
-    <Column field="O" header="Organization" sortable style="width: 35%"/>
-    <Column field="L" header="Location" sortable style="width: 10%"/>
-    <Column field="aktive" header="Status" style="width: 10%">
+    <Column field="CN" :header="t('commonName')" sortable style="width: 35%"/>
+    <Column field="O" :header="t('organization')" sortable style="width: 35%"/>
+    <Column field="L" :header="t('location')" sortable style="width: 10%"/>
+    <Column field="aktive" :header="t('Table.status')" style="width: 10%">
       <template #body="{ data }">
         <div class="flex justify-content-center">
-          <i v-if="data.isActive === true" v-tooltip="'API Key is active'" class="pi pi-check-circle text-green-500"/>
-          <i v-else-if="data.isActive === false" v-tooltip="'API Key is inactive'"
+          <i v-if="data.isActive === true" v-tooltip="t('Table.apiKeyActive')" class="pi pi-check-circle text-green-500"/>
+          <i v-else-if="data.isActive === false" v-tooltip="t('Table.apiKeyInactive')"
              class="pi pi-times-circle text-red-500"/>
-          <i v-else v-tooltip="'Status unknown'" class="pi pi-question-circle text-gray-400"/>
+          <i v-else v-tooltip="t('Table.statusUnknown')" class="pi pi-question-circle text-gray-400"/>
         </div>
       </template>
     </Column>
