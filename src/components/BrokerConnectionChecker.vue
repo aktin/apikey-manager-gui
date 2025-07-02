@@ -162,7 +162,7 @@ async function loadCredentialList() {
 }
 
 async function saveCredentials() {
-  if (!url.value.startsWith('http://')) {
+  if (!url.value.startsWith('http://') && !url.value.startsWith('https://') ) {
     url.value = "http://" + url.value
   }
   if (userName.value === "" || password.value === "" || url.value === "") {
