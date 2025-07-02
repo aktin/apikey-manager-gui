@@ -72,10 +72,12 @@ function createErrorToast(title, detail) {
   toast.add({severity: "error", summary: title, detail, life: toastLife})
 }
 
+const changeLocalLabel = computed(() => t('Checker.changeLocal'))
+
 const languageMenu = ref();
 const languages = ref([
   {
-    label: t("Checker.changeLocal"),
+    label: changeLocalLabel,
     items: [
       {
         label: 'English',
