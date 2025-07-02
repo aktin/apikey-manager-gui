@@ -29,6 +29,7 @@
   "Checker.profileEmpty": "Profile cannot be empty",
   "Checker.apiKeyEmpty": "Admin Api Key cannot be empty",
   "Checker.urlEmpty": "Url cannot be empty",
+  "Checker.changeLocal": "Change Language",
 
   "Form.addAPIKey": "Add API Key",
   "Form.activate": "Activate",
@@ -49,7 +50,7 @@
   "Form.noApiKey": "could not find API Key.",
 
   "Table.status": "Status",
-  "Table.noApiKey": "could not find API Keys.",
+  "Table.noList": "could not find list of API Keys.",
   "Table.emptyList": "No API Keys found",
   "Table.unauthorized": "You are not authorized to view API Keys",
   "Table.keywordSearch": "Keyword Search",

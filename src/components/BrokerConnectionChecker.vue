@@ -12,6 +12,7 @@ import {useToast} from "primevue/usetoast";
 import ConfirmPopup from 'primevue/confirmpopup';
 import {useConfirm} from "primevue/useconfirm";
 import ProgressSpinner from 'primevue/progressspinner';
+import Menu from 'primevue/menu';
 
 import {useI18n} from 'vue-i18n';
 import {watchEffect} from 'vue';
@@ -31,6 +32,10 @@ watchEffect(() => {
 });
 
 const {t} = useI18n();
+
+const props = defineProps({
+  authorizationState: Boolean,
+});
 
 const logInBlocked = ref(false);
 
@@ -67,9 +72,26 @@ function createErrorToast(title, detail) {
   toast.add({severity: "error", summary: title, detail, life: toastLife})
 }
 
-const props = defineProps({
-  authorizationState: Boolean,
-});
+const languageMenu = ref();
+const languages = ref([
+  {
+    label: t("Checker.changeLocal"),
+    items: [
+      {
+        label: 'English',
+        command: () => setLanguage('en')
+      },
+      {
+        label: 'Deutsch',
+        command: () => setLanguage('de')
+      }
+    ]
+  }
+]);
+
+const toggleLanguage = (event) => {
+  languageMenu.value.toggle(event);
+};
 
 function sendConnectionStatus(statusCode) {
   if (url.value === "") {
@@ -285,37 +307,47 @@ onMounted(async () => {
 
   </div>
 
-  <Dialog v-model:visible="visible" modal :header="t('Checker.editCredentials')" class="w-25rem h-27rem">
+  <Dialog v-model:visible="visible" modal :header="t('Checker.editCredentials')" class="w-30rem h-25rem">
 
-    <div v-if="logInBlocked" class="h-20rem flex align-items-center">
+    <div v-if="logInBlocked" class="h-18rem flex align-items-center">
       <ProgressSpinner class="justify-content-center"/>
     </div>
 
-    <div v-else class="h-19rem">
-      <div class="field grid mt-3 p-2 flex flex-wrap">
+    <div v-else class="h-17rem">
+      <div class="field grid mt-3 p-2 flex flex-wrap align-items-center">
         <FloatLabel>
           <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field w-20rem"
                      v-model="userName" @input="nameChanged"/>
           <label for="urlInput" class="col-fixed">{{ t("Checker.profile") }}</label>
         </FloatLabel>
+
+        <Button type="button" icon="pi pi-language" @click="toggleLanguage" aria-haspopup="true" aria-controls="overlay_menu" class="ml-auto" />
+        <Menu ref="languageMenu" id="overlay_menu" :model="languages" :popup="true" />
       </div>
 
-      <div class="field grid flex flex-wrap">
-        <div class="p-2">
+
+      <div class="field grid p-2 flex flex-wrap align-items-center">
           <FloatLabel>
             <Password id="passwordInput" v-model="password" toggleMask :feedback="false"
                       @input="keyChanged"/>
             <label for="passwordInput" class="col-fixed">Admin API Key</label>
           </FloatLabel>
-        </div>
+
+          <Button icon="pi pi-save" class="ml-auto" @click="saveCredentials"
+                  v-tooltip.bottom="t('Checker.saveCredentials')"
+                  :disabled="saveDisabled"/>
       </div>
 
-      <div class="field grid p-2 flex flex-wrap">
+      <div class="field grid p-2 flex flex-wrap align-items-center">
         <FloatLabel>
           <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field w-20rem"
                      v-model="url" @input="urlChanged"/>
           <label for="urlInput" class="col-fixed">URL</label>
         </FloatLabel>
+
+        <Button icon="pi pi-trash" class="ml-auto" @click="confirmDelete($event)"
+                v-tooltip.bottom="t('Checker.deleteCredentials')"
+                :disabled="deleteDisabled"/>
       </div>
 
       <div class="field grid p-2 flex justify-content-center flex-wrap">
@@ -325,18 +357,8 @@ onMounted(async () => {
                     :emptyMessage="t('Checker.noSavedCredentials')"
                     class="w-full md:w-14rem"/>
         </div>
-        <Button icon="pi pi-save" class="ml-auto" @click="saveCredentials"
-                v-tooltip.bottom="t('Checker.saveCredentials')"
-                :disabled="saveDisabled"/>
-        <Button icon="pi pi-trash" class="ml-auto" @click="confirmDelete($event)"
-                v-tooltip.bottom="t('Checker.deleteCredentials')"
-                :disabled="deleteDisabled"/>
       </div>
     </div>
-
-    <button @click="setLanguage('en')">English</button>
-    <button @click="setLanguage('de')">Deutsch</button>
-
   </Dialog>
 </template>
 

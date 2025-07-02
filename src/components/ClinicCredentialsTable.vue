@@ -59,7 +59,7 @@ async function fetchAndFormatApiKeyList() {
     case 200:
       return formatApiKeyList(apiKeyList.data);
     case 404:
-      createErrorToast(t("error"), t("Table.noApiKey"))
+      createErrorToast(t("error"), t("Table.noList"))
       break;
     case 401:
       createErrorToast(t("accessDenied"), t("Table.unauthorized"))

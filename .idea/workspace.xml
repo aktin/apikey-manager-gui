@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="implemented locals &quot;en&quot; and &quot;de&quot;">
+    <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="refactored locals">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/BrokerConnectionChecker.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BrokerConnectionChecker.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ClinicCredentialsForm.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ClinicCredentialsForm.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/ClinicCredentialsTable.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ClinicCredentialsTable.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/locals/de.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/locals/de.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/locals/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/locals/en.json" afterDir="false" />
@@ -201,15 +199,7 @@
       <workItem from="1751009381485" duration="3678000" />
       <workItem from="1751267326040" duration="27234000" />
       <workItem from="1751352217475" duration="23492000" />
-      <workItem from="1751440583496" duration="10489000" />
-    </task>
-    <task id="LOCAL-00097" summary="installed electron">
-      <option name="closed" value="true" />
-      <created>1750926384585</created>
-      <option name="number" value="00097" />
-      <option name="presentableId" value="LOCAL-00097" />
-      <option name="project" value="LOCAL" />
-      <updated>1750926384585</updated>
+      <workItem from="1751440583496" duration="13854000" />
     </task>
     <task id="LOCAL-00098" summary="refactored">
       <option name="closed" value="true" />
@@ -595,7 +585,15 @@
       <option name="project" value="LOCAL" />
       <updated>1751441742441</updated>
     </task>
-    <option name="localTasksCounter" value="146" />
+    <task id="LOCAL-00146" summary="refactored locals">
+      <option name="closed" value="true" />
+      <created>1751451215795</created>
+      <option name="number" value="00146" />
+      <option name="presentableId" value="LOCAL-00146" />
+      <option name="project" value="LOCAL" />
+      <updated>1751451215795</updated>
+    </task>
+    <option name="localTasksCounter" value="147" />
     <servers />
   </component>
   <component name="TerminalProjectNonSharedOptionsProvider">
@@ -656,7 +654,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="inserted working gui into electron app" />
     <MESSAGE value="renamed app" />
     <MESSAGE value="bypassed CORS" />
     <MESSAGE value="extracted directory my-vue-app" />
@@ -681,7 +678,8 @@
     <MESSAGE value="added icon" />
     <MESSAGE value="added locals" />
     <MESSAGE value="implemented locals &quot;en&quot; and &quot;de&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="implemented locals &quot;en&quot; and &quot;de&quot;" />
+    <MESSAGE value="refactored locals" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactored locals" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/apikey_manager_gui$temporaryFile.coverage" NAME="temporaryFile Coverage Results" MODIFIED="1749648656733" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/templates" />
