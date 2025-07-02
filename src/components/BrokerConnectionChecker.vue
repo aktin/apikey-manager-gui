@@ -150,62 +150,50 @@ async function insertCredentials(nameValue) {
   await window.callVueFunction();
 }
 
-async function formatCredentials() {
-  const rawData = await window.storeAPI.get()
-  const data = Object.fromEntries(
-      Object.entries(rawData).filter(([key]) => key !== 'LastSelected')
-  );
-  const formattedList = computed(() =>
-      Object.values(data).map(entry => {
-        const [name, key, url] = entry.split(';')
-        return {name, key, url}
-      })
-  )
-  return formattedList.value
-}
-
 async function loadLastSaved() {
   const lastSelected = await window.storeAPI.get("LastSelected")
   selectedCredentials.value = {name: lastSelected}
+  await insertCredentials(lastSelected).then(() => {
+    checkConnection();
+  });
+}
+
+function parseCredentialString(entry) {
+  const [name, key, url] = entry.split(';')
+  return { name, key, url }
+}
+
+async function fetchFormattedCredentials() {
+  const rawData = await window.storeAPI.get()
+  return Object.entries(rawData)
+      .filter(([key]) => key !== 'LastSelected')
+      .map(([, value]) => parseCredentialString(value))
+}
+
+function populateCredentialsUI(credsList) {
+  const items = credsList.map((cred) => ({
+    label: cred.name,
+    command: async () => handleCredentialSelection(cred)
+  }))
+
+  const label = items.length > 0 ? changeCredsLabel : changeNoCredsLabel
+  credentials.value = [{ label, items }]
+}
+
+async function handleCredentialSelection(cred) {
+  selectedCredentials.value = cred
+  logInBlocked.value = true
+  saveDisabled.value = true
+
+  await insertCredentials(cred.name)
+  checkConnection()
+  logInBlocked.value = false
 }
 
 async function loadCredentialList() {
-  savedCredentials.value = [];
-  (await formatCredentials()).forEach((credential) => {
-    savedCredentials.value.push({name: credential.name})
-  })
-
-
-  credentials.value = [
-    {
-      label: changeCredsLabel,
-      items: []
-    }
-  ]
-
-  savedCredentials.value.forEach((cred) => {
-
-    credentials.value[0].items.push({
-      label: cred.name,
-      command: async () => {
-        selectedCredentials.value = cred
-        logInBlocked.value = true
-        saveDisabled.value = true;
-        await insertCredentials(cred.name).then(() => {
-          checkConnection();
-          logInBlocked.value = false
-        })
-      }
-    })
-
-  });
-
-  if (credentials.value[0].items.length === 0) {
-    credentials.value[0] = {
-      ...credentials.value[0],
-      label: changeNoCredsLabel
-    };
-  }
+  const formatted = await fetchFormattedCredentials()
+  savedCredentials.value = formatted.map(({ name }) => ({ name }))
+  populateCredentialsUI(savedCredentials.value)
 }
 
 async function saveCredentials() {
@@ -304,17 +292,6 @@ function urlChanged() {
   changeSaveButton()
 }
 
-watch(selectedCredentials, async (newVal) => {
-  logInBlocked.value = true
-  saveDisabled.value = true;
-  if (newVal) {
-    await insertCredentials(newVal.name).then(() => {
-      checkConnection();
-    });
-  }
-  logInBlocked.value = false
-})
-
 function changeSaveButton() {
   saveDisabled.value = nameNotChanged.value === true && urlNotChanged.value === true && passwordNotChanged.value === true;
 }
@@ -386,7 +363,6 @@ onMounted(() => {
             <label for="urlInput" class="col-fixed">URL</label>
           </FloatLabel>
         </div>
-
 
         <!--
         <Dropdown v-model="selectedCredentials" editable :options="savedCredentials" optionLabel="name"
