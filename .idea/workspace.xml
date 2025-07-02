@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="refactored">
+    <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="added icon">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,8 +20,8 @@
       <list>
         <option value="Python Script" />
         <option value="JavaScript File" />
-        <option value="Vue Composition API Component" />
         <option value="HTML File" />
+        <option value="Vue Composition API Component" />
       </list>
     </option>
   </component>
@@ -194,23 +197,8 @@
       <workItem from="1751007690248" duration="1425000" />
       <workItem from="1751009381485" duration="3678000" />
       <workItem from="1751267326040" duration="27234000" />
-      <workItem from="1751352217475" duration="22424000" />
-    </task>
-    <task id="LOCAL-00094" summary="removed unused image">
-      <option name="closed" value="true" />
-      <created>1750860896895</created>
-      <option name="number" value="00094" />
-      <option name="presentableId" value="LOCAL-00094" />
-      <option name="project" value="LOCAL" />
-      <updated>1750860896895</updated>
-    </task>
-    <task id="LOCAL-00095" summary="refactored code and styling">
-      <option name="closed" value="true" />
-      <created>1750863505720</created>
-      <option name="number" value="00095" />
-      <option name="presentableId" value="LOCAL-00095" />
-      <option name="project" value="LOCAL" />
-      <updated>1750863505721</updated>
+      <workItem from="1751352217475" duration="23492000" />
+      <workItem from="1751440583496" duration="864000" />
     </task>
     <task id="LOCAL-00096" summary="button get disabled if not connected">
       <option name="closed" value="true" />
@@ -588,7 +576,23 @@
       <option name="project" value="LOCAL" />
       <updated>1751376270640</updated>
     </task>
-    <option name="localTasksCounter" value="143" />
+    <task id="LOCAL-00143" summary="added icon">
+      <option name="closed" value="true" />
+      <created>1751378320996</created>
+      <option name="number" value="00143" />
+      <option name="presentableId" value="LOCAL-00143" />
+      <option name="project" value="LOCAL" />
+      <updated>1751378320996</updated>
+    </task>
+    <task id="LOCAL-00144" summary="added icon">
+      <option name="closed" value="true" />
+      <created>1751378440515</created>
+      <option name="number" value="00144" />
+      <option name="presentableId" value="LOCAL-00144" />
+      <option name="project" value="LOCAL" />
+      <updated>1751378440515</updated>
+    </task>
+    <option name="localTasksCounter" value="145" />
     <servers />
   </component>
   <component name="TerminalProjectNonSharedOptionsProvider">
@@ -649,7 +653,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="forced working gui into electron folder" />
     <MESSAGE value="redid electrons main.js" />
     <MESSAGE value="reconfigured electrons" />
     <MESSAGE value="inserted working gui into electron app" />
@@ -674,7 +677,8 @@
     <MESSAGE value="finished ToDos" />
     <MESSAGE value="finished ToDos, refactored" />
     <MESSAGE value="refactored" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactored" />
+    <MESSAGE value="added icon" />
+    <option name="LAST_COMMIT_MESSAGE" value="added icon" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/apikey_manager_gui$temporaryFile.coverage" NAME="temporaryFile Coverage Results" MODIFIED="1749648656733" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/templates" />
