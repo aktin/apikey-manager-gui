@@ -12,24 +12,20 @@ import ConfirmPopup from 'primevue/confirmpopup';
 import {useConfirm} from "primevue/useconfirm";
 import ProgressSpinner from 'primevue/progressspinner';
 import Menu from 'primevue/menu';
-
-import {useI18n} from 'vue-i18n';
 import {watchEffect} from 'vue';
+import {useI18n} from 'vue-i18n';
 
 const {locale} = useI18n();
-
 const setLanguage = (newLang) => {
   locale.value = newLang;
   localStorage.setItem('lang', newLang);
 };
-
 watchEffect(() => {
   const storedLang = localStorage.getItem('lang');
   if (storedLang) {
     locale.value = storedLang;
   }
 });
-
 const {t} = useI18n();
 
 const props = defineProps({
@@ -37,7 +33,6 @@ const props = defineProps({
 });
 
 const logInBlocked = ref(false);
-
 const visible = ref(false);
 const deleteDisabled = ref(true);
 const saveDisabled = ref(true);
@@ -46,8 +41,7 @@ const selectedCredentials = ref();
 const savedCredentials = ref([]);
 
 const status = ref(null);
-
-const emit = defineEmits(["update:isConnected"]);
+const connected = ref(false);
 
 const userName = ref("");
 const password = ref("");
@@ -61,8 +55,7 @@ const nameNotChanged = ref(true);
 const passwordNotChanged = ref(true);
 const urlNotChanged = ref(true);
 
-const connected = ref(false);
-
+const emit = defineEmits(["update:isConnected"]);
 const confirm = useConfirm();
 const toast = useToast();
 const toastLife = 1000 * 5;
@@ -129,11 +122,8 @@ function changeSavedCreds() {
 
 async function insertCredentials(nameValue) {
   const credentialsRaw = await window.storeAPI.get(nameValue)
-
   const isCredentialsValid = !!credentialsRaw;
-
   const [profile, adminKey, address] = isCredentialsValid ? credentialsRaw.split(';') : ["", "", ""];
-
   userName.value = profile;
   password.value = adminKey;
   url.value = address;
@@ -173,7 +163,6 @@ function updateCredentialsList(credsList) {
     label: cred.name,
     command: async () => handleCredentialSelectionChange(cred)
   }))
-
   const label = items.length > 0 ? changeCredsLabel : changeNoCredsLabel
   credentials.value = [{label, items}]
 }
@@ -182,7 +171,6 @@ async function handleCredentialSelectionChange(cred) {
   selectedCredentials.value = cred
   logInBlocked.value = true
   saveDisabled.value = true
-
   await insertCredentials(cred.name)
   await checkConnection()
   logInBlocked.value = false
@@ -206,18 +194,14 @@ async function saveCredentials() {
     const combined = userName.value + ";" + password.value + ";" + url.value;
     window.storeAPI.set(userName.value, combined);
     await handleCredentialSelectionChange({name: userName.value});
-
     await loadCredentialList()
-
     changeSavedCreds();
     allInputChanged()
   }
 }
 
 async function deleteCredentials() {
-
   saveDisabled.value = true;
-
   const toDelete = selectedCredentials.value.name
   await window.storeAPI.delete(toDelete);
   toast.add({
@@ -229,9 +213,7 @@ async function deleteCredentials() {
   await loadCredentialList()
 
   if (savedCredentials.value[0]) {
-
     await handleCredentialSelectionChange(savedCredentials.value[0])
-
   } else {
     await insertCredentials("")
   }
@@ -301,13 +283,10 @@ onMounted(() => {
   checkConnection();
   setInterval(checkConnection, 1000 * 30);
 });
-
 </script>
-
 <template>
   <ConfirmPopup></ConfirmPopup>
   <div class="flex align-items-center">
-
     <div v-if="connected" class="flex align-items-center text-green-600 text-xl"
          v-tooltip.left="BrokerConnection.getCredentials().url">
       <i class="pi pi-circle-fill mx-2"/>
@@ -327,7 +306,6 @@ onMounted(() => {
       <span v-if="!props.authorizationState" class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
             v-tooltip.left="t('checker.unauthorized')"></span>
     </div>
-
   </div>
 
   <Dialog v-model:visible="visible" modal :header="t('checker.editCredentials')" class="w-30rem h-25rem">
@@ -345,7 +323,6 @@ onMounted(() => {
             <label for="urlInput" class="col-fixed">{{ t("checker.profile") }}</label>
           </FloatLabel>
         </div>
-
 
         <div class="field grid p-2 flex flex-wrap align-items-center">
           <FloatLabel>
@@ -384,9 +361,7 @@ onMounted(() => {
     </div>
   </Dialog>
 </template>
-
 <style scoped>
-
 :deep() .p-button-icon {
   font-size: 1.25rem;
 }
