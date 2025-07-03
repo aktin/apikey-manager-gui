@@ -129,19 +129,18 @@ function changeSavedCreds() {
 
 async function insertCredentials(nameValue) {
   const credentialsRaw = await window.storeAPI.get(nameValue)
-  if (credentialsRaw) {
-    const credentialsList = credentialsRaw.split(';');
-    userName.value = credentialsList[0];
-    password.value = credentialsList[1];
-    url.value = credentialsList[2];
-    deleteDisabled.value = false
-  } else {
+
+  const isCredentialsValid = !!credentialsRaw;
+
+  const [profile, adminKey, address] = isCredentialsValid ? credentialsRaw.split(';') : ["", "", ""];
+
+  userName.value = profile;
+  password.value = adminKey;
+  url.value = address;
+  if (!isCredentialsValid) {
     selectedCredentials.value = "";
-    userName.value = "";
-    password.value = "";
-    url.value = "";
-    deleteDisabled.value = true
   }
+  deleteDisabled.value = !isCredentialsValid;
   changeSavedCreds()
   allInputChanged()
   BrokerConnection.setCredentials(url.value, password.value)
@@ -172,14 +171,14 @@ async function fetchFormattedCredentials() {
 function updateCredentialsList(credsList) {
   const items = credsList.map((cred) => ({
     label: cred.name,
-    command: async () => handleCredentialSelection(cred)
+    command: async () => handleCredentialSelectionChange(cred)
   }))
 
   const label = items.length > 0 ? changeCredsLabel : changeNoCredsLabel
   credentials.value = [{label, items}]
 }
 
-async function handleCredentialSelection(cred) {
+async function handleCredentialSelectionChange(cred) {
   selectedCredentials.value = cred
   logInBlocked.value = true
   saveDisabled.value = true
@@ -201,12 +200,12 @@ async function saveCredentials() {
   }
   if (userName.value === "" || password.value === "" || url.value === "") {
     createErrorToast(t("inputError"), t("checker.fieldsMustBeFilled"))
-  } else if (userName.value === "LastSelected"){
+  } else if (userName.value === "LastSelected") {
     createErrorToast(t("inputError"), t("checker.invalidName"))
-  }else{
+  } else {
     const combined = userName.value + ";" + password.value + ";" + url.value;
     window.storeAPI.set(userName.value, combined);
-    await handleCredentialSelection({name: userName.value});
+    await handleCredentialSelectionChange({name: userName.value});
 
     await loadCredentialList()
 
@@ -231,7 +230,7 @@ async function deleteCredentials() {
 
   if (savedCredentials.value[0]) {
 
-    await handleCredentialSelection(savedCredentials.value[0])
+    await handleCredentialSelectionChange(savedCredentials.value[0])
 
   } else {
     await insertCredentials("")
