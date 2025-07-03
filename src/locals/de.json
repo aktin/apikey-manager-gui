@@ -30,6 +30,7 @@
   "checker.apiKeyEmpty": "Admin Api Key darf nicht leer sein",
   "checker.urlEmpty": "Url darf nicht leer sein",
   "checker.changeLocal": "Sprache ändern",
+  "checker.invalidName": "Profilname kann nicht 'LastSelected' sein",
 
   "form.addAPIKey": "API Key hinzufügen",
   "form.activate": "Aktivieren",

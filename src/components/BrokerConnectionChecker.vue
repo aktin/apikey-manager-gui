@@ -201,7 +201,9 @@ async function saveCredentials() {
   }
   if (userName.value === "" || password.value === "" || url.value === "") {
     createErrorToast(t("inputError"), t("checker.fieldsMustBeFilled"))
-  } else {
+  } else if (userName.value === "LastSelected"){
+    createErrorToast(t("inputError"), t("checker.invalidName"))
+  }else{
     const combined = userName.value + ";" + password.value + ";" + url.value;
     window.storeAPI.set(userName.value, combined);
     await handleCredentialSelection({name: userName.value});
