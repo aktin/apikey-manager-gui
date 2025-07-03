@@ -386,11 +386,12 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/deep/ .p-button-icon {
+
+:deep() .p-button-icon {
   font-size: 1.25rem;
 }
 
-/deep/ .p-password-input {
+:deep() .p-password-input {
   width: 20rem
 }
 </style>
