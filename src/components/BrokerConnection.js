@@ -57,7 +57,7 @@ class BrokerConnection {
             });
             const text = await response.text();
 
-            if (text.includes('<link rel="icon" type="image/svg+xml" href="/vite.svg" />')) {
+            if (text.includes('<!doctype html>')) {
                 throw new Error("No valid API Keys found.");
             }
             return {
