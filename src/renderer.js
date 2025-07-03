@@ -22,6 +22,3 @@ const app = createApp(App)
     .use(i18n)
     .directive("tooltip", Tooltip)
     .mount("#app")
-
-
-//TODO (Optional) Add locale for 'de' and 'en'
