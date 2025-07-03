@@ -59,10 +59,10 @@ async function fetchAndFormatApiKeyList() {
     case 200:
       return formatApiKeyList(apiKeyList.data);
     case 404:
-      createErrorToast(t("error"), t("Table.noList"))
+      createErrorToast(t("error"), t("table.noList"))
       break;
     case 401:
-      createErrorToast(t("accessDenied"), t("Table.unauthorized"))
+      createErrorToast(t("accessDenied"), t("table.unauthorized"))
       break;
     default:
       createErrorToast(t("connectionError"), t("noConnection"))
@@ -98,23 +98,23 @@ watch(selectedRow, (newVal) => {
              scroll-height="flex"
              :globalFilterFields="['CN','O','L']"
              filterDisplay="row">
-    <template #empty>{{t("Table.emptyList")}}</template>
+    <template #empty>{{t("table.emptyList")}}</template>
     <template #header>
-      <InputText v-model="filters['global'].value" :placeholder="t('Table.keywordSearch')"
+      <InputText v-model="filters['global'].value" :placeholder="t('table.keywordSearch')"
                  class="text-base text-color surface-overlay p-2 input_Field"/>
-      <i v-tooltip="t('Table.keywordSearchInfo')" class="pi pi-info-circle p-2"/>
+      <i v-tooltip="t('table.keywordSearchInfo')" class="pi pi-info-circle p-2"/>
     </template>
     <Column field="apiKey" header="API Key" style="width: 10%"/>
     <Column field="CN" :header="t('commonName')" sortable style="width: 35%"/>
     <Column field="O" :header="t('organization')" sortable style="width: 35%"/>
     <Column field="L" :header="t('location')" sortable style="width: 10%"/>
-    <Column field="aktive" :header="t('Table.status')" style="width: 10%">
+    <Column field="aktive" :header="t('table.status')" style="width: 10%">
       <template #body="{ data }">
         <div class="flex justify-content-center">
-          <i v-if="data.isActive === true" v-tooltip="t('Table.apiKeyActive')" class="pi pi-check-circle text-green-500"/>
-          <i v-else-if="data.isActive === false" v-tooltip="t('Table.apiKeyInactive')"
+          <i v-if="data.isActive === true" v-tooltip="t('table.apiKeyActive')" class="pi pi-check-circle text-green-500"/>
+          <i v-else-if="data.isActive === false" v-tooltip="t('table.apiKeyInactive')"
              class="pi pi-times-circle text-red-500"/>
-          <i v-else v-tooltip="t('Table.statusUnknown')" class="pi pi-question-circle text-gray-400"/>
+          <i v-else v-tooltip="t('table.statusUnknown')" class="pi pi-question-circle text-gray-400"/>
         </div>
       </template>
     </Column>

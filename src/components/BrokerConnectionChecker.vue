@@ -1,13 +1,12 @@
 <script setup>
 import BrokerConnection from './BrokerConnection.js';
 import 'primeicons/primeicons.css';
-import {computed, defineProps, onMounted, ref, watch} from 'vue';
+import {computed, defineProps, onMounted, ref} from 'vue';
 import Dialog from 'primevue/dialog';
 import FloatLabel from "primevue/floatlabel";
 import Password from "primevue/password";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
-import Dropdown from 'primevue/dropdown';
 import {useToast} from "primevue/usetoast";
 import ConfirmPopup from 'primevue/confirmpopup';
 import {useConfirm} from "primevue/useconfirm";
@@ -72,8 +71,7 @@ function createErrorToast(title, detail) {
   toast.add({severity: "error", summary: title, detail, life: toastLife})
 }
 
-const changeLocalsLabel = computed(() => t('Checker.changeLocal'))
-const changeNoCredsLabel = computed(() => t("Checker.noSavedCredentials"))
+const changeLocalsLabel = computed(() => t('checker.changeLocal'))
 const languageMenu = ref();
 const languages = ref([
   {
@@ -95,7 +93,8 @@ const toggleLanguage = (event) => {
   languageMenu.value.toggle(event);
 };
 
-const changeCredsLabel = computed(() => t('Checker.selectOption'))
+const changeCredsLabel = computed(() => t('checker.selectOption'))
+const changeNoCredsLabel = computed(() => t("checker.noSavedCredentials"))
 const credentialMenu = ref();
 const credentials = ref([
   {
@@ -160,7 +159,7 @@ async function loadLastSaved() {
 
 function parseCredentialString(entry) {
   const [name, key, url] = entry.split(';')
-  return { name, key, url }
+  return {name, key, url}
 }
 
 async function fetchFormattedCredentials() {
@@ -170,14 +169,14 @@ async function fetchFormattedCredentials() {
       .map(([, value]) => parseCredentialString(value))
 }
 
-function populateCredentialsUI(credsList) {
+function updateCredentialsList(credsList) {
   const items = credsList.map((cred) => ({
     label: cred.name,
     command: async () => handleCredentialSelection(cred)
   }))
 
   const label = items.length > 0 ? changeCredsLabel : changeNoCredsLabel
-  credentials.value = [{ label, items }]
+  credentials.value = [{label, items}]
 }
 
 async function handleCredentialSelection(cred) {
@@ -186,14 +185,14 @@ async function handleCredentialSelection(cred) {
   saveDisabled.value = true
 
   await insertCredentials(cred.name)
-  checkConnection()
+  await checkConnection()
   logInBlocked.value = false
 }
 
 async function loadCredentialList() {
   const formatted = await fetchFormattedCredentials()
-  savedCredentials.value = formatted.map(({ name }) => ({ name }))
-  populateCredentialsUI(savedCredentials.value)
+  savedCredentials.value = formatted.map(({name}) => ({name}))
+  updateCredentialsList(savedCredentials.value)
 }
 
 async function saveCredentials() {
@@ -201,14 +200,13 @@ async function saveCredentials() {
     url.value = "http://" + url.value
   }
   if (userName.value === "" || password.value === "" || url.value === "") {
-    createErrorToast(t("inputError"), t("Checker.fieldsMustBeFilled"))
+    createErrorToast(t("inputError"), t("checker.fieldsMustBeFilled"))
   } else {
     const combined = userName.value + ";" + password.value + ";" + url.value;
     window.storeAPI.set(userName.value, combined);
+    await handleCredentialSelection({name: userName.value});
 
-    await loadCredentialList().then(() => {
-      selectedCredentials.value = {name: userName.value};
-    });
+    await loadCredentialList()
 
     changeSavedCreds();
     allInputChanged()
@@ -223,31 +221,31 @@ async function deleteCredentials() {
   await window.storeAPI.delete(toDelete);
   toast.add({
     severity: "success",
-    summary: t("Checker.confirmed"),
-    detail: toDelete + t("Checker.deleted"),
+    summary: t("checker.confirmed"),
+    detail: toDelete + t("checker.deleted"),
     life: toastLife
   });
   await loadCredentialList()
 
   if (savedCredentials.value[0]) {
-    selectedCredentials.value = savedCredentials.value[0]
-    await insertCredentials(selectedCredentials.value.name)
+
+    await handleCredentialSelection(savedCredentials.value[0])
+
   } else {
     await insertCredentials("")
   }
-  changeSaveButton();
   allInputChanged()
 }
 
 const confirmDelete = (event) => {
   confirm.require({
     target: event.currentTarget,
-    message: t("Checker.deleteConfirm"),
+    message: t("checker.deleteConfirm"),
     icon: 'pi pi-info-circle',
     rejectClass: 'p-button-secondary p-button-outlined p-button-sm',
     acceptClass: 'p-button-danger p-button-sm',
-    rejectLabel: t("Checker.cancel"),
-    acceptLabel: t("Checker.delete"),
+    rejectLabel: t("checker.cancel"),
+    acceptLabel: t("checker.delete"),
     accept: () => {
       deleteCredentials();
     },
@@ -264,7 +262,7 @@ function allInputChanged() {
 
 function nameChanged() {
   if (userName.value === "") {
-    createErrorToast(t("inputError"), t("Checker.profileEmpty"))
+    createErrorToast(t("inputError"), t("checker.profileEmpty"))
     nameNotChanged.value = true
   } else {
     nameNotChanged.value = savedName.value === userName.value;
@@ -274,7 +272,7 @@ function nameChanged() {
 
 function keyChanged() {
   if (password.value === "") {
-    createErrorToast(t("inputError"), t("Checker.apiKeyEmpty"))
+    createErrorToast(t("inputError"), t("checker.apiKeyEmpty"))
     passwordNotChanged.value = true
   } else {
     passwordNotChanged.value = savedPassword.value === password.value;
@@ -284,7 +282,7 @@ function keyChanged() {
 
 function urlChanged() {
   if (url.value === "") {
-    createErrorToast(t("inputError"), t("Checker.urlEmpty"))
+    createErrorToast(t("inputError"), t("checker.urlEmpty"))
     urlNotChanged.value = true
   } else {
     urlNotChanged.value = savedUrl.value === url.value;
@@ -312,26 +310,26 @@ onMounted(() => {
     <div v-if="connected" class="flex align-items-center text-green-600 text-xl"
          v-tooltip.left="BrokerConnection.getCredentials().url">
       <i class="pi pi-circle-fill mx-2"/>
-      <p class="font-bold">{{ t("Checker.connected") }}</p>
+      <p class="font-bold">{{ t("checker.connected") }}</p>
     </div>
 
     <div v-else class="flex align-items-center text-red-600 text-xl"
          v-tooltip.left="BrokerConnection.getCredentials().url">
       <i class="pi pi-circle-fill mx-2"/>
-      <p class="font-bold">{{ t("Checker.noConnection") }}</p>
+      <p class="font-bold">{{ t("checker.noConnection") }}</p>
     </div>
 
     <div class="ml-auto p-1">
-      <Button v-tooltip.left="t('Checker.configuration')" icon="pi pi-cog" @click="visible = true"/>
+      <Button v-tooltip.left="t('checker.configuration')" icon="pi pi-cog" @click="visible = true"/>
       <span v-if="url === ''|| password === '' " class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
-            v-tooltip.left="t('Checker.missingCredentials')"></span>
+            v-tooltip.left="t('checker.missingCredentials')"></span>
       <span v-if="!props.authorizationState" class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
-            v-tooltip.left="t('Checker.unauthorized')"></span>
+            v-tooltip.left="t('checker.unauthorized')"></span>
     </div>
 
   </div>
 
-  <Dialog v-model:visible="visible" modal :header="t('Checker.editCredentials')" class="w-30rem h-25rem">
+  <Dialog v-model:visible="visible" modal :header="t('checker.editCredentials')" class="w-30rem h-25rem">
 
     <div v-if="logInBlocked" class="h-18rem flex align-items-center">
       <ProgressSpinner class="justify-content-center"/>
@@ -343,7 +341,7 @@ onMounted(() => {
           <FloatLabel>
             <InputText id="urlInput" type="text" class="text-base text-color surface-overlay p-2 input_Field w-20rem"
                        v-model="userName" @input="nameChanged"/>
-            <label for="urlInput" class="col-fixed">{{ t("Checker.profile") }}</label>
+            <label for="urlInput" class="col-fixed">{{ t("checker.profile") }}</label>
           </FloatLabel>
         </div>
 
@@ -364,29 +362,22 @@ onMounted(() => {
           </FloatLabel>
         </div>
 
-        <!--
-        <Dropdown v-model="selectedCredentials" editable :options="savedCredentials" optionLabel="name"
-                  :placeholder="t('Checker.selectOption')"
-                  :emptyMessage="t('Checker.noSavedCredentials')"
-                  class="w-full md:w-14rem"/>
-        -->
-
       </div>
       <div class="flex flex-column justify-content-between ml-auto">
         <Button type="button" icon="pi pi-language" @click="toggleLanguage" aria-haspopup="true"
-                aria-controls="locals_menu" class="" v-tooltip.bottom="t('Checker.changeLocal')"/>
+                aria-controls="locals_menu" class="" v-tooltip.bottom="t('checker.changeLocal')"/>
         <Menu ref="languageMenu" id="locals_menu" :model="languages" :popup="true"/>
 
         <Button icon="pi pi-save" class="" @click="saveCredentials"
-                v-tooltip.bottom="t('Checker.saveCredentials')"
+                v-tooltip.bottom="t('checker.saveCredentials')"
                 :disabled="saveDisabled"/>
 
         <Button icon="pi pi-trash" class="" @click="confirmDelete($event)"
-                v-tooltip.bottom="t('Checker.deleteCredentials')"
+                v-tooltip.bottom="t('checker.deleteCredentials')"
                 :disabled="deleteDisabled"/>
 
         <Button type="button" icon="pi pi-arrow-right-arrow-left" @click="changeCredentials" aria-haspopup="true"
-                aria-controls="creds_menu" class="" v-tooltip.bottom="t('Checker.selectOption')"/>
+                aria-controls="creds_menu" class="" v-tooltip.bottom="t('checker.selectOption')"/>
         <Menu ref="credentialMenu" id="creds_menu" :model="credentials" :popup="true"/>
       </div>
     </div>

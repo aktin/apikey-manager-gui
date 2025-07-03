@@ -52,33 +52,33 @@ async function addApikey() {
 
     switch (statusCode) {
       case 201:
-        createSuccessToast(t("Form.apiKeyAdded"))
+        createSuccessToast(t("form.apiKeyAdded"))
         break;
       case 404:
-        createErrorToast(t("Form.error"), t("Form.noList"));
+        createErrorToast(t("form.error"), t("form.noList"));
         break;
       case 401:
-        createErrorToast(t("Form.accessDenied"), t("Form.noAuthorization"));
+        createErrorToast(t("form.accessDenied"), t("form.noAuthorization"));
         break;
       case 409:
-        createErrorToast(t("Form.conflict"), t("Form.apiKeyAlreadyExists"));
+        createErrorToast(t("form.conflict"), t("form.apiKeyAlreadyExists"));
         break;
       case 500:
         createErrorToast(t("connectionError"), t("noConnection"));
         break;
       default:
-        createErrorToast(t("Form.unexpectedError"), t("Form.unexpectedErrorText") + statusCode);
+        createErrorToast(t("form.unexpectedError"), t("form.unexpectedErrorText") + statusCode);
     }
   }
 }
 
 function validateField(value, label, pattern) {
   if (value.trim() === "") {
-    createErrorToast(t("inputError"), `${label} ${t("Form.lengthError")}`);
+    createErrorToast(t("inputError"), `${label} ${t("form.lengthError")}`);
     return true;
   }
   if (pattern.test(value)) {
-    createErrorToast(t("inputError"), `${label} ${t("Form.symbolError")}`);
+    createErrorToast(t("inputError"), `${label} ${t("form.symbolError")}`);
     return true;
   }
   return false;
@@ -87,10 +87,10 @@ function validateField(value, label, pattern) {
 function validate() {
   isApiKeyInvalid.value = false;
   if (apiKeyInput.value.length !== 12) {
-    createErrorToast(t("inputError"), t("Form.apiLengthError"));
+    createErrorToast(t("inputError"), t("form.apiLengthError"));
     isApiKeyInvalid.value = true;
   } else if (apiKeyPattern.test(apiKeyInput.value)) {
-    createErrorToast(t("inputError"), "API Key "+t("Form.symbolError"));
+    createErrorToast(t("inputError"), "API Key "+t("form.symbolError"));
     isApiKeyInvalid.value = true;
   }
 
@@ -136,22 +136,22 @@ async function changeState() {
   switch (val) {
     case 200:
       if (statusOfSelectedApiKey === "false") {
-        createSuccessToast(t("Form.apiKeyActivated"))
+        createSuccessToast(t("form.apiKeyActivated"))
       } else {
-        createSuccessToast(t("Form.apiKeyDeactivated"))
+        createSuccessToast(t("form.apiKeyDeactivated"))
       }
       break;
     case 404:
-      createErrorToast(t("Form.error"), t("Form.noApiKey"));
+      createErrorToast(t("form.error"), t("form.noApiKey"));
       break;
     case 401:
-      createErrorToast(t("Form.accessDenied"), t("Form.noAuthorization"));
+      createErrorToast(t("form.accessDenied"), t("form.noAuthorization"));
       break;
     case 500:
       createErrorToast(t("connectionError"), t("noConnection"));
       break;
     default:
-      createErrorToast(t("Form.unexpectedError"), t("Form.unexpectedErrorText") + val);
+      createErrorToast(t("form.unexpectedError"), t("form.unexpectedErrorText") + val);
   }
 }
 
@@ -176,7 +176,7 @@ function generateApiKey() {
           <label for="apiInput" class="col-fixed">API Key</label>
         </FloatLabel>
         <span class="ml-2">
-          <Button v-tooltip="t('Form.generate')" icon="pi pi-sync" @click="generateApiKey()"/>
+          <Button v-tooltip="t('form.generate')" icon="pi pi-sync" @click="generateApiKey()"/>
         </span>
       </div>
     </div>
@@ -209,13 +209,13 @@ function generateApiKey() {
     </div>
 
     <div class="flex gap-3 p-3">
-      <Button :label="t('Form.addAPIKey')" @click="addApikey()" :disabled="!isAddButtonActive"></Button>
+      <Button :label="t('form.addAPIKey')" @click="addApikey()" :disabled="!isAddButtonActive"></Button>
       <div v-if=" props.selectedKey.split(';')[1]  ==='true' "
            class=" flex align-items-center text-green-600 text-xl">
-        <Button :label="t('Form.deactivate')" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
+        <Button :label="t('form.deactivate')" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
       </div>
       <div v-else class="flex align-items-center text-red-600 text-xl">
-        <Button :label="t('Form.activate')" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
+        <Button :label="t('form.activate')" @click="changeState()" :disabled="!isChangeStateButtonActive"/>
       </div>
     </div>
 

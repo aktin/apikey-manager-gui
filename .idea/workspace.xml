@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="changed styling, changed Dropdown to Menu Button">
+    <list default="true" id="c501c806-740e-45f7-a33c-6299ecee6aaf" name="Changes" comment="refactored">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/BrokerConnectionChecker.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/BrokerConnectionChecker.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/locals/de.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/locals/de.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -196,15 +197,8 @@
       <workItem from="1751009381485" duration="3678000" />
       <workItem from="1751267326040" duration="27234000" />
       <workItem from="1751352217475" duration="23492000" />
-      <workItem from="1751440583496" duration="26997000" />
-    </task>
-    <task id="LOCAL-00107" summary="forced working gui into electron folder">
-      <option name="closed" value="true" />
-      <created>1750941332094</created>
-      <option name="number" value="00107" />
-      <option name="presentableId" value="LOCAL-00107" />
-      <option name="project" value="LOCAL" />
-      <updated>1750941332094</updated>
+      <workItem from="1751440583496" duration="27291000" />
+      <workItem from="1751526323079" duration="6220000" />
     </task>
     <task id="LOCAL-00108" summary="redid electrons main.js">
       <option name="closed" value="true" />
@@ -590,7 +584,15 @@
       <option name="project" value="LOCAL" />
       <updated>1751467304478</updated>
     </task>
-    <option name="localTasksCounter" value="156" />
+    <task id="LOCAL-00156" summary="refactored">
+      <option name="closed" value="true" />
+      <created>1751469944851</created>
+      <option name="number" value="00156" />
+      <option name="presentableId" value="LOCAL-00156" />
+      <option name="project" value="LOCAL" />
+      <updated>1751469944851</updated>
+    </task>
+    <option name="localTasksCounter" value="157" />
     <servers />
   </component>
   <component name="TerminalProjectNonSharedOptionsProvider">
@@ -674,9 +676,9 @@
     <MESSAGE value="fixed bug where a local would not change language" />
     <MESSAGE value="changed styling" />
     <MESSAGE value="updated gitignore" />
-    <MESSAGE value="refactored" />
     <MESSAGE value="changed styling, changed Dropdown to Menu Button" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed styling, changed Dropdown to Menu Button" />
+    <MESSAGE value="refactored" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactored" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/apikey_manager_gui$temporaryFile.coverage" NAME="temporaryFile Coverage Results" MODIFIED="1749648656733" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/templates" />
