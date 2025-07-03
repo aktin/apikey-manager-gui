@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+  "target": "ESNext",
+  "module": "ESNext",
+  "moduleResolution": "Bundler",
+  "jsx": "preserve",
+  "esModuleInterop": true,
+  "skipLibCheck": true,
+  "forceConsistentCasingInFileNames": true,
+  "types": ["vite/client"]
+  },
+  "include": ["src", "src/types"]
+}
