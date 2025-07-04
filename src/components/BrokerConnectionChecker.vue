@@ -182,15 +182,42 @@ async function loadCredentialList() {
   updateCredentialsList(savedCredentials.value)
 }
 
-async function saveCredentials() {
+function checkCredentials() {
+
+  const pattern = /[!@#$%^*,.?"{}|;<>[\]]/
+
+  let isValid = true
+
   if (!url.value.startsWith('http://') && !url.value.startsWith('https://')) {
     url.value = "http://" + url.value
   }
+
+  if (pattern.test(userName.value)) {
+    createErrorToast(t("inputError"), t("checker.profile") + " " + t("form.symbolError"))
+    isValid = false
+  }
+  if (pattern.test(password.value)) {
+    createErrorToast(t("inputError"), "Admin API Key " + t("form.symbolError"))
+    isValid = false
+  }
+  if (pattern.test(url.value)) {
+    createErrorToast(t("inputError"), "URL " + t("form.symbolError"))
+    isValid = false
+  }
+
   if (userName.value === "" || password.value === "" || url.value === "") {
     createErrorToast(t("inputError"), t("checker.fieldsMustBeFilled"))
+    return false
   } else if (userName.value === "LastSelected") {
     createErrorToast(t("inputError"), t("checker.invalidName"))
-  } else {
+    return false
+  }
+
+  return isValid
+}
+
+async function saveCredentials() {
+  if (checkCredentials()) {
     const combined = userName.value + ";" + password.value + ";" + url.value;
     window.storeAPI.set(userName.value, combined);
     await handleCredentialSelectionChange({name: userName.value});
@@ -277,10 +304,15 @@ function changeSaveButton() {
   saveDisabled.value = nameNotChanged.value === true && urlNotChanged.value === true && passwordNotChanged.value === true;
 }
 
-onMounted(() => {
+onMounted(async () => {
   loadLastSaved();
   loadCredentialList();
   checkConnection();
+
+  window.storeAPI.delete("LastSelected")
+
+  console.log("saved:", await window.storeAPI.get())
+
   setInterval(checkConnection, 1000 * 30);
 });
 </script>
