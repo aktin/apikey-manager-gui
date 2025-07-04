@@ -26,7 +26,7 @@
   "checker.confirmed": "Bestätigt",
   "checker.deleted": " gelöscht",
   "checker.fieldsMustBeFilled": "Alle Felder müssen ausgefüllt sein",
-  "checker.profileEmpty": "Profil darf nicht leer sein",
+  "checker.profileEmpty": "Profilname darf nicht leer sein",
   "checker.apiKeyEmpty": "Admin Api Key darf nicht leer sein",
   "checker.urlEmpty": "Url darf nicht leer sein",
   "checker.changeLocal": "Sprache ändern",

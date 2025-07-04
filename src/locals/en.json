@@ -26,7 +26,7 @@
   "checker.confirmed": "Confirmed",
   "checker.deleted": " deleted",
   "checker.fieldsMustBeFilled": "All Fields must be filled",
-  "checker.profileEmpty": "Profile cannot be empty",
+  "checker.profileEmpty": "Profile name cannot be empty",
   "checker.apiKeyEmpty": "Admin Api Key cannot be empty",
   "checker.urlEmpty": "Url cannot be empty",
   "checker.changeLocal": "Change Language",
