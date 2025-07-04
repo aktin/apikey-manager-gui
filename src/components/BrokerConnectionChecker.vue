@@ -184,7 +184,7 @@ async function loadCredentialList() {
 
 function checkCredentials() {
 
-  const pattern = /[!@#$%^*,.?"{}|;<>[\]]/
+  const pattern = /[@#§`´°~$%^*"{}|;<>[\]]/
 
   let isValid = true
 
@@ -212,7 +212,6 @@ function checkCredentials() {
     createErrorToast(t("inputError"), t("checker.invalidName"))
     return false
   }
-
   return isValid
 }
 
