@@ -66,6 +66,7 @@ function createErrorToast(title, detail) {
 
 const changeLocalsLabel = computed(() => t('checker.changeLocal'))
 const languageMenu = ref();
+//creates list of selectable languages
 const languages = ref([
   {
     label: changeLocalsLabel,
@@ -82,6 +83,7 @@ const languages = ref([
   }
 ]);
 
+//opens menu for language selection
 const toggleLanguage = (event) => {
   languageMenu.value.toggle(event);
 };
@@ -95,11 +97,12 @@ const credentials = ref([
     items: []
   }
 ]);
-
+//opens menu for credential selection
 const changeCredentials = (event) => {
   credentialMenu.value.toggle(event);
 };
 
+//tells other classes if a connection is established if a url is entered
 function sendConnectionStatus(statusCode) {
   if (url.value === "") {
     emit("update:isConnected", false);
@@ -109,17 +112,20 @@ function sendConnectionStatus(statusCode) {
   }
 }
 
+//checks if connection to broker is established
 async function checkConnection() {
   status.value = await BrokerConnection.getBrokerStatus();
   sendConnectionStatus(status.value);
 }
 
+//caches inputted credentials
 function changeSavedCreds() {
   savedName.value = userName.value;
   savedPassword.value = password.value;
   savedUrl.value = url.value;
 }
 
+//inserts data from selected credentials into input fields and BrokerConnection.js and updates table
 async function insertCredentials(nameValue) {
   const credentialsRaw = await window.storeAPI.get(nameValue)
   const isCredentialsValid = !!credentialsRaw;
@@ -138,6 +144,7 @@ async function insertCredentials(nameValue) {
   await window.callVueFunction();
 }
 
+//loads last selected credentials into input fields
 async function loadLastSaved() {
   const lastSelected = await window.storeAPI.get("LastSelected")
   selectedCredentials.value = {name: lastSelected}
@@ -146,11 +153,13 @@ async function loadLastSaved() {
   });
 }
 
+//formats credential string into uniform dictionary
 function parseCredentialString(entry) {
   const [name, key, url] = entry.split(';')
   return {name, key, url}
 }
 
+//gets saved credentials from storage and formats them into a list of dictionaries
 async function fetchFormattedCredentials() {
   const rawData = await window.storeAPI.get()
   return Object.entries(rawData)
@@ -158,15 +167,7 @@ async function fetchFormattedCredentials() {
       .map(([, value]) => parseCredentialString(value))
 }
 
-function updateCredentialsList(credsList) {
-  const items = credsList.map((cred) => ({
-    label: cred.name,
-    command: async () => handleCredentialSelectionChange(cred)
-  }))
-  const label = items.length > 0 ? changeCredsLabel : changeNoCredsLabel
-  credentials.value = [{label, items}]
-}
-
+//checks which credentials are selected and loads them
 async function handleCredentialSelectionChange(cred) {
   selectedCredentials.value = cred
   logInBlocked.value = true
@@ -176,22 +177,30 @@ async function handleCredentialSelectionChange(cred) {
   logInBlocked.value = false
 }
 
+//creates list of selectable credentials
+function updateCredentialsList(credsList) {
+  const items = credsList.map((cred) => ({
+    label: cred.name,
+    command: async () => handleCredentialSelectionChange(cred)
+  }))
+  const label = items.length > 0 ? changeCredsLabel : changeNoCredsLabel
+  credentials.value = [{label, items}]
+}
+
+//creates list from saved credentials
 async function loadCredentialList() {
   const formatted = await fetchFormattedCredentials()
   savedCredentials.value = formatted.map(({name}) => ({name}))
   updateCredentialsList(savedCredentials.value)
 }
 
+//checks inputted credentials for formatting and specific characters and gives feedback in ui
 function checkCredentials() {
-
   const pattern = /[@#§`´°~$%^*"{}|;<>[\]]/
-
   let isValid = true
-
   if (!url.value.startsWith('http://') && !url.value.startsWith('https://')) {
     url.value = "http://" + url.value
   }
-
   if (pattern.test(userName.value)) {
     createErrorToast(t("inputError"), t("checker.profile") + " " + t("form.symbolError"))
     isValid = false
@@ -204,7 +213,6 @@ function checkCredentials() {
     createErrorToast(t("inputError"), "URL " + t("form.symbolError"))
     isValid = false
   }
-
   if (userName.value === "" || password.value === "" || url.value === "") {
     createErrorToast(t("inputError"), t("checker.fieldsMustBeFilled"))
     return false
@@ -215,17 +223,17 @@ function checkCredentials() {
   return isValid
 }
 
+//saves inputted credentials in storage and loads their data
 async function saveCredentials() {
   if (checkCredentials()) {
     const combined = userName.value + ";" + password.value + ";" + url.value;
     window.storeAPI.set(userName.value, combined);
     await handleCredentialSelectionChange({name: userName.value});
     await loadCredentialList()
-    changeSavedCreds();
-    allInputChanged()
   }
 }
 
+//deletes selected credentials from storage and loads first credentials in storage and gives feedback in ui
 async function deleteCredentials() {
   saveDisabled.value = true;
   const toDelete = selectedCredentials.value.name
@@ -243,9 +251,9 @@ async function deleteCredentials() {
   } else {
     await insertCredentials("")
   }
-  allInputChanged()
 }
 
+//creates popup for deleting selected saved credentials
 const confirmDelete = (event) => {
   confirm.require({
     target: event.currentTarget,
@@ -269,6 +277,7 @@ function allInputChanged() {
   urlChanged()
 }
 
+//checks if inputted Profile Name is different from selected
 function nameChanged() {
   if (userName.value === "") {
     createErrorToast(t("inputError"), t("checker.profileEmpty"))
@@ -279,6 +288,7 @@ function nameChanged() {
   changeSaveButton()
 }
 
+//checks if inputted Admin API Key is different from selected
 function keyChanged() {
   if (password.value === "") {
     createErrorToast(t("inputError"), t("checker.apiKeyEmpty"))
@@ -289,6 +299,7 @@ function keyChanged() {
   changeSaveButton()
 }
 
+//checks if inputted url is different from selected
 function urlChanged() {
   if (url.value === "") {
     createErrorToast(t("inputError"), t("checker.urlEmpty"))
@@ -299,19 +310,16 @@ function urlChanged() {
   changeSaveButton()
 }
 
+//activates save button only if input is different from selected credentials
 function changeSaveButton() {
   saveDisabled.value = nameNotChanged.value === true && urlNotChanged.value === true && passwordNotChanged.value === true;
 }
 
-onMounted(async () => {
+//loads last selected credentials into input fields upon start
+onMounted(() => {
   loadLastSaved();
   loadCredentialList();
   checkConnection();
-
-  window.storeAPI.delete("LastSelected")
-
-  console.log("saved:", await window.storeAPI.get())
-
   setInterval(checkConnection, 1000 * 30);
 });
 </script>

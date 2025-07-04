@@ -7,8 +7,8 @@ import {FilterMatchMode} from "primevue/api";
 import InputText from "primevue/inputtext";
 import {useToast} from "primevue/usetoast";
 
-import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
+import {useI18n} from 'vue-i18n';
+const {t} = useI18n();
 
 const toast = useToast();
 
@@ -27,6 +27,7 @@ function createErrorToast(title, detail) {
   toast.add({severity: "error", summary: title, detail, life: toastLife})
 }
 
+//formats plain text from broker into uniform list of dictionaries
 function formatApiKeyList(textBlock) {
   if (!textBlock) return "";
   return textBlock
@@ -51,6 +52,7 @@ function formatApiKeyList(textBlock) {
       });
 }
 
+//gets table content from BrokerConnection.js and formats it and give feedback in ui
 async function fetchAndFormatApiKeyList() {
   let apiKeyList = await BrokerConnection.getApiKeys()
   emit("update:isAuthorized", apiKeyList.status !== 401);
@@ -69,14 +71,17 @@ async function fetchAndFormatApiKeyList() {
   }
 }
 
+//updates table content
 async function updateApiKeyList() {
   apiKeyList.value = await fetchAndFormatApiKeyList();
 }
 
+//makes other classes able to update table content
 onMounted(async () => {
   window.callVueFunction = updateApiKeyList;
 });
 
+//checks which API Key has been selected and tells other classes
 watch(selectedRow, (newVal) => {
   if (newVal) {
     selectedApiKey.value = `${newVal.apiKey};${newVal.isActive}`;
@@ -98,7 +103,7 @@ watch(selectedRow, (newVal) => {
              scroll-height="flex"
              :globalFilterFields="['CN','O','L']"
              filterDisplay="row">
-    <template #empty>{{t("table.emptyList")}}</template>
+    <template #empty>{{ t("table.emptyList") }}</template>
     <template #header>
       <InputText v-model="filters['global'].value" :placeholder="t('table.keywordSearch')"
                  class="text-base text-color surface-overlay p-2 input_Field"/>
@@ -111,7 +116,8 @@ watch(selectedRow, (newVal) => {
     <Column field="aktive" :header="t('table.status')" style="width: 10%">
       <template #body="{ data }">
         <div class="flex justify-content-center">
-          <i v-if="data.isActive === true" v-tooltip="t('table.apiKeyActive')" class="pi pi-check-circle text-green-500"/>
+          <i v-if="data.isActive === true" v-tooltip="t('table.apiKeyActive')"
+             class="pi pi-check-circle text-green-500"/>
           <i v-else-if="data.isActive === false" v-tooltip="t('table.apiKeyInactive')"
              class="pi pi-times-circle text-red-500"/>
           <i v-else v-tooltip="t('table.statusUnknown')" class="pi pi-question-circle text-gray-400"/>

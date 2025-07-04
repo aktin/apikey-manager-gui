@@ -42,56 +42,32 @@ const isAddButtonActive = computed(() =>
     props.authorizationState && props.connectionStatus
 );
 
-
-async function addApikey() {
-  validate();
-  if (!isApiKeyInvalid.value && !isCommonNameInvalid.value && !isOrganizationInvalid.value && !isLocationInvalid.value) {
-    const payload = "CN=" + commonNameInput.value + ",O=" + organizationInput.value + ",L=" + locationInput.value;
-    const xml_data = "<ApiKeyCred><apiKey>" + apiKeyInput.value + "</apiKey><clientDn>" + payload + "</clientDn></ApiKeyCred>";
-    const statusCode = await BrokerConnection.addApiKeys(xml_data)
-
-    switch (statusCode) {
-      case 201:
-        createSuccessToast(t("form.apiKeyAdded"))
-        break;
-      case 404:
-        createErrorToast(t("form.error"), t("form.noList"));
-        break;
-      case 401:
-        createErrorToast(t("form.accessDenied"), t("form.noAuthorization"));
-        break;
-      case 409:
-        createErrorToast(t("form.conflict"), t("form.apiKeyAlreadyExists"));
-        break;
-      case 500:
-        createErrorToast(t("connectionError"), t("noConnection"));
-        break;
-      default:
-        createErrorToast(t("form.unexpectedError"), t("form.unexpectedErrorText") + statusCode);
-    }
-  }
+function createErrorToast(title, detail) {
+  toast.add({severity: "error", summary: title, detail, life: toastLife})
 }
 
+function createSuccessToast(detail) {
+  toast.add({severity: "success", summary: t("success"), detail, life: toastLife})
+}
+//checks given API Key input for specific length and characters and gives feedback in ui
 function validateInput({
-  value,
-  invalidFlag,
-  labelKey,
-  emptyErrorKey = "form.lengthError",
-  pattern,
-  patternErrorKey = "form.symbolError",
-}) {
+                         value,
+                         invalidFlag,
+                         labelKey,
+                         pattern,
+                       }) {
   if (!value) {
-    createErrorToast(t("inputError"), `${t(labelKey)} ${t(emptyErrorKey)}`);
+    createErrorToast(t("inputError"), `${t(labelKey)} ${t("form.lengthError")}`);
     invalidFlag.value = true;
     return;
   }
 
   if (pattern?.test(value)) {
-    createErrorToast(t("inputError"), `${t(labelKey)} ${t(patternErrorKey)}`);
+    createErrorToast(t("inputError"), `${t(labelKey)} ${t("form.symbolError")}`);
     invalidFlag.value = true;
   }
 }
-
+//formats and hands over every API Key input individually to validateInput()
 function validate() {
   isApiKeyInvalid.value = false;
   isOrganizationInvalid.value = false;
@@ -131,15 +107,36 @@ function validate() {
     pattern: dnInvalidPattern,
   });
 }
+//formats input into broker standard and tells BrokerConnection.js to send it to broker and gives feedback in ui
+async function addApikey() {
+  validate();
+  if (!isApiKeyInvalid.value && !isCommonNameInvalid.value && !isOrganizationInvalid.value && !isLocationInvalid.value) {
+    const payload = "CN=" + commonNameInput.value + ",O=" + organizationInput.value + ",L=" + locationInput.value;
+    const xml_data = "<ApiKeyCred><apiKey>" + apiKeyInput.value + "</apiKey><clientDn>" + payload + "</clientDn></ApiKeyCred>";
+    const statusCode = await BrokerConnection.addApiKeys(xml_data)
 
-function createErrorToast(title, detail) {
-  toast.add({severity: "error", summary: title, detail, life: toastLife})
+    switch (statusCode) {
+      case 201:
+        createSuccessToast(t("form.apiKeyAdded"))
+        break;
+      case 404:
+        createErrorToast(t("form.error"), t("form.noList"));
+        break;
+      case 401:
+        createErrorToast(t("form.accessDenied"), t("form.noAuthorization"));
+        break;
+      case 409:
+        createErrorToast(t("form.conflict"), t("form.apiKeyAlreadyExists"));
+        break;
+      case 500:
+        createErrorToast(t("connectionError"), t("noConnection"));
+        break;
+      default:
+        createErrorToast(t("form.unexpectedError"), t("form.unexpectedErrorText") + statusCode);
+    }
+  }
 }
-
-function createSuccessToast(detail) {
-  toast.add({severity: "success", summary: t("success"), detail, life: toastLife})
-}
-
+//tells BrokerConnection.js to change activation state of API Key selected in table and gives feedback in ui
 async function changeState() {
   const statusOfSelectedApiKey = localSelectedKey.value.split(";")[1]
   const selectedApiKey = localSelectedKey.value.split(";")[0]
@@ -173,7 +170,7 @@ async function changeState() {
       createErrorToast(t("form.unexpectedError"), t("form.unexpectedErrorText") + val);
   }
 }
-
+//generates API Key in broker standard
 function generateApiKey() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let key = '';
