@@ -6,8 +6,8 @@ import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "./BrokerConnection.js";
 import {useToast} from "primevue/usetoast";
 
-import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
+import {useI18n} from 'vue-i18n';
+const {t} = useI18n();
 
 const toast = useToast();
 const toastLife = 1000 * 5;
@@ -22,8 +22,8 @@ const isCommonNameInvalid = ref(false);
 const isOrganizationInvalid = ref(false);
 const isLocationInvalid = ref(false);
 
-const apiKeyPattern = /[!@#$%^&*(),.?":{}|;<>_-]/;
-const dnPattern = /[!@#$%^&*(),?"{}|<>]/;
+const apiKeyValidPattern = /[^a-zA-Z0-9]/
+const dnInvalidPattern = /[!@#§`´°~$%^*,?"{}|<>=\[\]\\€&]/;
 
 const props = defineProps({
   selectedKey: String, connectionStatus: Boolean, authorizationState: Boolean,
@@ -39,7 +39,7 @@ const isChangeStateButtonActive = computed(() =>
 );
 
 const isAddButtonActive = computed(() =>
-    props.authorizationState  && props.connectionStatus
+    props.authorizationState && props.connectionStatus
 );
 
 
@@ -72,45 +72,64 @@ async function addApikey() {
   }
 }
 
-function validateField(value, label, pattern) {
-  if (value.trim() === "") {
-    createErrorToast(t("inputError"), `${label} ${t("form.lengthError")}`);
-    return true;
+function validateInput({
+  value,
+  invalidFlag,
+  labelKey,
+  emptyErrorKey = "form.lengthError",
+  pattern,
+  patternErrorKey = "form.symbolError",
+}) {
+  if (!value) {
+    createErrorToast(t("inputError"), `${t(labelKey)} ${t(emptyErrorKey)}`);
+    invalidFlag.value = true;
+    return;
   }
-  if (pattern.test(value)) {
-    createErrorToast(t("inputError"), `${label} ${t("form.symbolError")}`);
-    return true;
+
+  if (pattern?.test(value)) {
+    createErrorToast(t("inputError"), `${t(labelKey)} ${t(patternErrorKey)}`);
+    invalidFlag.value = true;
   }
-  return false;
 }
 
 function validate() {
   isApiKeyInvalid.value = false;
+  isOrganizationInvalid.value = false;
+  isCommonNameInvalid.value = false;
+  isLocationInvalid.value = false;
+
   if (apiKeyInput.value.length !== 12) {
     createErrorToast(t("inputError"), t("form.apiLengthError"));
     isApiKeyInvalid.value = true;
-  } else if (apiKeyPattern.test(apiKeyInput.value)) {
-    createErrorToast(t("inputError"), "API Key "+t("form.symbolError"));
-    isApiKeyInvalid.value = true;
+  } else {
+    validateInput({
+      value: apiKeyInput.value,
+      invalidFlag: isApiKeyInvalid,
+      labelKey: "API Key",
+      pattern: apiKeyValidPattern,
+    });
   }
 
-  isOrganizationInvalid.value = validateField(
-      organizationInput.value,
-      t("organization"),
-      apiKeyPattern
-  );
+  validateInput({
+    value: organizationInput.value,
+    invalidFlag: isOrganizationInvalid,
+    labelKey: "organization",
+    pattern: apiKeyValidPattern,
+  });
 
-  isCommonNameInvalid.value = validateField(
-      commonNameInput.value,
-      t("commonName"),
-      dnPattern
-  );
+  validateInput({
+    value: commonNameInput.value,
+    invalidFlag: isCommonNameInvalid,
+    labelKey: "commonName",
+    pattern: dnInvalidPattern,
+  });
 
-  isLocationInvalid.value = validateField(
-      locationInput.value,
-      t("location"),
-      dnPattern
-  );
+  validateInput({
+    value: locationInput.value,
+    invalidFlag: isLocationInvalid,
+    labelKey: "location",
+    pattern: dnInvalidPattern,
+  });
 }
 
 function createErrorToast(title, detail) {
