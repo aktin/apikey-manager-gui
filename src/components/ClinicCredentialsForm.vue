@@ -123,7 +123,7 @@ async function addApikey() {
         createErrorToast(t("form.error"), t("form.noList"));
         break;
       case 401:
-        createErrorToast(t("form.accessDenied"), t("form.noAuthorization"));
+        createErrorToast(t("accessDenied"), t("form.noAuthorization"));
         break;
       case 409:
         createErrorToast(t("form.conflict"), t("form.apiKeyAlreadyExists"));
@@ -161,7 +161,7 @@ async function changeState() {
       createErrorToast(t("form.error"), t("form.noApiKey"));
       break;
     case 401:
-      createErrorToast(t("form.accessDenied"), t("form.noAuthorization"));
+      createErrorToast(t("accessDenied"), t("form.noAuthorization"));
       break;
     case 500:
       createErrorToast(t("connectionError"), t("noConnection"));
