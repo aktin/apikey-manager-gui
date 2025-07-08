@@ -22,7 +22,7 @@ const isCommonNameInvalid = ref(false);
 const isOrganizationInvalid = ref(false);
 const isLocationInvalid = ref(false);
 
-const apiKeyValidPattern = /[^a-zA-Z0-9]/
+const apiKeyValidPattern = /[^a-zA-Z0-9 -]/
 const dnInvalidPattern = /[!@#§`´°~$%^*,?"{}|<>=\[\]\\€&]/;
 
 const props = defineProps({
