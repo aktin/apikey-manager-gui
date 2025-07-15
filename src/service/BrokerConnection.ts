@@ -1,9 +1,15 @@
+/**
+ * Singleton class to manage broker connection, API keys, and status.
+ */
 class BrokerConnection {
   private static instance: BrokerConnection;
-  private brokerURL: string = "";
-  private adminApiKey: string = "";
+  private brokerURL = "";
+  private adminApiKey = "";
   private timeoutId: ReturnType<typeof setTimeout> | null = null;
 
+  /**
+   * Private constructor to enforce singleton.
+   */
   private constructor() {
     if (BrokerConnection.instance) {
       return BrokerConnection.instance;
@@ -18,6 +24,12 @@ class BrokerConnection {
     return BrokerConnection.instance;
   }
 
+  /**
+   * Set broker URL and admin API key.
+   * Credentials reset after 5 minutes.
+   * @param url Broker URL
+   * @param key Admin API key
+   */
   public setCredentials(url: string, key: string): void {
     this.brokerURL = url;
     this.adminApiKey = key;
@@ -32,6 +44,9 @@ class BrokerConnection {
     }, 5 * 60 * 1000);
   }
 
+  /**
+   * Check broker connection status.
+   */
   public async getBrokerStatus(): Promise<number> {
     try {
       const response = await fetch(`${this.brokerURL}/broker/status`, {
@@ -44,6 +59,9 @@ class BrokerConnection {
     }
   }
 
+  /**
+   * Fetch all API keys from broker.
+   */
   public async getApiKeys(): Promise<{ status: number; data: string }> {
     try {
       const response = await fetch(`${this.brokerURL}/api-keys`, {
@@ -54,8 +72,13 @@ class BrokerConnection {
         }
       });
       const text = await response.text();
-      if (text.includes("<!doctype html>")) {
-        throw new Error("No valid API Keys found.");
+      const isHtmlResponse = text.trimStart().startsWith("<!DOCTYPE html>") || text.trimStart().startsWith("<html>");
+      if (isHtmlResponse) {
+        console.warn("No valid API Keys found.");
+        return {
+          status: 0,
+          data: ""
+        };
       }
       return {
         status: response.status,
@@ -70,6 +93,10 @@ class BrokerConnection {
     }
   }
 
+  /**
+   * Add new API key(s) to broker.
+   * @param clinicCredentials XML payload
+   */
   public async addApiKeys(clinicCredentials: string): Promise<number> {
     try {
       const response = await fetch(`${this.brokerURL}/api-keys`, {
@@ -90,14 +117,27 @@ class BrokerConnection {
     }
   }
 
+  /**
+   * Activate a specific API key.
+   * @param apiKey API key string
+   */
   public async activateApiKey(apiKey: string): Promise<number> {
     return this.toggleApiKey(apiKey, "activate");
   }
 
+  /**
+   * Deactivate a specific API key.
+   * @param apiKey API key string
+   */
   public async deactivateApiKey(apiKey: string): Promise<number> {
     return this.toggleApiKey(apiKey, "deactivate");
   }
 
+  /**
+   * Toggle API key activation state.
+   * @param apiKey API key
+   * @param action 'activate' or 'deactivate'
+   */
   private async toggleApiKey(apiKey: string, action: "activate" | "deactivate"): Promise<number> {
     try {
       const response = await fetch(`${this.brokerURL}/api-keys/${apiKey}/${action}`, {
@@ -119,3 +159,5 @@ class BrokerConnection {
 
 const connector = BrokerConnection.getInstance();
 Object.freeze(connector);
+
+export default connector;
