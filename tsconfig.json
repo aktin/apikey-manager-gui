@@ -18,19 +18,18 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-
     // Vue-specific settings
     "jsx": "preserve",
-    "types": ["vite/client"],
-
+    "types": [
+      "vite/client"
+    ],
     // Interop and compatibility
     "esModuleInterop": true,
-
     // Strictness and hygiene
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "allowJs": false,
+    "allowJs": false
   },
   "include": [
     "src",

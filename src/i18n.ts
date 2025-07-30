@@ -8,7 +8,7 @@
  *
  * @see https://vue-i18n.intlify.dev/
  */
-import { createI18n } from "vue-i18n";
+import {createI18n} from "vue-i18n";
 
 import en from "./locals/en.json";
 import de from "./locals/de.json";
@@ -16,13 +16,13 @@ import de from "./locals/de.json";
 type MessageSchema = typeof en;
 
 const i18n = createI18n<[MessageSchema], "en" | "de">({
-    legacy: false,
-    locale: (localStorage.getItem("lang") as "en" | "de") || "en",
-    fallbackLocale: "en",
-    messages: {
+  legacy: false,
+  locale: (localStorage.getItem("lang") as "en" | "de") || "en",
+  fallbackLocale: "en",
+  messages: {
     en,
-        de
-}
+    de
+  }
 });
 
 export default i18n;
