@@ -1,17 +1,36 @@
+/**
+ * tsconfig.json
+ *
+ * TypeScript compiler configuration for the full Electron + Vue 3 + Vite app.
+ * Covers both frontend (renderer) and backend (main/preload).
+ *
+ * - Supports modern ES modules
+ * - Enables strict type checking
+ * - Skips lib checks for faster build
+ * - Restricts to .ts/.vue files only (no JS)
+ *
+ * @see https://www.typescriptlang.org/tsconfig
+ * @see https://vitejs.dev/guide/features.html#typescript
+ */
 {
   "compilerOptions": {
+    // ECMAScript and module compatibility
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+
+    // Vue-specific settings
     "jsx": "preserve",
+    "types": ["vite/client"],
+
+    // Interop and compatibility
     "esModuleInterop": true,
+
+    // Strictness and hygiene
+    "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
     "allowJs": false,
-    "types": [
-      "vite/client"
-    ]
   },
   "include": [
     "src",

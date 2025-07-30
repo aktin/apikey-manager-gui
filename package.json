@@ -2,6 +2,11 @@
   "name": "apikey-manager-gui",
   "version": "1.1.0",
   "description": "Cross-platform desktop app to manage API keys of the AKTIN Broker",
+  "author": "Daniel Kombeiz <dkombeiz@ukaachen.de>",
+  "contributors": [
+    "Alexander Kombeiz <akombeiz@ukaachen.de>"
+  ],
+  "license": "AGPL-3.0-or-later",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -17,11 +22,6 @@
     "desktop app",
     "AKTIN"
   ],
-  "author": "Daniel Kombeiz <dkombeiz@ukaachen.de>",
-  "contributors": [
-    "Alexander Kombeiz <akombeiz@ukaachen.de>"
-  ],
-  "license": "AGPL-3.0-or-later",
   "devDependencies": {
     "@electron-forge/cli": "^7.8.1",
     "@electron-forge/maker-deb": "^7.8.1",
@@ -45,11 +45,10 @@
     "primevue": "^3.53.1",
     "vite": "^6.3.5",
     "vue": "^3.5.17",
-    "vue-router": "^4.5.1"
+    "vue-i18n": "^11.1.7"
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.1",
-    "electron-store": "^10.1.0",
-    "vue-i18n": "^11.1.7"
+    "electron-squirrel-starHtup": "^1.0.1",
+    "electron-store": "^10.1.0"
   }
 }
