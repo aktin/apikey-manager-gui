@@ -1,3 +1,13 @@
+/**
+ * Electron Forge configuration file.
+ *
+ * This file defines how Electron Forge packages, builds, and launches the app.
+ * It uses the @electron-forge/plugin-vite for separate main/preload/renderer builds.
+ * Also applies Fuse settings to disable unsafe runtime options.
+ *
+ * @see https://www.electronforge.io/config
+ * @see https://github.com/electron/forge
+ */
 const {FusesPlugin} = require('@electron-forge/plugin-fuses');
 const {FuseV1Options, FuseVersion} = require('@electron/fuses');
 
