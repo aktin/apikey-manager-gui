@@ -32,6 +32,7 @@
     "@electron-forge/plugin-fuses": "^7.8.1",
     "@electron-forge/plugin-vite": "^7.8.1",
     "@electron/fuses": "^1.8.0",
+    "@types/electron-squirrel-startup": "^1.0.2",
     "@typescript-eslint/eslint-plugin": "^8.37.0",
     "@typescript-eslint/parser": "^8.37.0",
     "@vitejs/plugin-vue": "^5.2.4",
@@ -48,7 +49,6 @@
     "vue-i18n": "^11.1.7"
   },
   "dependencies": {
-    "electron-squirrel-starHtup": "^1.0.1",
     "electron-store": "^10.1.0"
   }
 }
