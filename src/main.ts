@@ -1,0 +1,61 @@
+/**
+ * Main process entry point for the Electron app.
+ *
+ * Initializes the application, sets up the main window, and handles IPC for
+ * persistent storage via electron-store.
+ *
+ * Uses Electron Forge with Vite plugin for dev/prod compatibility.
+ */
+
+import {app, BrowserWindow, ipcMain} from "electron";
+import path from "node:path";
+import started from "electron-squirrel-startup";
+import Store from "electron-store";
+
+const store = new Store();
+
+ipcMain.handle("store-get", (_event, key: string) => store.get(key));
+ipcMain.handle("store-set",
+    (_event, key: string, value: unknown) => store.set(key, value));
+ipcMain.handle("store-delete", (_event, key: string) => store.delete(key));
+
+// Windows installer hook (Squirrel)
+if (started) {
+  app.quit();
+}
+
+const createWindow = () => {
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js")
+    }
+  });
+
+  mainWindow.maximize();
+
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  } else {
+    mainWindow.loadFile(
+        path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
+    );
+  }
+};
+
+app.whenReady().then(() => {
+  createWindow();
+
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+});
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
