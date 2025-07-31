@@ -12,21 +12,6 @@ import ConfirmPopup from 'primevue/confirmpopup';
 import {useConfirm} from "primevue/useconfirm";
 import ProgressSpinner from 'primevue/progressspinner';
 import Menu from 'primevue/menu';
-import {watchEffect} from 'vue';
-import {useI18n} from 'vue-i18n';
-
-const {locale} = useI18n();
-const setLanguage = (newLang) => {
-  locale.value = newLang;
-  localStorage.setItem('lang', newLang);
-};
-watchEffect(() => {
-  const storedLang = localStorage.getItem('lang');
-  if (storedLang) {
-    locale.value = storedLang;
-  }
-});
-const {t} = useI18n();
 
 const props = defineProps({
   authorizationState: Boolean,
@@ -63,30 +48,6 @@ const toastLife = 1000 * 5;
 function createErrorToast(title, detail) {
   toast.add({severity: "error", summary: title, detail, life: toastLife})
 }
-
-const changeLocalsLabel = computed(() => t('checker.changeLocal'))
-const languageMenu = ref();
-//creates list of selectable languages
-const languages = ref([
-  {
-    label: changeLocalsLabel,
-    items: [
-      {
-        label: 'English',
-        command: () => setLanguage('en')
-      },
-      {
-        label: 'Deutsch',
-        command: () => setLanguage('de')
-      }
-    ]
-  }
-]);
-
-//opens menu for language selection
-const toggleLanguage = (event) => {
-  languageMenu.value.toggle(event);
-};
 
 const changeCredsLabel = computed(() => t('checker.selectOption'))
 const changeNoCredsLabel = computed(() => t("checker.noSavedCredentials"))
@@ -365,9 +326,6 @@ onMounted(() => {
 
       </div>
       <div class="flex flex-column justify-content-between ml-auto">
-        <Button type="button" icon="pi pi-language" @click="toggleLanguage" aria-haspopup="true"
-                aria-controls="locals_menu" class="" v-tooltip.bottom="t('checker.changeLocal')"/>
-        <Menu ref="languageMenu" id="locals_menu" :model="languages" :popup="true"/>
 
         <Button icon="pi pi-save" class="" @click="saveCredentials"
                 v-tooltip.bottom="t('checker.saveCredentials')"
