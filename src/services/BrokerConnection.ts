@@ -2,7 +2,8 @@ class BrokerConnection {
   private static instance: BrokerConnection;
   private brokerURL = "";
   private adminApiKey = "";
-  private updateCallbacks: Array<() => Promise<void>> = [];
+  private apiKeysChangeCallbacks: Array<() => Promise<void>> = [];
+  private credentialChangeCallbacks: Array<() => Promise<void>> = [];
 
   private constructor() {
     if (BrokerConnection.instance) {
@@ -21,18 +22,29 @@ class BrokerConnection {
   public setCredentials(url: string, key: string): void {
     this.brokerURL = url;
     this.adminApiKey = key;
+    this.triggerCredentialChange();
   }
 
   public getCredentials(): { url: string; adminApiKey: string } {
     return {url: this.brokerURL, adminApiKey: this.adminApiKey};
   }
 
-  public onUpdate(callback: () => Promise<void>): void {
-    this.updateCallbacks.push(callback);
+  public onApiKeysChange(callback: () => Promise<void>): void {
+    this.apiKeysChangeCallbacks.push(callback);
   }
 
-  private async triggerUpdateCallbacks(): Promise<void> {
-    for (const cb of this.updateCallbacks) {
+  public onCredentialsChange(callback: () => Promise<void>): void {
+    this.credentialChangeCallbacks.push(callback);
+  }
+
+  private async triggerApiKeysChange(): Promise<void> {
+    for (const cb of this.apiKeysChangeCallbacks) {
+      await cb();
+    }
+  }
+
+  private async triggerCredentialChange(): Promise<void> {
+    for (const cb of this.credentialChangeCallbacks) {
       await cb();
     }
   }
@@ -119,9 +131,7 @@ class BrokerConnection {
         },
         body: clinicCredentials
       });
-      if (this.updateCallbacks.length) {
-        await this.triggerUpdateCallbacks();
-      }
+      await this.triggerApiKeysChange();
       return response.status;
     } catch (error) {
       console.error("Failed to add API key:", error);
@@ -145,9 +155,7 @@ class BrokerConnection {
           "Authorization": `Bearer ${this.adminApiKey}`
         }
       });
-      if (this.updateCallbacks.length) {
-        await this.triggerUpdateCallbacks();
-      }
+      await this.triggerApiKeysChange();
       return response.status;
     } catch (error) {
       console.error(`Failed to ${action} API key:`, error);

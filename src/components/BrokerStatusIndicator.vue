@@ -17,7 +17,7 @@ async function checkConnection(): Promise<void> {
 
 onMounted(() => {
   checkConnection();
-  BrokerConnection.onUpdate(async () => {
+  BrokerConnection.onCredentialsChange(async () => {
     await checkConnection();
   });
 });

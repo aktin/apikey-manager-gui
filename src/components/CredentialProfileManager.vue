@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {defineEmits, onMounted, ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useToast} from "primevue/usetoast";
 import {useConfirm} from "primevue/useconfirm";
 import {useI18n} from "vue-i18n";
@@ -14,8 +14,6 @@ import ConfirmPopup from "primevue/confirmpopup";
 import ProgressSpinner from "primevue/progressspinner";
 import Menu from "primevue/menu";
 import LanguageSwitcher from "./LanguageSwitcher.vue";
-
-const emit = defineEmits<{ (e: "credentialsChanged"): void; }>();
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -225,7 +223,6 @@ async function saveCredentials(): Promise<void> {
     await addProfileKey(profile.value);
     await handleCredentialSelectionChange({name: profile.value});
     await loadCredentialList();
-    emit("credentialsChanged");
   }
 }
 
@@ -245,7 +242,6 @@ async function deleteCredentials(): Promise<void> {
   } else {
     await insertCredentials("");
   }
-  emit("credentialsChanged");
 }
 
 function confirmDelete(event: Event): void {
@@ -271,7 +267,6 @@ onMounted(async () => {
   }
   await loadLastSaved();
   await loadCredentialList();
-  BrokerConnection.onUpdate(() => loadCredentialList());
 });
 </script>
 
