@@ -266,7 +266,7 @@ onMounted(() => {
 <template>
   <ConfirmPopup/>
   <Button icon="pi pi-cog" @click="visible = true" v-tooltip.left="t('profile.configuration')"/>
-^
+
   <Dialog v-model:visible="visible" modal :header="t('profile.editCredentials')" class="w-30rem h-25rem">
     <div v-if="logInBlocked" class="h-18rem flex align-items-center">
       <ProgressSpinner class="justify-content-center"/>
