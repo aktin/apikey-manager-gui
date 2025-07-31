@@ -2,7 +2,7 @@ class BrokerConnection {
   private static instance: BrokerConnection;
   private brokerURL = "";
   private adminApiKey = "";
-  private updateCallback?: () => Promise<void>;
+  private updateCallbacks: Array<() => Promise<void>> = [];
 
   private constructor() {
     if (BrokerConnection.instance) {
@@ -28,7 +28,13 @@ class BrokerConnection {
   }
 
   public onUpdate(callback: () => Promise<void>): void {
-    this.updateCallback = callback;
+    this.updateCallbacks.push(callback);
+  }
+
+  private async triggerUpdateCallbacks(): Promise<void> {
+    for (const cb of this.updateCallbacks) {
+      await cb();
+    }
   }
 
   public async getBrokerStatus(): Promise<number> {
@@ -111,8 +117,8 @@ class BrokerConnection {
         },
         body: clinicCredentials
       });
-      if (this.updateCallback) {
-        await this.updateCallback();
+      if (this.updateCallbacks.length) {
+        await this.triggerUpdateCallbacks();
       }
       return response.status;
     } catch (error) {
@@ -137,8 +143,8 @@ class BrokerConnection {
           "Authorization": `Bearer ${this.adminApiKey}`
         }
       });
-      if (this.updateCallback) {
-        await this.updateCallback();
+      if (this.updateCallbacks.length) {
+        await this.triggerUpdateCallbacks();
       }
       return response.status;
     } catch (error) {
