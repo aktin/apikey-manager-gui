@@ -6,11 +6,6 @@
  * - Broker connection status (green/red icon)
  * - Broker URL as tooltip
  * - Warning icons for missing credentials or unauthorized access
- *
- * Props:
- * - connected: whether a successful broker connection was detected
- * - authorizationState: whether current credentials have access
- * - url: the broker endpoint to show in tooltip
  */
 
 import {defineProps} from "vue";
@@ -18,9 +13,6 @@ import {useI18n} from "vue-i18n";
 
 const {t} = useI18n();
 
-/**
- * Component props
- */
 const props = defineProps<{
   /**
    * Whether the application is connected to the broker (status 200)

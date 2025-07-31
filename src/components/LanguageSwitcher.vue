@@ -2,13 +2,7 @@
 /**
  * LanguageSwitcher.vue
  *
- * A self-contained component that allows users to switch the UI language between English and German.
- *
- * Features:
- * - Displays a button with a language icon
- * - Opens a PrimeVue popup menu to select "English" or "Deutsch"
- * - Persists selected language in localStorage
- * - Automatically loads stored language on mount
+ * A self-contained component that allows users to switch the UI language.
  */
 
 import {ref, watchEffect} from "vue";
@@ -24,7 +18,7 @@ const {t, locale} = useI18n();
 const languageMenu = ref();
 
 /**
- * Menu model for language selection (English, Deutsch).
+ * Menu model for language selection.
  * The menu label is localized.
  */
 const languages = ref([
