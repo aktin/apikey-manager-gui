@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import {defineProps, onMounted, ref, watch} from "vue";
+import {onMounted, ref} from "vue";
 import BrokerConnection from "../services/BrokerConnection";
 import {useI18n} from "vue-i18n";
 
 const {t} = useI18n();
-
-const props = defineProps<{ trigger: number; }>();
 
 const connected = ref<boolean>(false);
 const authorized = ref<boolean>(true);
@@ -20,10 +18,6 @@ onMounted(() => {
   BrokerConnection.onCredentialsChange(async () => {
     await checkConnection();
   });
-});
-
-watch(() => props.trigger, () => {
-  checkConnection();
 });
 </script>
 
