@@ -1,24 +1,5 @@
 <script setup lang="ts">
-/**
- * CredentialProfileManager.vue
- *
- * Manages local credential profiles used to access the AKTIN Broker.
- *
- * Features:
- * - Create, update, delete stored credential sets (profile, API key, URL)
- * - Validate input format and ensure safe key usage
- * - Persist credentials securely using Electron's `storeAPI`
- * - Check broker connection and emit connectivity status
- *
- * Emits:
- * - update:isConnected: boolean — informs parent whether connection is live
- * - update:url: string — emits the current broker URL to the parent
- *
- * Props:
- * - authorizationState: boolean — whether the current credentials are authorized
- */
-
-import {defineEmits, defineProps, onMounted, ref} from "vue";
+import {defineEmits, onMounted, ref} from "vue";
 import {useToast} from "primevue/usetoast";
 import {useConfirm} from "primevue/useconfirm";
 import {useI18n} from "vue-i18n";
@@ -34,11 +15,7 @@ import ProgressSpinner from "primevue/progressspinner";
 import Menu from "primevue/menu";
 import LanguageSwitcher from "./LanguageSwitcher.vue";
 
-/** Emits connection status and broker URL updates to the parent component */
-const emit = defineEmits<{ (e: "update:isConnected", value: boolean): void; (e: "update:url", value: string): void; }>();
-
-/** Indicates whether the current credentials are authorized by the broker */
-const props = defineProps<{ authorizationState: boolean; }>();
+const emit = defineEmits<{ (e: "credentialsChanged"): void; }>();
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -89,35 +66,18 @@ function createSuccessToast(detail: string): void {
   toast.add({severity: "success", summary: t("success"), detail, life: 5000});
 }
 
-/**
- * Check the connection to the broker and emit the result.
- */
-async function checkConnection(): Promise<void> {
-  const status = await BrokerConnection.getBrokerStatus();
-  emit("update:isConnected", url.value !== "" && status === 200);
-}
-
-/**
- * Save the current values as a snapshot for change detection.
- */
 function changeSavedCreds(): void {
   savedProfile.value = profile.value;
   savedKey.value = key.value;
   savedUrl.value = url.value;
 }
 
-/**
- * Evaluate whether any fields have changed from saved values.
- */
 function allInputChanged(): void {
   profileChanged();
   keyChanged();
   urlChanged();
 }
 
-/**
- * Validate whether profile field has changed or is empty.
- */
 function profileChanged(): void {
   profileNotChanged.value = savedProfile.value === profile.value || profile.value === "";
   if (profile.value === "") {
@@ -126,9 +86,6 @@ function profileChanged(): void {
   updateSaveButton();
 }
 
-/**
- * Validate whether API key field has changed or is empty.
- */
 function keyChanged(): void {
   keyNotChanged.value = savedKey.value === key.value || key.value === "";
   if (key.value === "") {
@@ -137,9 +94,6 @@ function keyChanged(): void {
   updateSaveButton();
 }
 
-/**
- * Validate whether URL field has changed or is empty.
- */
 function urlChanged(): void {
   urlNotChanged.value = savedUrl.value === url.value || url.value === "";
   if (url.value === "") {
@@ -148,17 +102,10 @@ function urlChanged(): void {
   updateSaveButton();
 }
 
-/**
- * Toggle the save button depending on whether fields changed.
- */
 function updateSaveButton(): void {
   saveDisabled.value = profileNotChanged.value && keyNotChanged.value && urlNotChanged.value;
 }
 
-/**
- * Add a profile name to the savedProfiles key list.
- * @param profileName - The new profile to add
- */
 async function addProfileKey(profileName: string): Promise<void> {
   const keys = (await window.storeAPI.get("savedProfiles")) as string[] || [];
   if (!keys.includes(profileName)) {
@@ -167,30 +114,17 @@ async function addProfileKey(profileName: string): Promise<void> {
   }
 }
 
-/**
- * Remove a profile name from savedProfiles.
- * @param profileName - The profile to remove
- */
 async function removeProfileKey(profileName: string): Promise<void> {
   const keys = (await window.storeAPI.get("savedProfiles")) as string[] || [];
   const updated = keys.filter(k => k !== profileName);
   await window.storeAPI.set("savedProfiles", updated);
 }
 
-/**
- * Convert a raw credential string into an object.
- * @param entry - Semicolon-delimited string
- * @returns Parsed object with name, key, url
- */
 function parseCredentialString(entry: string): { name: string; key: string; url: string } {
   const [name, key, url] = entry.split(";");
   return {name, key, url};
 }
 
-/**
- * Load all credential profiles from storage and parse them.
- * @returns Parsed list of credentials
- */
 async function fetchFormattedCredentials(): Promise<{ name: string; key: string; url: string }[]> {
   const keys = (await window.storeAPI.get("savedProfiles")) as string[] || [];
   const results = await Promise.all(
@@ -202,10 +136,6 @@ async function fetchFormattedCredentials(): Promise<{ name: string; key: string;
   return results.filter(Boolean) as { name: string; key: string; url: string }[];
 }
 
-/**
- * Build the PrimeVue menu list from available profiles.
- * @param creds - List of saved credentials
- */
 function updateCredentialsList(creds: { name: string }[]): void {
   const items = creds.map(cred => ({
     label: cred.name,
@@ -215,19 +145,12 @@ function updateCredentialsList(creds: { name: string }[]): void {
   credentials.value = [{label, items}];
 }
 
-/**
- * Reload credential list and update UI menu.
- */
 async function loadCredentialList(): Promise<void> {
   const formatted = await fetchFormattedCredentials();
   savedCredentials.value = formatted.map(({name}) => ({name}));
   updateCredentialsList(savedCredentials.value);
 }
 
-/**
- * Populate input fields and internal state with selected credential.
- * @param profileName - Key to load from store
- */
 async function insertCredentials(profileName: string): Promise<void> {
   const raw = await window.storeAPI.get(profileName);
   const isValid = !!raw;
@@ -244,38 +167,24 @@ async function insertCredentials(profileName: string): Promise<void> {
   allInputChanged();
 
   BrokerConnection.setCredentials(url.value, key.value);
-  emit("update:url", url.value);
   await window.storeAPI.set("LastSelected", profile.value);
 }
 
-/**
- * Handle selection of a profile from the dropdown menu.
- * @param cred - Selected credential object
- */
 async function handleCredentialSelectionChange(cred: { name: string }): Promise<void> {
   logInBlocked.value = true;
   saveDisabled.value = true;
   await insertCredentials(cred.name);
-  await checkConnection();
   logInBlocked.value = false;
 }
 
-/**
- * Load the last selected credential from storage and check connection.
- */
 async function loadLastSaved(): Promise<void> {
   const last = await window.storeAPI.get("LastSelected");
   if (typeof last === "string") {
     selectedCredentials.value = {name: last};
     await insertCredentials(last);
-    await checkConnection();
   }
 }
 
-/**
- * Check inputs for empty values or invalid characters.
- * @returns True if input is valid, false otherwise
- */
 function checkCredentials(): boolean {
   const pattern = /[@#§`´°~$%^*"{}|;<>[\]]/;
   let isValid = true;
@@ -305,17 +214,10 @@ function checkCredentials(): boolean {
   return isValid;
 }
 
-/**
- * Open the credential profile dropdown menu.
- * @param event - Click event from the toggle button
- */
 function changeCredentials(event: Event): void {
   credentialMenu.value?.toggle(event);
 }
 
-/**
- * Save the current credential set to storage and reload UI.
- */
 async function saveCredentials(): Promise<void> {
   if (checkCredentials()) {
     const combined = `${profile.value};${key.value};${url.value}`;
@@ -323,12 +225,10 @@ async function saveCredentials(): Promise<void> {
     await addProfileKey(profile.value);
     await handleCredentialSelectionChange({name: profile.value});
     await loadCredentialList();
+    emit("credentialsChanged");
   }
 }
 
-/**
- * Delete the selected credential and fallback to the first saved one.
- */
 async function deleteCredentials(): Promise<void> {
   saveDisabled.value = true;
   const toDelete = selectedCredentials.value?.name;
@@ -345,12 +245,9 @@ async function deleteCredentials(): Promise<void> {
   } else {
     await insertCredentials("");
   }
+  emit("credentialsChanged");
 }
 
-/**
- * Show confirmation dialog for deleting a credential.
- * @param event - Trigger event from delete button
- */
 function confirmDelete(event: Event): void {
   const target = event.currentTarget as HTMLElement | null;
   if (!target) return;
@@ -367,18 +264,13 @@ function confirmDelete(event: Event): void {
   });
 }
 
-/**
- * On mount: load credentials and set update callback for broker state.
- */
 onMounted(async () => {
   const keys = await window.storeAPI.get("savedProfiles");
   if (!Array.isArray(keys)) {
     await window.storeAPI.set("savedProfiles", []);
   }
-
   await loadLastSaved();
   await loadCredentialList();
-  setInterval(checkConnection, 1000 * 30);
   BrokerConnection.onUpdate(() => loadCredentialList());
 });
 </script>
