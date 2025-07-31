@@ -1,9 +1,28 @@
 <script setup lang="ts">
+/**
+ * CredentialProfileManager.vue
+ *
+ * Manages local credential profiles used to access the AKTIN Broker.
+ *
+ * Features:
+ * - Create, update, delete stored credential sets (profile, API key, URL)
+ * - Validate input format and ensure safe key usage
+ * - Persist credentials securely using Electron's `storeAPI`
+ * - Check broker connection and emit connectivity status
+ *
+ * Emits:
+ * - update:isConnected: boolean — informs parent whether connection is live
+ * - update:url: string — emits the current broker URL to the parent
+ *
+ * Props:
+ * - authorizationState: boolean — whether the current credentials are authorized
+ */
+
 import {defineEmits, defineProps, onMounted, ref} from "vue";
-import BrokerConnection from "../services/BrokerConnection";
 import {useToast} from "primevue/usetoast";
 import {useConfirm} from "primevue/useconfirm";
 import {useI18n} from "vue-i18n";
+import BrokerConnection from "../services/BrokerConnection";
 
 import Dialog from "primevue/dialog";
 import FloatLabel from "primevue/floatlabel";
@@ -15,164 +34,225 @@ import ProgressSpinner from "primevue/progressspinner";
 import Menu from "primevue/menu";
 import LanguageSwitcher from "./LanguageSwitcher.vue";
 
-const {t} = useI18n();
+/** Emits connection status and broker URL updates to the parent component */
+const emit = defineEmits<{ (e: "update:isConnected", value: boolean): void; (e: "update:url", value: string): void; }>();
+
+/** Indicates whether the current credentials are authorized by the broker */
+const props = defineProps<{ authorizationState: boolean; }>();
+
 const toast = useToast();
 const confirm = useConfirm();
-const emit = defineEmits(["update:isConnected", "update:url"]);
+const {t} = useI18n();
 
-const props = defineProps<{ authorizationState: boolean }>();
+/** Controls visibility of the configuration dialog */
+const visible = ref<boolean>(false);
 
-const toastLife = 5000;
+/** Indicates whether broker check is running */
+const logInBlocked = ref<boolean>(false);
 
-// UI State
-const visible = ref(false);
-const logInBlocked = ref(false);
-const deleteDisabled = ref(true);
-const saveDisabled = ref(true);
+/** Controls save/delete button states */
+const deleteDisabled = ref<boolean>(true);
+const saveDisabled = ref<boolean>(true);
 
-// Form inputs
-const profile = ref("");
-const key = ref("");
-const url = ref("");
+/** Field inputs */
+const profile = ref<string>("");
+const key = ref<string>("");
+const url = ref<string>("");
 
-// Saved (for change detection)
-const savedProfile = ref("");
-const savedKey = ref("");
-const savedUrl = ref("");
+/** Snapshots before changes */
+const savedProfile = ref<string>("");
+const savedKey = ref<string>("");
+const savedUrl = ref<string>("");
 
-// Validation
-const profileNotChanged = ref(true);
-const keyNotChanged = ref(true);
-const urlNotChanged = ref(true);
+/** Flags to detect if fields have changed */
+const profileNotChanged = ref<boolean>(true);
+const keyNotChanged = ref<boolean>(true);
+const urlNotChanged = ref<boolean>(true);
 
-// Credentials & menu state
-const selectedCredentials = ref();
-const savedCredentials = ref([]);
+/** Currently selected credential */
+const selectedCredentials = ref<{ name: string } | null>(null);
+
+/** All saved credential names */
+const savedCredentials = ref<{ name: string }[]>([]);
+
+/** Menu model for credential dropdown */
+const credentials = ref<{ label: string; items: { label: string; command: () => void }[] }[]>([]);
+
+/** Ref to PrimeVue menu */
 const credentialMenu = ref();
-const credentials = ref([{label: "", items: []}]);
 
-function createErrorToast(title: string, detail: string) {
-  toast.add({severity: "error", summary: title, detail, life: toastLife});
+function createErrorToast(title: string, detail: string): void {
+  toast.add({severity: "error", summary: title, detail, life: 5000});
 }
 
-function createSuccessToast(detail: string) {
-  toast.add({severity: "success", summary: t("success"), detail, life: toastLife});
+function createSuccessToast(detail: string): void {
+  toast.add({severity: "success", summary: t("success"), detail, life: 5000});
 }
 
-async function checkConnection() {
+/**
+ * Check the connection to the broker and emit the result.
+ */
+async function checkConnection(): Promise<void> {
   const status = await BrokerConnection.getBrokerStatus();
-  const isConnected = url.value !== "" && status === 200;
-  emit("update:isConnected", isConnected);
+  emit("update:isConnected", url.value !== "" && status === 200);
 }
 
-function changeSavedCreds() {
+/**
+ * Save the current values as a snapshot for change detection.
+ */
+function changeSavedCreds(): void {
   savedProfile.value = profile.value;
   savedKey.value = key.value;
   savedUrl.value = url.value;
 }
 
-function allInputChanged() {
+/**
+ * Evaluate whether any fields have changed from saved values.
+ */
+function allInputChanged(): void {
   profileChanged();
   keyChanged();
   urlChanged();
 }
 
-function profileChanged() {
+/**
+ * Validate whether profile field has changed or is empty.
+ */
+function profileChanged(): void {
+  profileNotChanged.value = savedProfile.value === profile.value || profile.value === "";
   if (profile.value === "") {
     createErrorToast(t("inputError"), t("profile.profileEmpty"));
-    profileNotChanged.value = true;
-  } else {
-    profileNotChanged.value = savedProfile.value === profile.value;
   }
   updateSaveButton();
 }
 
-function keyChanged() {
+/**
+ * Validate whether API key field has changed or is empty.
+ */
+function keyChanged(): void {
+  keyNotChanged.value = savedKey.value === key.value || key.value === "";
   if (key.value === "") {
     createErrorToast(t("inputError"), t("profile.apiKeyEmpty"));
-    keyNotChanged.value = true;
-  } else {
-    keyNotChanged.value = savedKey.value === key.value;
   }
   updateSaveButton();
 }
 
-function urlChanged() {
+/**
+ * Validate whether URL field has changed or is empty.
+ */
+function urlChanged(): void {
+  urlNotChanged.value = savedUrl.value === url.value || url.value === "";
   if (url.value === "") {
     createErrorToast(t("inputError"), t("profile.urlEmpty"));
-    urlNotChanged.value = true;
-  } else {
-    urlNotChanged.value = savedUrl.value === url.value;
   }
   updateSaveButton();
 }
 
-//activates save button only if input is different from selected credentials
-function updateSaveButton() {
-  saveDisabled.value = profileNotChanged.value && urlNotChanged.value && keyNotChanged.value;
+/**
+ * Toggle the save button depending on whether fields changed.
+ */
+function updateSaveButton(): void {
+  saveDisabled.value = profileNotChanged.value && keyNotChanged.value && urlNotChanged.value;
 }
 
-//opens menu for credential selection
-function changeCredentials(event: Event) {
-  credentialMenu.value?.toggle(event);
+/**
+ * Add a profile name to the savedProfiles key list.
+ * @param profileName - The new profile to add
+ */
+async function addProfileKey(profileName: string): Promise<void> {
+  const keys = (await window.storeAPI.get("savedProfiles")) as string[] || [];
+  if (!keys.includes(profileName)) {
+    keys.push(profileName);
+    await window.storeAPI.set("savedProfiles", keys);
+  }
 }
 
-//formats credential string into uniform dictionary
-function parseCredentialString(entry: string) {
+/**
+ * Remove a profile name from savedProfiles.
+ * @param profileName - The profile to remove
+ */
+async function removeProfileKey(profileName: string): Promise<void> {
+  const keys = (await window.storeAPI.get("savedProfiles")) as string[] || [];
+  const updated = keys.filter(k => k !== profileName);
+  await window.storeAPI.set("savedProfiles", updated);
+}
+
+/**
+ * Convert a raw credential string into an object.
+ * @param entry - Semicolon-delimited string
+ * @returns Parsed object with name, key, url
+ */
+function parseCredentialString(entry: string): { name: string; key: string; url: string } {
   const [name, key, url] = entry.split(";");
   return {name, key, url};
 }
 
-//gets saved credentials from storage and formats them into a list of dictionaries
-async function fetchFormattedCredentials() {
-  const rawData = await window.storeAPI.get();
-  return Object.entries(rawData)
-  .filter(([k]) => k !== "LastSelected")
-  .map(([, val]) => parseCredentialString(val as string));
+/**
+ * Load all credential profiles from storage and parse them.
+ * @returns Parsed list of credentials
+ */
+async function fetchFormattedCredentials(): Promise<{ name: string; key: string; url: string }[]> {
+  const keys = (await window.storeAPI.get("savedProfiles")) as string[] || [];
+  const results = await Promise.all(
+      keys.map(async (name) => {
+        const val = await window.storeAPI.get(name);
+        return val ? parseCredentialString(val as string) : null;
+      })
+  );
+  return results.filter(Boolean) as { name: string; key: string; url: string }[];
 }
 
-//creates list of selectable credentials
-function updateCredentialsList(creds: { name: string }[]) {
+/**
+ * Build the PrimeVue menu list from available profiles.
+ * @param creds - List of saved credentials
+ */
+function updateCredentialsList(creds: { name: string }[]): void {
   const items = creds.map(cred => ({
     label: cred.name,
     command: () => handleCredentialSelectionChange(cred)
   }));
-  const label = items.length > 0 ? t("profile.selectOption") : t("profile.noSavedCredentials");
+  const label = creds.length > 0 ? t("profile.selectOption") : t("profile.noSavedCredentials");
   credentials.value = [{label, items}];
 }
 
-//creates list from saved credentials
-async function loadCredentialList() {
+/**
+ * Reload credential list and update UI menu.
+ */
+async function loadCredentialList(): Promise<void> {
   const formatted = await fetchFormattedCredentials();
   savedCredentials.value = formatted.map(({name}) => ({name}));
   updateCredentialsList(savedCredentials.value);
 }
 
-//inserts data from selected credentials into input fields and BrokerConnection.js and updates table
-async function insertCredentials(creds: string) {
-  const raw = await window.storeAPI.get(creds);
+/**
+ * Populate input fields and internal state with selected credential.
+ * @param profileName - Key to load from store
+ */
+async function insertCredentials(profileName: string): Promise<void> {
+  const raw = await window.storeAPI.get(profileName);
   const isValid = !!raw;
-  const [profileName, adminKey, brokerUrl] = isValid ? (raw as string).split(";") : ["", "", ""];
+  const [p, k, u] = isValid ? (raw as string).split(";") : ["", "", ""];
 
-  profile.value = profileName;
-  key.value = adminKey;
-  url.value = brokerUrl;
+  profile.value = p;
+  key.value = k;
+  url.value = u;
 
-  selectedCredentials.value = isValid ? {name: profileName} : "";
-
+  selectedCredentials.value = isValid ? {name: p} : null;
   deleteDisabled.value = !isValid;
+
   changeSavedCreds();
   allInputChanged();
+
   BrokerConnection.setCredentials(url.value, key.value);
   emit("update:url", url.value);
-
-  window.storeAPI.set("LastSelected", profile);
-  await window.callVueFunction?.();
+  await window.storeAPI.set("LastSelected", profile.value);
 }
 
-//checks which credentials are selected and loads them
-async function handleCredentialSelectionChange(cred: { name: string }) {
-  selectedCredentials.value = cred;
+/**
+ * Handle selection of a profile from the dropdown menu.
+ * @param cred - Selected credential object
+ */
+async function handleCredentialSelectionChange(cred: { name: string }): Promise<void> {
   logInBlocked.value = true;
   saveDisabled.value = true;
   await insertCredentials(cred.name);
@@ -180,15 +260,22 @@ async function handleCredentialSelectionChange(cred: { name: string }) {
   logInBlocked.value = false;
 }
 
-//loads last selected credentials into input fields
-async function loadLastSaved() {
+/**
+ * Load the last selected credential from storage and check connection.
+ */
+async function loadLastSaved(): Promise<void> {
   const last = await window.storeAPI.get("LastSelected");
-  selectedCredentials.value = {name: last};
-  await insertCredentials(last as string);
-  await checkConnection();
+  if (typeof last === "string") {
+    selectedCredentials.value = {name: last};
+    await insertCredentials(last);
+    await checkConnection();
+  }
 }
 
-//checks inputted credentials for formatting and specific characters and gives feedback in ui
+/**
+ * Check inputs for empty values or invalid characters.
+ * @returns True if input is valid, false otherwise
+ */
 function checkCredentials(): boolean {
   const pattern = /[@#§`´°~$%^*"{}|;<>[\]]/;
   let isValid = true;
@@ -218,23 +305,41 @@ function checkCredentials(): boolean {
   return isValid;
 }
 
-//saves inputted credentials in storage and loads their data
-async function saveCredentials() {
+/**
+ * Open the credential profile dropdown menu.
+ * @param event - Click event from the toggle button
+ */
+function changeCredentials(event: Event): void {
+  credentialMenu.value?.toggle(event);
+}
+
+/**
+ * Save the current credential set to storage and reload UI.
+ */
+async function saveCredentials(): Promise<void> {
   if (checkCredentials()) {
     const combined = `${profile.value};${key.value};${url.value}`;
-    window.storeAPI.set(profile.value, combined);
+    await window.storeAPI.set(profile.value, combined);
+    await addProfileKey(profile.value);
     await handleCredentialSelectionChange({name: profile.value});
     await loadCredentialList();
   }
 }
 
-//deletes selected credentials from storage and loads first credentials in storage and gives feedback in ui
-async function deleteCredentials() {
+/**
+ * Delete the selected credential and fallback to the first saved one.
+ */
+async function deleteCredentials(): Promise<void> {
   saveDisabled.value = true;
-  const toDelete = selectedCredentials.value.name;
+  const toDelete = selectedCredentials.value?.name;
+  if (!toDelete) return;
+
   await window.storeAPI.delete(toDelete);
+  await removeProfileKey(toDelete);
   createSuccessToast(toDelete + " " + t("profile.deleted"));
+
   await loadCredentialList();
+
   if (savedCredentials.value[0]) {
     await handleCredentialSelectionChange(savedCredentials.value[0]);
   } else {
@@ -242,10 +347,16 @@ async function deleteCredentials() {
   }
 }
 
-//creates popup for deleting selected saved credentials
-function confirmDelete(event: Event) {
+/**
+ * Show confirmation dialog for deleting a credential.
+ * @param event - Trigger event from delete button
+ */
+function confirmDelete(event: Event): void {
+  const target = event.currentTarget as HTMLElement | null;
+  if (!target) return;
+
   confirm.require({
-    target: event.currentTarget,
+    target,
     message: t("profile.deleteConfirm"),
     icon: "pi pi-info-circle",
     rejectClass: "p-button-secondary p-button-outlined p-button-sm",
@@ -256,10 +367,19 @@ function confirmDelete(event: Event) {
   });
 }
 
-onMounted(() => {
-  loadLastSaved();
-  loadCredentialList();
+/**
+ * On mount: load credentials and set update callback for broker state.
+ */
+onMounted(async () => {
+  const keys = await window.storeAPI.get("savedProfiles");
+  if (!Array.isArray(keys)) {
+    await window.storeAPI.set("savedProfiles", []);
+  }
+
+  await loadLastSaved();
+  await loadCredentialList();
   setInterval(checkConnection, 1000 * 30);
+  BrokerConnection.onUpdate(() => loadCredentialList());
 });
 </script>
 
@@ -303,7 +423,6 @@ onMounted(() => {
 
         <Button icon="pi pi-save" @click="saveCredentials" :disabled="saveDisabled" v-tooltip.bottom="t('profile.saveCredentials')"/>
         <Button icon="pi pi-trash" @click="confirmDelete" :disabled="deleteDisabled" v-tooltip.bottom="t('profile.deleteCredentials')"/>
-
         <Button icon="pi pi-arrow-right-arrow-left" @click="changeCredentials" v-tooltip.bottom="t('profile.selectOption')"/>
         <Menu ref="credentialMenu" :model="credentials" :popup="true"/>
       </div>
