@@ -326,24 +326,8 @@ onMounted(() => {
 <template>
   <ConfirmPopup></ConfirmPopup>
   <div class="flex align-items-center">
-    <div v-if="connected" class="flex align-items-center text-green-600 text-xl"
-         v-tooltip.left="BrokerConnection.getCredentials().url">
-      <i class="pi pi-circle-fill mx-2"/>
-      <p class="font-bold">{{ t("checker.connected") }}</p>
-    </div>
-
-    <div v-else class="flex align-items-center text-red-600 text-xl"
-         v-tooltip.left="BrokerConnection.getCredentials().url">
-      <i class="pi pi-circle-fill mx-2"/>
-      <p class="font-bold">{{ t("checker.noConnection") }}</p>
-    </div>
-
     <div class="ml-auto p-1">
       <Button v-tooltip.left="t('checker.configuration')" icon="pi pi-cog" @click="visible = true"/>
-      <span v-if="url === ''|| password === '' " class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
-            v-tooltip.left="t('checker.missingCredentials')"></span>
-      <span v-if="!props.authorizationState" class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
-            v-tooltip.left="t('checker.unauthorized')"></span>
     </div>
   </div>
 
