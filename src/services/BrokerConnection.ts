@@ -37,13 +37,15 @@ class BrokerConnection {
     }
   }
 
-  public async getBrokerStatus(): Promise<number> {
+  public async isConnected(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.brokerURL}/broker/status`, {method: "GET"});
-      return response.status;
+      const response = await fetch(`${this.brokerURL}/broker/status`, {
+        method: "GET",
+      });
+      return response.status === 200;
     } catch (error) {
       console.error("Failed to reach broker:", error);
-      return 500;
+      return false;
     }
   }
 

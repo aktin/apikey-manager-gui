@@ -1,53 +1,53 @@
 <script setup lang="ts">
-/**
- * BrokerStatusIndicator.vue
- *
- * A purely presentational component that displays:
- * - Broker connection status (green/red icon)
- * - Broker URL as tooltip
- * - Warning icons for missing credentials or unauthorized access
- */
-
-import {defineProps} from "vue";
+import {defineProps, onMounted, ref, watch} from "vue";
+import BrokerConnection from "../services/BrokerConnection";
 import {useI18n} from "vue-i18n";
 
 const {t} = useI18n();
 
-const props = defineProps<{
-  /**
-   * Whether the application is connected to the broker (status 200)
-   */
-  connected: boolean;
+const props = defineProps<{ trigger: number; }>();
 
-  /**
-   * Whether the broker responded with authorized API access
-   */
-  authorizationState: boolean;
+const connected = ref<boolean>(false);
+const authorized = ref<boolean>(true);
 
-  /**
-   * The broker endpoint used for connection (shown in tooltip)
-   */
-  url: string;
-}>();
+async function checkConnection(): Promise<void> {
+  connected.value = await BrokerConnection.isConnected();
+  authorized.value = await BrokerConnection.isAuthorized();
+}
+
+onMounted(() => {
+  checkConnection();
+  BrokerConnection.onUpdate(async () => {
+    await checkConnection();
+  });
+});
+
+watch(() => props.trigger, () => {
+  checkConnection();
+});
 </script>
 
 <template>
   <div class="flex align-items-center">
     <!-- Green or red indicator based on connection -->
-    <div v-if="connected" class="flex align-items-center text-green-600 text-xl" v-tooltip.left="url">
+    <div v-if="connected" class="flex align-items-center text-green-600 text-xl" v-tooltip.left="BrokerConnection.getCredentials().url">
       <i class="pi pi-circle-fill mx-2"/>
       <p class="font-bold">{{ t("indicator.connected") }}</p>
     </div>
 
-    <div v-else class="flex align-items-center text-red-600 text-xl" v-tooltip.left="url">
+    <div v-else class="flex align-items-center text-red-600 text-xl" v-tooltip.left="BrokerConnection.getCredentials().url">
       <i class="pi pi-circle-fill mx-2"/>
       <p class="font-bold">{{ t("indicator.noConnection") }}</p>
     </div>
 
     <!-- Warnings for missing credentials or auth -->
     <div class="ml-auto p-1">
-      <span v-if="url === ''" class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2" v-tooltip.left="t('indicator.missingCredentials')"/>
-      <span v-if="!authorizationState" class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2" v-tooltip.left="t('indicator.unauthorized')"/>
+      <span v-if="BrokerConnection.getCredentials().url === '' || BrokerConnection.getCredentials().adminApiKey === ''"
+            class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
+            v-tooltip.left="t('indicator.missingCredentials')"/>
+      <span v-if="!authorized"
+            class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
+            v-tooltip.left="t('indicator.unauthorized')"/>
     </div>
   </div>
 </template>
