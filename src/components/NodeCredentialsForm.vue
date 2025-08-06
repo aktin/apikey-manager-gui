@@ -24,6 +24,9 @@ const isLocationInvalid = ref(false);
 const apiKeyValidPattern = /[^a-zA-Z0-9 -]/;
 const dnInvalidPattern = /[!@#§`´°~$%^*,?"{}|<>=\[\]\\€&]/;
 
+const isConnected = computed(() => BrokerConnection.getCredentials().url !== "");
+const isAuthorized = ref(true);
+
 const props = defineProps<{ selectedKey: string }>();
 
 const localSelectedKey = ref(props.selectedKey);
