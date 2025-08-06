@@ -7,7 +7,7 @@ import InputText from 'primevue/inputtext';
 import {FilterMatchMode} from 'primevue/api';
 import {useToast} from 'primevue/usetoast';
 import {useI18n} from 'vue-i18n';
-import { createErrorToast } from "./utils/ToastWrapper";
+import {createErrorToast} from "./utils/ToastWrapper";
 
 const toast = useToast();
 const {t} = useI18n();
@@ -67,7 +67,6 @@ onMounted(async () => {
     await updateApiKeyList();
   });
 });
-
 
 //checks which API Key has been selected and tells other classes
 watch(selectedRow, (newVal) => {
