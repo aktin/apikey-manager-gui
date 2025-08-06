@@ -132,7 +132,7 @@ class BrokerConnection {
     }
   }
 
-  public async getBrokerNodeList(): Promise<{ status: number; data: string }> {
+  async getBrokerNodeList(): Promise<{ status: number; data: string }> {
     try {
       const response = await fetch(`${this.brokerURL}/broker/node/`, {
         method: "GET",
@@ -140,16 +140,15 @@ class BrokerConnection {
           "Authorization": `Bearer ${this.adminApiKey}`
         }
       });
-      const text = await response.text();
-      const trimmed = text.trimStart();
-      const isHtml = trimmed.startsWith("<!DOCTYPE html>") || trimmed.startsWith("<html>");
-      if (isHtml) {
+      const contentType = response.headers.get("Content-Type") || "";
+      if (!contentType.includes("application/xml")) {
         console.warn("Invalid broker node list received");
-        return {status: 500, data: ""};
+        return {status: response.status, data: ""};
       }
+      const text = await response.text();
       return {status: response.status, data: text};
     } catch (error) {
-      console.error("Failed to fetch broker node list:", error);
+      console.error("Failed to fetch broker nodes:", error);
       return {status: 500, data: ""};
     }
   }
