@@ -146,10 +146,6 @@ function generateApiKey(): void {
 }
 
 onMounted(async () => {
-  isAuthorized.value = await BrokerConnection.isAuthorized();
-  BrokerConnection.onCredentialsChange(async () => {
-    isAuthorized.value = await BrokerConnection.isAuthorized();
-  });
 });
 </script>
 

@@ -4,13 +4,10 @@ import BrokerConnection from "../services/BrokerConnection";
 import {useI18n} from "vue-i18n";
 
 const {t} = useI18n();
-
 const connected = ref<boolean>(false);
-const authorized = ref<boolean>(true);
 
 async function checkConnection(): Promise<void> {
   connected.value = await BrokerConnection.isConnected();
-  authorized.value = await BrokerConnection.isAuthorized();
 }
 
 onMounted(() => {
@@ -34,14 +31,11 @@ onMounted(() => {
       <p class="font-bold">{{ t("indicator.noConnection") }}</p>
     </div>
 
-    <!-- Warnings for missing credentials or auth -->
+    <!-- Warnings for missing credentials -->
     <div class="ml-auto p-1">
-      <span v-if="BrokerConnection.getCredentials().url === '' || BrokerConnection.getCredentials().adminApiKey === ''"
-            class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
-            v-tooltip.left="t('indicator.missingCredentials')"/>
-      <span v-if="!authorized"
-            class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
-            v-tooltip.left="t('indicator.unauthorized')"/>
+    <span v-if="BrokerConnection.areCredentialsInitialized() && (BrokerConnection.getCredentials().url === '' || BrokerConnection.getCredentials().adminApiKey === '')"
+          class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
+          v-tooltip.left="t('indicator.missingCredentials')"/>
     </div>
   </div>
 </template>

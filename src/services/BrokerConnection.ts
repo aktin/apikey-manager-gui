@@ -4,6 +4,7 @@ class BrokerConnection {
   private adminApiKey = "";
   private apiKeysChangeCallbacks: Array<() => Promise<void>> = [];
   private credentialChangeCallbacks: Array<() => Promise<void>> = [];
+  private credentialsInitialized = false;
 
   private constructor() {
     if (BrokerConnection.instance) {
@@ -17,6 +18,10 @@ class BrokerConnection {
       BrokerConnection.instance = new BrokerConnection();
     }
     return BrokerConnection.instance;
+  }
+
+  public areCredentialsInitialized(): boolean {
+    return this.credentialsInitialized;
   }
 
   public onApiKeysChange(callback: () => Promise<void>): void {
@@ -42,6 +47,7 @@ class BrokerConnection {
   public setCredentials(url: string, key: string): void {
     this.brokerURL = url;
     this.adminApiKey = key;
+    this.credentialsInitialized = true;
     this.triggerCredentialChange();
   }
 
@@ -57,21 +63,6 @@ class BrokerConnection {
       return response.status === 200;
     } catch (error) {
       console.error("Failed to reach broker:", error);
-      return false;
-    }
-  }
-
-  public async isAuthorized(): Promise<boolean> {
-    try {
-      const response = await fetch(`${this.brokerURL}/broker/node/1`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${this.adminApiKey}`
-        }
-      });
-      return response.status !== 401;
-    } catch (error) {
-      console.error("Authorization check failed:", error);
       return false;
     }
   }
