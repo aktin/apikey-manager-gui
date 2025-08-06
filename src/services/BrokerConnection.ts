@@ -19,16 +19,6 @@ class BrokerConnection {
     return BrokerConnection.instance;
   }
 
-  public setCredentials(url: string, key: string): void {
-    this.brokerURL = url;
-    this.adminApiKey = key;
-    this.triggerCredentialChange();
-  }
-
-  public getCredentials(): { url: string; adminApiKey: string } {
-    return {url: this.brokerURL, adminApiKey: this.adminApiKey};
-  }
-
   public onApiKeysChange(callback: () => Promise<void>): void {
     this.apiKeysChangeCallbacks.push(callback);
   }
@@ -47,6 +37,16 @@ class BrokerConnection {
     for (const cb of this.credentialChangeCallbacks) {
       await cb();
     }
+  }
+
+  public setCredentials(url: string, key: string): void {
+    this.brokerURL = url;
+    this.adminApiKey = key;
+    this.triggerCredentialChange();
+  }
+
+  public getCredentials(): { url: string; adminApiKey: string } {
+    return {url: this.brokerURL, adminApiKey: this.adminApiKey};
   }
 
   public async isConnected(): Promise<boolean> {
@@ -99,28 +99,6 @@ class BrokerConnection {
     }
   }
 
-  public async getBrokerNodeList(): Promise<{ status: number; data: string }> {
-    try {
-      const response = await fetch(`${this.brokerURL}/broker/node/`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${this.adminApiKey}`
-        }
-      });
-      const text = await response.text();
-      const trimmed = text.trimStart();
-      const isHtml = trimmed.startsWith("<!DOCTYPE html>") || trimmed.startsWith("<html>");
-      if (isHtml) {
-        console.warn("Invalid broker node list received");
-        return {status: 500, data: ""};
-      }
-      return {status: response.status, data: text};
-    } catch (error) {
-      console.error("Failed to fetch broker node list:", error);
-      return {status: 500, data: ""};
-    }
-  }
-
   public async addApiKey(clinicCredentials: string): Promise<number> {
     try {
       const response = await fetch(`${this.brokerURL}/api-keys`, {
@@ -160,6 +138,28 @@ class BrokerConnection {
     } catch (error) {
       console.error(`Failed to ${action} API key:`, error);
       return 500;
+    }
+  }
+
+  public async getBrokerNodeList(): Promise<{ status: number; data: string }> {
+    try {
+      const response = await fetch(`${this.brokerURL}/broker/node/`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${this.adminApiKey}`
+        }
+      });
+      const text = await response.text();
+      const trimmed = text.trimStart();
+      const isHtml = trimmed.startsWith("<!DOCTYPE html>") || trimmed.startsWith("<html>");
+      if (isHtml) {
+        console.warn("Invalid broker node list received");
+        return {status: 500, data: ""};
+      }
+      return {status: response.status, data: text};
+    } catch (error) {
+      console.error("Failed to fetch broker node list:", error);
+      return {status: 500, data: ""};
     }
   }
 }
