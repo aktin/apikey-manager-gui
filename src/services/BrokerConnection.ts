@@ -42,7 +42,7 @@ class BrokerConnection {
   public setCredentials(url: string, key: string): void {
     this.brokerURL = url;
     this.adminApiKey = key;
-    await this.triggerCredentialChange();
+    this.triggerCredentialChange();
   }
 
   public getCredentials(): { url: string; adminApiKey: string } {
@@ -164,8 +164,5 @@ class BrokerConnection {
   }
 }
 
-// Create and freeze singleton instance for global access.
 const connector = BrokerConnection.getInstance();
-Object.freeze(connector);
-
 export default connector;

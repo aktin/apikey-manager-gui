@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from 'vue';
-import BrokerConnection from './BrokerConnection';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import InputText from 'primevue/inputtext';
-import {FilterMatchMode} from 'primevue/api';
-import {useToast} from 'primevue/usetoast';
-import {useI18n} from 'vue-i18n';
-import {createErrorToast} from "./utils/ToastWrapper";
+import {onMounted, ref, watch} from "vue";
+import BrokerConnection from "../services/BrokerConnection";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import InputText from "primevue/inputtext";
+import {FilterMatchMode} from "primevue/api";
+import {useToast} from "primevue/usetoast";
+import {useI18n} from "vue-i18n";
+import { createErrorToast } from "../utils/ToastWrapper";
 
 const toast = useToast();
 const {t} = useI18n();
@@ -16,7 +16,7 @@ const apiKeyList = ref<Record<string, any>[]>([]);
 const selectedRow = ref<Record<string, any> | null>(null);
 const selectedApiKey = ref<string>("");
 
-const emit = defineEmits<{ (e: 'update:selectedApiKey', value: string): void }>();
+const emit = defineEmits<{ (e: "update:selectedApiKey", value: string): void }>();
 
 const filters = ref({
   global: {value: null, matchMode: FilterMatchMode.CONTAINS}
@@ -96,9 +96,9 @@ watch(selectedRow, (newVal) => {
     </template>
 
     <Column field="apiKey" header="API Key" style="width: 10%"/>
-    <Column field="CN" :header="t('commonName')" sortable="True" style="width: 35%"/>
-    <Column field="O" :header="t('organization')" sortable="True" style="width: 35%"/>
-    <Column field="L" :header="t('location')" sortable="True" style="width: 10%"/>
+    <Column field="CN" :header="t('commonName')" :sortable="true" style="width: 35%"/>
+    <Column field="O" :header="t('organization')" :sortable="true" style="width: 35%"/>
+    <Column field="L" :header="t('location')" :sortable="true" style="width: 10%"/>
 
     <Column field="isActive" :header="t('table.status')" style="width: 10%">
       <template #body="{ data }">

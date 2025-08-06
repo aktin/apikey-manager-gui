@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import {computed, defineProps, ref, watch} from "vue";
+import {computed, defineProps, onMounted, ref, watch} from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
-import BrokerConnection from "./BrokerConnection";
+import BrokerConnection from "../services/BrokerConnection";
 import {useToast} from "primevue/usetoast";
-import {createErrorToast, createSuccessToast} from "@/utils/toast";
+import {createErrorToast, createSuccessToast} from "../utils/ToastWrapper";
 import {useI18n} from "vue-i18n";
 
 const {t} = useI18n();
@@ -37,7 +37,7 @@ watch(() => props.selectedKey, (newVal) => {
 const isChangeStateButtonActive = computed(() => localSelectedKey.value !== "" && isConnected.value);
 const isAddButtonActive = computed(() => isConnected.value && isAuthorized.value);
 
-function validateInput({value, invalidFlag, labelKey, pattern}: { value: string; invalidFlag: Ref<boolean>; labelKey: string; pattern: RegExp; }): void {
+function validateInput({value, invalidFlag, labelKey, pattern}: { value: string; invalidFlag: ref<boolean>; labelKey: string; pattern: RegExp; }): void {
   if (!value) {
     createErrorToast(toast, t("inputError"), `${t(labelKey)} ${t("form.lengthError")}`);
     invalidFlag.value = true;
@@ -93,7 +93,7 @@ async function addApikey(): Promise<void> {
     const status = await BrokerConnection.addApiKey(xml);
     switch (status) {
       case 201:
-        createSuccessToast(toast, t("form.apiKeyAdded"));
+        createSuccessToast(toast, t("form.apiKeyAdded"), "test");
         break;
       case 404:
         createErrorToast(toast, t("form.error"), t("form.noList"));
@@ -124,7 +124,7 @@ async function changeState(): Promise<void> {
   }
   switch (result) {
     case 200:
-      createSuccessToast(toast, isActive === "false" ? t("form.apiKeyActivated") : t("form.apiKeyDeactivated"));
+      createSuccessToast(toast, isActive === "false" ? t("form.apiKeyActivated") : t("form.apiKeyDeactivated"), "TEST");
       break;
     case 404:
       createErrorToast(toast, t("form.error"), t("form.noApiKey"));
