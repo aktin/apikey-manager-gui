@@ -13,6 +13,6 @@
  * @see https://vitejs.dev/config/
  * @see https://www.electronjs.org/docs/latest/tutorial/quick-start
  */
-import {defineConfig} from 'vite';
+import {defineConfig} from "vite";
 
 export default defineConfig({});

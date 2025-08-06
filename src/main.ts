@@ -9,7 +9,6 @@
 
 import {app, BrowserWindow, ipcMain} from "electron";
 import path from "node:path";
-import started from "electron-squirrel-startup";
 import Store from "electron-store";
 
 const store = new Store();
@@ -18,11 +17,6 @@ ipcMain.handle("store-get", (_event, key: string) => store.get(key));
 ipcMain.handle("store-set",
     (_event, key: string, value: unknown) => store.set(key, value));
 ipcMain.handle("store-delete", (_event, key: string) => store.delete(key));
-
-// Windows installer hook (Squirrel)
-if (started) {
-  app.quit();
-}
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
