@@ -7,6 +7,7 @@ import InputText from 'primevue/inputtext';
 import {FilterMatchMode} from 'primevue/api';
 import {useToast} from 'primevue/usetoast';
 import {useI18n} from 'vue-i18n';
+import { createErrorToast } from "./utils/ToastWrapper";
 
 const toast = useToast();
 const {t} = useI18n();
@@ -20,12 +21,6 @@ const emit = defineEmits<{ (e: 'update:selectedApiKey', value: string): void }>(
 const filters = ref({
   global: {value: null, matchMode: FilterMatchMode.CONTAINS}
 });
-
-const toastLife = 5000;
-
-function createErrorToast(title, detail) {
-  toast.add({severity: "error", summary: title, detail, life: toastLife})
-}
 
 function formatApiKeyList(textBlock: string): Record<string, any>[] {
   if (!textBlock) return [];
@@ -57,7 +52,7 @@ async function fetchAndFormatApiKeyList(): Promise<Record<string, any>[]> {
     case 200:
       return formatApiKeyList(result.data);
     default:
-      createErrorToast(t("connectionError"), t("noConnection"));
+      createErrorToast(toast, t("connectionError"), t("noConnection"));
       return [];
   }
 }

@@ -4,6 +4,7 @@ import {useToast} from "primevue/usetoast";
 import {useConfirm} from "primevue/useconfirm";
 import {useI18n} from "vue-i18n";
 import BrokerConnection from "../services/BrokerConnection";
+import { createSuccessToast, createErrorToast } from "./utils/ToastWrapper";
 
 import Dialog from "primevue/dialog";
 import FloatLabel from "primevue/floatlabel";
@@ -56,14 +57,6 @@ const credentials = ref<{ label: string; items: { label: string; command: () => 
 /** Ref to PrimeVue menu */
 const credentialsMenu = ref();
 
-function createErrorToast(title: string, detail: string): void {
-  toast.add({severity: "error", summary: title, detail, life: 5000});
-}
-
-function createSuccessToast(detail: string): void {
-  toast.add({severity: "success", summary: t("success"), detail, life: 5000});
-}
-
 function openCredentialsMenu(event: Event): void {
   credentialsMenu.value?.toggle(event);
 }
@@ -110,7 +103,7 @@ function changeSavedCreds(): void {
 function profileChanged(): void {
   profileNotChanged.value = savedProfile.value === profile.value || profile.value === "";
   if (profile.value === "") {
-    createErrorToast(t("inputError"), t("profile.profileEmpty"));
+    createErrorToast(toast, t("inputError"), t("profile.profileEmpty"));
   }
   updateSaveButton();
 }
@@ -118,7 +111,7 @@ function profileChanged(): void {
 function keyChanged(): void {
   keyNotChanged.value = savedKey.value === key.value || key.value === "";
   if (key.value === "") {
-    createErrorToast(t("inputError"), t("profile.apiKeyEmpty"));
+    createErrorToast(toast, t("inputError"), t("profile.apiKeyEmpty"));
   }
   updateSaveButton();
 }
@@ -126,7 +119,7 @@ function keyChanged(): void {
 function urlChanged(): void {
   urlNotChanged.value = savedUrl.value === url.value || url.value === "";
   if (url.value === "") {
-    createErrorToast(t("inputError"), t("profile.urlEmpty"));
+    createErrorToast(toast, t("inputError"), t("profile.urlEmpty"));
   }
   updateSaveButton();
 }
@@ -178,23 +171,23 @@ function checkCredentials(): boolean {
     url.value = "http://" + url.value;
   }
   if (pattern.test(profile.value)) {
-    createErrorToast(t("inputError"), `${t("profile.profile")} ${t("form.symbolError")}`);
+    createErrorToast(toast, t("inputError"), `${t("profile.profile")} ${t("form.symbolError")}`);
     isValid = false;
   }
   if (pattern.test(key.value)) {
-    createErrorToast(t("inputError"), `Admin API Key ${t("form.symbolError")}`);
+    createErrorToast(toast, t("inputError"), `Admin API Key ${t("form.symbolError")}`);
     isValid = false;
   }
   if (pattern.test(url.value)) {
-    createErrorToast(t("inputError"), `URL ${t("form.symbolError")}`);
+    createErrorToast(toast, t("inputError"), `URL ${t("form.symbolError")}`);
     isValid = false;
   }
   if (!profile.value || !key.value || !url.value) {
-    createErrorToast(t("inputError"), t("profile.fieldsMustBeFilled"));
+    createErrorToast(toast, t("inputError"), t("profile.fieldsMustBeFilled"));
     return false;
   }
   if (profile.value === "LastSelected") {
-    createErrorToast(t("inputError"), t("profile.invalidName"));
+    createErrorToast(toast, t("inputError"), t("profile.invalidName"));
     return false;
   }
   return isValid;
@@ -231,7 +224,7 @@ async function deleteCredentials(): Promise<void> {
 
   await window.storeAPI.delete(toDelete);
   await removeProfileKey(toDelete);
-  createSuccessToast(toDelete + " " + t("profile.deleted"));
+  createSuccessToast(toast, toDelete + " " + t("profile.deleted"));
 
   await loadCredentialList();
 
