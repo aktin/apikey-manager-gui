@@ -42,7 +42,7 @@ class BrokerConnection {
   public setCredentials(url: string, key: string): void {
     this.brokerURL = url;
     this.adminApiKey = key;
-    this.triggerCredentialChange();
+    await this.triggerCredentialChange();
   }
 
   public getCredentials(): { url: string; adminApiKey: string } {
