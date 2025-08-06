@@ -76,14 +76,14 @@ class BrokerConnection {
           "Content-Type": "application/json"
         }
       });
+      const contentType = response.headers.get("Content-Type") || "";
+      if (!contentType.includes("text/plain")) {
+        console.warn("Invalid API key list received");
+        return {status: response.status, data: ""};
+      }
       const text = await response.text();
       const trimmed = text.trimStart();
-      const isHtml = trimmed.startsWith("<!DOCTYPE html>") || trimmed.startsWith("<html>");
-      if (isHtml) {
-        console.warn("No valid API keys found");
-        return {status: 500, data: ""};
-      }
-      return {status: response.status, data: text};
+      return {status: response.status, data: trimmed};
     } catch (error) {
       console.error("Failed to fetch API keys:", error);
       return {status: 500, data: ""};
