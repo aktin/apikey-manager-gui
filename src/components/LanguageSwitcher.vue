@@ -1,12 +1,10 @@
 <script setup lang="ts">
-
 import {ref, watchEffect} from "vue";
 import {useI18n} from "vue-i18n";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
 
 const {t, locale} = useI18n();
-
 const languageMenu = ref();
 
 const languages = ref([
