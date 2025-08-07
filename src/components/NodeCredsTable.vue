@@ -3,6 +3,7 @@ import {onMounted, ref, watch} from "vue";
 import BrokerConnection from "../services/BrokerConnection";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
+import Checkbox from 'primevue/checkbox';
 import InputText from "primevue/inputtext";
 import {FilterMatchMode} from "primevue/api";
 import {useToast} from "primevue/usetoast";
@@ -15,6 +16,7 @@ const {t} = useI18n();
 const apiKeyList = ref<Record<string, any>[]>([]);
 const selectedRow = ref<Record<string, any> | null>(null);
 const selectedApiKey = ref<string>("");
+const showInactiveKeys = ref(true);
 
 const emit = defineEmits<{ (e: "update:selectedApiKey", value: string): void }>();
 
@@ -86,7 +88,8 @@ async function fetchAndFormatApiKeyList(): Promise<Record<string, any>[]> {
 }
 
 async function updateApiKeyList() {
-  apiKeyList.value = await fetchAndFormatApiKeyList();
+  const fullList = await fetchAndFormatApiKeyList();
+  apiKeyList.value = showInactiveKeys.value ? fullList : fullList.filter(entry => entry.isActive);
 }
 
 onMounted(async () => {
@@ -104,6 +107,9 @@ watch(selectedRow, (newVal) => {
   emit("update:selectedApiKey", selectedApiKey.value);
 });
 
+watch(showInactiveKeys, async () => {
+  await updateApiKeyList();
+});
 </script>
 
 <template>
@@ -121,8 +127,16 @@ watch(selectedRow, (newVal) => {
   >
     <template #empty>{{ t("table.emptyList") }}</template>
     <template #header>
-      <InputText v-model="filters['global'].value" :placeholder="t('table.keywordSearchPlaceholder')" class="text-base text-color surface-overlay p-2 input_Field"/>
-      <i v-tooltip="t('table.keywordSearchInfo')" class="pi pi-info-circle p-2"/>
+      <div class="flex justify-content-between flex-wrap">
+        <div>
+          <InputText v-model="filters['global'].value" :placeholder="t('table.keywordSearchPlaceholder')" class="text-base text-color surface-overlay p-2 input_Field"/>
+          <i v-tooltip="t('table.keywordSearchInfo')" class="pi pi-info-circle p-2"/>
+        </div>
+        <div class="flex align-items-center mr-2">
+          <Checkbox v-model="showInactiveKeys" :binary="true" inputId="showInactive"/>
+          <label for="showInactive" class="ml-1">{{ t("table.showInactive") }}</label>
+        </div>
+      </div>
     </template>
 
     <Column field="nodeId" header="#" :sortable="true" style="width: 4%">

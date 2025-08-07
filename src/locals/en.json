@@ -5,6 +5,7 @@
 
   "table.keywordSearchPlaceholder": "Keyword Search",
   "table.keywordSearchInfo": "Search available only for sortable Columns",
+  "table.showInactive": "Show inactive API Keys",
   "table.emptyList": "No API Keys found",
   "table.unauthorized": "You are not authorized to view API Keys",
   "table.nodeNotConnected": "Node has no ID yet",
