@@ -43,7 +43,8 @@
   "form.activateKey": "Activate",
   "form.deactivateKey": "Deactivate",
 
-
+  "language.switched" : "Language switched",
+  "language.changeLang": "Change Language",
 
 
 
@@ -67,7 +68,6 @@
   "profile.profileEmpty": "Profile name cannot be empty",
   "profile.apiKeyEmpty": "Admin API Key cannot be empty",
   "profile.urlEmpty": "URL cannot be empty",
-  "language.changeLocal": "Change Language",
   "profile.invalidName": "Profile name cannot be 'LastSelected'"
 
 
