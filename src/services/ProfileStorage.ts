@@ -1,8 +1,4 @@
-export interface CredentialProfile {
-  name: string;
-  key: string;
-  url: string;
-}
+import {CredentialProfile} from "../types/CredentialProfile";
 
 export default class ProfileStorage {
   private static readonly PROFILE_KEY = "savedProfiles";
