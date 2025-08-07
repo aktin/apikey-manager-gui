@@ -4,7 +4,7 @@ import {useToast} from "primevue/usetoast";
 import {useConfirm} from "primevue/useconfirm";
 import {useI18n} from "vue-i18n";
 import BrokerConnection from "../services/BrokerConnection";
-import { createSuccessToast, createErrorToast } from "../services/ToastWrapper";
+import {createErrorToast, createInfoToast, createSuccessToast} from "../services/ToastWrapper";
 
 import Dialog from "primevue/dialog";
 import FloatLabel from "primevue/floatlabel";
@@ -15,6 +15,7 @@ import ConfirmPopup from "primevue/confirmpopup";
 import ProgressSpinner from "primevue/progressspinner";
 import Menu from "primevue/menu";
 import LanguageSwitcher from "./LanguageSwitcher.vue";
+import ProfileStorage, {type CredentialProfile} from "../services/ProfileStorage";
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -27,8 +28,8 @@ const visible = ref<boolean>(false);
 const logInBlocked = ref<boolean>(false);
 
 /** Controls save/delete button states */
-const deleteDisabled = ref<boolean>(true);
-const saveDisabled = ref<boolean>(true);
+const deleteBtnDisabled = ref<boolean>(true);
+const saveBtnDisabled = ref<boolean>(true);
 
 /** Field inputs */
 const profile = ref<string>("");
@@ -62,20 +63,8 @@ function openCredentialsMenu(event: Event): void {
   credentialsMenu.value?.toggle(event);
 }
 
-function parseCredentialString(entry: string): { name: string; key: string; url: string } {
-  const [name, key, url] = entry.split(";");
-  return {name, key, url};
-}
-
-async function fetchFormattedCredentials(): Promise<{ name: string; key: string; url: string }[]> {
-  const keys = (await window.storeAPI.get("savedProfiles")) as string[] || [];
-  const results = await Promise.all(
-      keys.map(async (name) => {
-        const val = await window.storeAPI.get(name);
-        return val ? parseCredentialString(val as string) : null;
-      })
-  );
-  return results.filter(Boolean) as { name: string; key: string; url: string }[];
+async function fetchCredentials(): Promise<CredentialProfile[]> {
+  return await ProfileStorage.getAllProfiles();
 }
 
 function updateCredentialsList(creds: { name: string }[]): void {
@@ -88,7 +77,7 @@ function updateCredentialsList(creds: { name: string }[]): void {
 }
 
 async function loadCredentialList(): Promise<void> {
-  const formatted = await fetchFormattedCredentials();
+  const formatted = await fetchCredentials();
   savedCredentials.value = formatted.map(({name}) => ({name}));
   updateCredentialsList(savedCredentials.value);
 }
@@ -125,39 +114,37 @@ function urlChanged(): void {
 }
 
 function updateSaveButton(): void {
-  saveDisabled.value = profileNotChanged.value && keyNotChanged.value && urlNotChanged.value;
+  saveBtnDisabled.value = profileNotChanged.value && keyNotChanged.value && urlNotChanged.value;
 }
 
 async function insertCredentials(profileName: string): Promise<void> {
-  const raw = await window.storeAPI.get(profileName);
-  const isValid = !!raw;
-  const [p, k, u] = isValid ? (raw as string).split(";") : ["", "", ""];
+  const profileData = await ProfileStorage.getProfile(profileName);
+  const isValid = !!profileData;
+  profile.value = profileData?.name ?? "";
+  key.value = profileData?.key ?? "";
+  url.value = profileData?.url ?? "";
 
-  profile.value = p;
-  key.value = k;
-  url.value = u;
-
-  selectedCredentials.value = isValid ? {name: p} : null;
-  deleteDisabled.value = !isValid;
+  selectedCredentials.value = isValid ? {name: profile.value} : null;
+  deleteBtnDisabled.value = !isValid;
 
   changeSavedCreds();
   profileChanged();
   keyChanged();
   urlChanged();
-
   BrokerConnection.setCredentials(url.value, key.value);
-  await window.storeAPI.set("LastSelected", profile.value);
+  await ProfileStorage.setLastSelected(profile.value);
 }
 
 async function handleCredentialSelectionChange(cred: { name: string }): Promise<void> {
   logInBlocked.value = true;
-  saveDisabled.value = true;
+  saveBtnDisabled.value = true;
   await insertCredentials(cred.name);
   logInBlocked.value = false;
+  createInfoToast(toast, t("common.info"), t("profile.switchedProfileTo", {profile: cred.name}));
 }
 
 async function loadLastSaved(): Promise<void> {
-  const last = await window.storeAPI.get("LastSelected");
+  const last = await ProfileStorage.getLastSelected();
   if (typeof last === "string") {
     selectedCredentials.value = {name: last};
     await insertCredentials(last);
@@ -193,41 +180,26 @@ function checkCredentials(): boolean {
   return isValid;
 }
 
-async function addProfileKey(profileName: string): Promise<void> {
-  const keys = (await window.storeAPI.get("savedProfiles")) as string[] || [];
-  if (!keys.includes(profileName)) {
-    keys.push(profileName);
-    await window.storeAPI.set("savedProfiles", keys);
-  }
-}
-
 async function saveCredentials(): Promise<void> {
-  if (checkCredentials()) {
-    const combined = `${profile.value};${key.value};${url.value}`;
-    await window.storeAPI.set(profile.value, combined);
-    await addProfileKey(profile.value);
-    await handleCredentialSelectionChange({name: profile.value});
-    await loadCredentialList();
-  }
-}
-
-async function removeProfileKey(profileName: string): Promise<void> {
-  const keys = (await window.storeAPI.get("savedProfiles")) as string[] || [];
-  const updated = keys.filter(k => k !== profileName);
-  await window.storeAPI.set("savedProfiles", updated);
+  if (!checkCredentials()) return;
+  const profileData: CredentialProfile = {
+    name: profile.value,
+    key: key.value,
+    url: url.value
+  };
+  await ProfileStorage.saveProfile(profileData);
+  createSuccessToast(toast, t("common.success"), t("profile.createdNewProfile", {profile: profile.value}));
+  await handleCredentialSelectionChange({name: profile.value});
+  await loadCredentialList();
 }
 
 async function deleteCredentials(): Promise<void> {
-  saveDisabled.value = true;
+  saveBtnDisabled.value = true;
   const toDelete = selectedCredentials.value?.name;
   if (!toDelete) return;
-
-  await window.storeAPI.delete(toDelete);
-  await removeProfileKey(toDelete);
+  await ProfileStorage.deleteProfile(toDelete);
   createSuccessToast(toast, toDelete + " " + t("profile.deleted"), "TEST");
-
   await loadCredentialList();
-
   suppressInputValidation.value = true;
   if (savedCredentials.value[0]) {
     await handleCredentialSelectionChange(savedCredentials.value[0]);
@@ -240,7 +212,6 @@ async function deleteCredentials(): Promise<void> {
 function confirmDelete(event: Event): void {
   const target = event.currentTarget as HTMLElement | null;
   if (!target) return;
-
   confirm.require({
     target,
     message: t("profile.deleteConfirm"),
@@ -254,10 +225,6 @@ function confirmDelete(event: Event): void {
 }
 
 onMounted(async () => {
-  const keys = await window.storeAPI.get("savedProfiles");
-  if (!Array.isArray(keys)) {
-    await window.storeAPI.set("savedProfiles", []);
-  }
   await loadLastSaved();
   await loadCredentialList();
 });
@@ -298,8 +265,8 @@ onMounted(async () => {
 
       <div class="flex flex-column justify-content-between ml-auto">
         <LanguageSwitcher/>
-        <Button icon="pi pi-save" @click="saveCredentials" :disabled="saveDisabled" v-tooltip.bottom="t('profile.saveCredentials')"/>
-        <Button icon="pi pi-trash" @click="confirmDelete" :disabled="deleteDisabled" v-tooltip.bottom="t('profile.deleteCredentials')"/>
+        <Button icon="pi pi-save" @click="saveCredentials" :disabled="saveBtnDisabled" v-tooltip.bottom="t('profile.saveCredentials')"/>
+        <Button icon="pi pi-trash" @click="confirmDelete" :disabled="deleteBtnDisabled" v-tooltip.bottom="t('profile.deleteCredentials')"/>
         <Button icon="pi pi-arrow-right-arrow-left" @click="openCredentialsMenu" v-tooltip.bottom="t('profile.selectOption')"/>
         <Menu ref="credentialsMenu" :model="credentials" :popup="true"/>
       </div>
