@@ -10,6 +10,7 @@
 import {app, BrowserWindow, ipcMain} from "electron";
 import path from "node:path";
 import Store from "electron-store";
+import "./ProfileBridge";
 
 const store = new Store();
 

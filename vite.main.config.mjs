@@ -13,6 +13,22 @@
  * @see https://vitejs.dev/config/
  * @see https://www.electronjs.org/docs/latest/tutorial/quick-start
  */
-import {defineConfig} from "vite";
+import { defineConfig } from "vite";
+import path from "node:path";
 
-export default defineConfig({});
+export default defineConfig({
+  build: {
+    target: "node22",
+    outDir: ".vite/build",
+    rollupOptions: {
+      input: path.resolve(__dirname, "src/main.ts"),
+      external: [
+        "keytar",
+        "electron",
+        "crypto",
+        "path",
+        "fs"
+      ],
+    },
+  },
+});

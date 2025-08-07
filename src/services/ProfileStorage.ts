@@ -9,8 +9,14 @@ export default class ProfileStorage {
     const entries = await Promise.all(names.map(async (name) => {
       const raw = await window.storeAPI.get(name);
       if (!raw) return null;
-      const [n, k, u] = (raw as string).split(";");
-      return {name: n, key: k, url: u} satisfies CredentialProfile;
+      try {
+        const decrypted = await window.profileCrypto.decrypt(raw as string);
+        const [n, k, u] = decrypted.split(";");
+        return { name: n, key: k, url: u } satisfies CredentialProfile;
+      } catch (err) {
+        console.error(`Failed to decrypt profile "${name}":`, err);
+        return null;
+      }
     }));
     return entries.filter(Boolean) as CredentialProfile[];
   }
@@ -18,8 +24,9 @@ export default class ProfileStorage {
   static async getProfile(name: string): Promise<CredentialProfile | null> {
     const raw = await window.storeAPI.get(name);
     if (!raw) return null;
-    const [n, k, u] = (raw as string).split(";");
-    return {name: n, key: k, url: u};
+    const decrypted = await window.profileCrypto.decrypt(raw as string);
+    const [n, k, u] = decrypted.split(";");
+    return { name: n, key: k, url: u };
   }
 
   static async saveProfile(profile: CredentialProfile): Promise<void> {
@@ -27,7 +34,9 @@ export default class ProfileStorage {
     if (!existing.includes(profile.name)) {
       await window.storeAPI.set(this.PROFILE_KEY, [...existing, profile.name]);
     }
-    await window.storeAPI.set(profile.name, `${profile.name};${profile.key};${profile.url}`);
+    const joined = `${profile.name};${profile.key};${profile.url}`;
+    const encrypted = await window.profileCrypto.encrypt(joined);
+    await window.storeAPI.set(profile.name, encrypted);
   }
 
   static async deleteProfile(name: string): Promise<void> {
