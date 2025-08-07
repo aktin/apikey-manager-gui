@@ -33,7 +33,7 @@ const isChangeStateButtonActive = computed(() => selectedKey.value !== "");
 
 function validateField(value: string, flag: Ref<boolean>, localeKey: string, pattern: RegExp) {
   if (pattern.test(value)) {
-    createErrorToast(toast, t("form.inputError"), `${t(localeKey)} ${t("form.symbolError")}`);
+    createErrorToast(toast, t("common.inputError"), t("common.symbolError", {fieldName: t(localeKey)}));
     flag.value = true;
   }
 }
@@ -45,7 +45,7 @@ function validate() {
   invalidLoc.value = false;
 
   if (apiKey.value.length !== apiKeyLength) {
-    createErrorToast(toast, t("form.inputError"), t("form.keyLengthError", {length: apiKeyLength}));
+    createErrorToast(toast, t("common.inputError"), t("form.keyLengthError", {length: apiKeyLength}));
     invalidApiKey.value = true;
   } else {
     validateField(apiKey.value, invalidApiKey, "common.key", apiKeyPattern);

@@ -29,7 +29,7 @@ const languages = ref([
 function setLanguage(lang: string): void {
   locale.value = lang;
   localStorage.setItem("lang", lang);
-  createInfoToast(toast, t("common.info"), t("language.switched"));
+  createInfoToast(toast, t("common.info"), t("language.switched", {lang: lang}));
 }
 
 watchEffect(() => {
