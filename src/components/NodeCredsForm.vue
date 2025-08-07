@@ -78,7 +78,7 @@ async function addNewKey() {
       createErrorToast(toast, t("common.serverError"), t("common.serverErrorText"));
       break;
     default:
-      createErrorToast(toast, t("common.unexpectedError"), `${t("common.unexpectedErrorText")} ${status}`);
+      createErrorToast(toast, t("common.unexpectedError"), t("common.unexpectedErrorText", {code: status}));
   }
 }
 
@@ -100,7 +100,7 @@ async function changeKeyState() {
       createErrorToast(toast, t("common.serverError"), t("common.serverErrorText"));
       break;
     default:
-      createErrorToast(toast, t("common.unexpectedError"), `${t("common.unexpectedErrorText")} ${status}`);
+      createErrorToast(toast, t("common.unexpectedError"), t("common.unexpectedErrorText", {code: status}));
   }
 }
 

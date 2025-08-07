@@ -81,7 +81,7 @@ async function fetchAndFormatApiKeyList(): Promise<Record<string, any>[]> {
       createErrorToast(toast, t("common.serverError"), t("common.serverErrorText"));
       break;
     default:
-      createErrorToast(toast, t("common.unexpectedError"), `${t("common.unexpectedErrorText")} ${keyResult.status}`);
+      createErrorToast(toast, t("common.unexpectedError"), t("common.unexpectedErrorText", {code: status}));
       break;
   }
   return [];

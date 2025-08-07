@@ -19,7 +19,7 @@
   "common.serverError": "Server Error",
   "common.serverErrorText": "The server encountered an internal error.",
   "common.unexpectedError": "Unexpected Error",
-  "common.unexpectedErrorText": "An unexpected error occurred: ",
+  "common.unexpectedErrorText": "An unexpected error occurred: {code}",
   "common.key":"API Key",
   "common.cn": "Common Name",
   "common.o": "Organization",
