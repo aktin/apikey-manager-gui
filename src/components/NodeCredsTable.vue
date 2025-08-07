@@ -139,7 +139,7 @@ watch(showInactiveKeys, async () => {
       </div>
     </template>
 
-    <Column field="nodeId" header="#" :sortable="true" style="width: 4%">
+    <Column field="nodeId" :header="t('table.nodeId')" :sortable="true" style="width: 4%">
       <template #body="{ data }">
         <div class="flex justify-content-center">
           <span v-if="data.nodeId">{{ data.nodeId }}</span>
@@ -148,10 +148,10 @@ watch(showInactiveKeys, async () => {
       </template>
     </Column>
 
-    <Column field="apiKey" :header="t('table.apikey')" style="width: 10%"/>
-    <Column field="CN" :header="t('table.cn')" :sortable="true" style="width: 35%"/>
-    <Column field="O" :header="t('table.o')" :sortable="true" style="width: 35%"/>
-    <Column field="L" :header="t('table.l')" :sortable="true" style="width: 10%"/>
+    <Column field="apiKey" :header="t('common.key')" style="width: 10%"/>
+    <Column field="CN" :header="t('common.cn')" :sortable="true" style="width: 35%"/>
+    <Column field="O" :header="t('common.o')" :sortable="true" style="width: 35%"/>
+    <Column field="L" :header="t('common.l')" :sortable="true" style="width: 10%"/>
 
     <Column field="isActive" :header="t('table.status')" :sortable="true" style="width: 6%">
       <template #body="{ data }">

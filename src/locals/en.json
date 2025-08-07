@@ -8,11 +8,8 @@
   "table.showInactive": "Show inactive API Keys",
   "table.emptyList": "No API Keys found",
   "table.unauthorized": "You are not authorized to view API Keys",
+  "table.nodeId" : "#",
   "table.nodeNotConnected": "Node has no ID yet",
-  "table.apikey":"API Key",
-  "table.cn": "Common Name",
-  "table.o": "Organization",
-  "table.l": "Location",
   "table.status": "Status",
   "table.apiKeyActive": "API Key is active",
   "table.apiKeyInactive": "API Key is inactive",
@@ -23,11 +20,37 @@
   "common.serverErrorText": "The server encountered an internal error.",
   "common.unexpectedError": "Unexpected Error",
   "common.unexpectedErrorText": "An unexpected error occurred: ",
+  "common.key":"API Key",
+  "common.cn": "Common Name",
+  "common.o": "Organization",
+  "common.l": "Location",
+  "common.success" : "Success",
+
+  "form.inputError": "Input Error",
+  "form.symbolError": "Cannot contain special characters",
+  "form.keyLengthError": "API Key must be {length} characters long",
+  "form.apiKeyAdded": "API Key has been added",
+  "form.notFound":"Not Found",
+  "form.noList": "Could not find a list to add API Key to",
+  "form.noAuthorization": "You are not authorized to perform this action",
+  "form.conflict": "Conflict",
+  "form.apiKeyAlreadyExists": "API Key already exists",
+  "form.apiKeyActivated": "API Key has been activated",
+  "form.apiKeyDeactivated": "API Key has been deactivated",
+  "form.noApiKey": "Could not find API Key.",
+  "form.generateKey": "Generate API Key",
+  "form.addAPIKey": "Add API Key",
+  "form.activateKey": "Activate",
+  "form.deactivateKey": "Deactivate",
 
 
-  "connectionError": "Connection Error",
-  "noConnection": "Unable to reach the server",
-  "inputError": "Input Error",
+
+
+
+
+
+
+
   "profile.configuration": "Configuration",
   "profile.profile": "Profile Name",
   "profile.selectOption": "Select Credentials",
@@ -45,23 +68,8 @@
   "profile.apiKeyEmpty": "Admin API Key cannot be empty",
   "profile.urlEmpty": "URL cannot be empty",
   "language.changeLocal": "Change Language",
-  "profile.invalidName": "Profile name cannot be 'LastSelected'",
+  "profile.invalidName": "Profile name cannot be 'LastSelected'"
 
-  "form.addAPIKey": "Add API Key",
-  "form.activate": "Activate",
-  "form.deactivate": "Deactivate",
-  "form.generate": "Generate API Key",
-  "form.apiLengthError": "API Key must be 12 characters long",
-  "form.lengthError": "cannot be empty",
-  "form.symbolError": "cannot contain special characters",
-  "form.conflict": "Conflict",
-  "form.unexpectedError": "Unexpected Error",
-  "form.apiKeyAdded": "API Key has been added",
-  "form.apiKeyActivated": "API Key has been activated",
-  "form.apiKeyDeactivated": "API Key has been deactivated",
-  "form.noList": "Could not find a list to add the API Key to.",
-  "form.noAuthorization": "You are not authorized to perform this action.",
-  "form.apiKeyAlreadyExists": "API Key already exists",
-  "form.noApiKey": "Could not find API Key."
+
 
 }

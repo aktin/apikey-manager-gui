@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, defineProps, onMounted, ref, watch} from "vue";
+import {computed, defineProps, Ref, ref, watch} from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
@@ -11,207 +11,138 @@ import {useI18n} from "vue-i18n";
 const {t} = useI18n();
 const toast = useToast();
 
-const apiKeyInput = ref("");
-const commonNameInput = ref("");
-const organizationInput = ref("");
-const locationInput = ref("");
+const apiKey = ref("");
+const cn = ref("");
+const org = ref("");
+const loc = ref("");
 
-const isApiKeyInvalid = ref(false);
-const isCommonNameInvalid = ref(false);
-const isOrganizationInvalid = ref(false);
-const isLocationInvalid = ref(false);
+const invalidApiKey = ref(false);
+const invalidCN = ref(false);
+const invalidOrg = ref(false);
+const invalidLoc = ref(false);
 
-const apiKeyValidPattern = /[^a-zA-Z0-9 -]/;
-const dnInvalidPattern = /[!@#§`´°~$%^*,?"{}|<>=\[\]\\€&]/;
-
-const isConnected = computed(() => BrokerConnection.getCredentials().url !== "");
-const isAuthorized = ref(true);
+const apiKeyLength = 16;
+const apiKeyPattern = /[^a-zA-Z0-9]/;
+const dnPattern = /[^a-zA-Z0-9 -]/;
 
 const props = defineProps<{ selectedKey: string }>();
+const selectedKey = ref(props.selectedKey);
 
-const localSelectedKey = ref(props.selectedKey);
-watch(() => props.selectedKey, (newVal) => {
-  localSelectedKey.value = newVal;
-});
+const isAddButtonActive = computed(() => apiKey.value.trim() !== "" && cn.value.trim() !== "" && org.value.trim() !== "" && loc.value.trim() !== "");
+const isChangeStateButtonActive = computed(() => selectedKey.value !== "");
 
-const isChangeStateButtonActive = computed(() => localSelectedKey.value !== "" && isConnected.value);
-const isAddButtonActive = computed(() => isConnected.value && isAuthorized.value);
-
-function validateInput({value, invalidFlag, labelKey, pattern}: { value: string; invalidFlag: ref<boolean>; labelKey: string; pattern: RegExp; }): void {
-  if (!value) {
-    createErrorToast(toast, t("inputError"), `${t(labelKey)} ${t("form.lengthError")}`);
-    invalidFlag.value = true;
-    return;
-  }
+function validateField(value: string, flag: Ref<boolean>, localeKey: string, pattern: RegExp) {
   if (pattern.test(value)) {
-    createErrorToast(toast, t("inputError"), `${t(labelKey)} ${t("form.symbolError")}`);
-    invalidFlag.value = true;
+    createErrorToast(toast, t("form.inputError"), `${t(localeKey)} ${t("form.symbolError")}`);
+    flag.value = true;
   }
 }
 
-function validate(): void {
-  isApiKeyInvalid.value = false;
-  isCommonNameInvalid.value = false;
-  isOrganizationInvalid.value = false;
-  isLocationInvalid.value = false;
-  if (apiKeyInput.value.length !== 12) {
-    createErrorToast(toast, t("inputError"), t("form.apiLengthError"));
-    isApiKeyInvalid.value = true;
+function validate() {
+  invalidApiKey.value = false;
+  invalidCN.value = false;
+  invalidOrg.value = false;
+  invalidLoc.value = false;
+
+  if (apiKey.value.length !== apiKeyLength) {
+    createErrorToast(toast, t("form.inputError"), t("form.keyLengthError", {length: apiKeyLength}));
+    invalidApiKey.value = true;
   } else {
-    validateInput({
-      value: apiKeyInput.value,
-      invalidFlag: isApiKeyInvalid,
-      labelKey: "API Key",
-      pattern: apiKeyValidPattern
-    });
+    validateField(apiKey.value, invalidApiKey, "common.key", apiKeyPattern);
   }
-  validateInput({
-    value: organizationInput.value,
-    invalidFlag: isOrganizationInvalid,
-    labelKey: "organization",
-    pattern: apiKeyValidPattern
-  });
-  validateInput({
-    value: commonNameInput.value,
-    invalidFlag: isCommonNameInvalid,
-    labelKey: "commonName",
-    pattern: dnInvalidPattern
-  });
-  validateInput({
-    value: locationInput.value,
-    invalidFlag: isLocationInvalid,
-    labelKey: "location",
-    pattern: dnInvalidPattern
-  });
+  validateField(cn.value, invalidCN, "common.cn", dnPattern);
+  validateField(org.value, invalidOrg, "common.o", dnPattern);
+  validateField(loc.value, invalidLoc, "common.l", dnPattern);
 }
 
-async function addApikey(): Promise<void> {
+async function addNewKey() {
   validate();
-  if (!isApiKeyInvalid.value && !isCommonNameInvalid.value && !isOrganizationInvalid.value && !isLocationInvalid.value) {
-    const payload = `CN=${commonNameInput.value},O=${organizationInput.value},L=${locationInput.value}`;
-    const xml = `<ApiKeyCred><apiKey>${apiKeyInput.value}</apiKey><clientDn>${payload}</clientDn></ApiKeyCred>`;
-    const status = await BrokerConnection.addApiKey(xml);
-    switch (status) {
-      case 201:
-        createSuccessToast(toast, t("form.apiKeyAdded"), "test");
-        break;
-      case 404:
-        createErrorToast(toast, t("form.error"), t("form.noList"));
-        break;
-      case 401:
-        createErrorToast(toast, t("accessDenied"), t("form.noAuthorization"));
-        break;
-      case 409:
-        createErrorToast(toast, t("form.conflict"), t("form.apiKeyAlreadyExists"));
-        break;
-      case 500:
-        createErrorToast(toast, t("connectionError"), t("noConnection"));
-        break;
-      default:
-        createErrorToast(toast, t("form.unexpectedError"), `${t("form.unexpectedErrorText")} ${status}`);
-    }
-  }
-}
-
-async function changeState(): Promise<void> {
-  const [apiKey, isActive] = localSelectedKey.value.split(";");
-  localSelectedKey.value = "";
-  let result = 0;
-  if (isActive === "false") {
-    result = await BrokerConnection.activateApiKey(apiKey);
-  } else if (isActive === "true") {
-    result = await BrokerConnection.deactivateApiKey(apiKey);
-  }
-  switch (result) {
-    case 200:
-      createSuccessToast(toast, isActive === "false" ? t("form.apiKeyActivated") : t("form.apiKeyDeactivated"), "TEST");
+  if (invalidApiKey.value || invalidCN.value || invalidOrg.value || invalidLoc.value) return;
+  const payload = `CN=${cn.value},O=${org.value},L=${loc.value}`;
+  const xml = `<ApiKeyCred><apiKey>${apiKey.value}</apiKey><clientDn>${payload}</clientDn></ApiKeyCred>`;
+  const status = await BrokerConnection.addApiKey(xml);
+  switch (status) {
+    case 201:
+      createSuccessToast(toast, t("common.success"), t("form.apiKeyAdded"));
       break;
     case 404:
-      createErrorToast(toast, t("form.error"), t("form.noApiKey"));
+      createErrorToast(toast, t("form.notFound"), t("form.noList"));
       break;
     case 401:
-      createErrorToast(toast, t("accessDenied"), t("form.noAuthorization"));
+      createErrorToast(toast, t("common.accessDenied"), t("form.noAuthorization"));
+      break;
+    case 409:
+      createErrorToast(toast, t("form.conflict"), t("form.apiKeyAlreadyExists"));
       break;
     case 500:
-      createErrorToast(toast, t("connectionError"), t("noConnection"));
+      createErrorToast(toast, t("common.serverError"), t("common.serverErrorText"));
       break;
     default:
-      createErrorToast(toast, t("form.unexpectedError"), `${t("form.unexpectedErrorText")} ${result}`);
+      createErrorToast(toast, t("common.unexpectedError"), `${t("common.unexpectedErrorText")} ${status}`);
   }
 }
 
-function generateApiKey(): void {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  apiKeyInput.value = Array.from({length: 12}, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
+async function changeKeyState() {
+  const [key, isActive] = selectedKey.value.split(";");
+  selectedKey.value = "";
+  const status = isActive === "false" ? await BrokerConnection.activateApiKey(key) : await BrokerConnection.deactivateApiKey(key);
+  switch (status) {
+    case 200:
+      createSuccessToast(toast, t("common.success"), isActive === "false" ? t("form.apiKeyActivated") : t("form.apiKeyDeactivated"));
+      break;
+    case 404:
+      createErrorToast(toast, t("form.notFound"), t("form.noApiKey"));
+      break;
+    case 401:
+      createErrorToast(toast, t("common.accessDenied"), t("form.noAuthorization"));
+      break;
+    case 500:
+      createErrorToast(toast, t("common.serverError"), t("common.serverErrorText"));
+      break;
+    default:
+      createErrorToast(toast, t("common.unexpectedError"), `${t("common.unexpectedErrorText")} ${status}`);
+  }
 }
 
-onMounted(async () => {
+function generateApiKey() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  apiKey.value = Array.from({length: apiKeyLength}, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
+}
+
+watch(() => props.selectedKey, (val) => {
+  selectedKey.value = val;
 });
 </script>
 
 <template>
-  <div>
-    <div class="field grid p-2 ml-2">
-      <div class="flex align-items-center justify-content-start mt-3">
-        <FloatLabel>
-          <InputText
-              id="apiInput"
-              type="text"
-              class="text-base text-color surface-overlay p-2 input_Field"
-              v-model="apiKeyInput"
-              :invalid="isApiKeyInvalid"
-          />
-          <label for="apiInput" class="col-fixed">API Key</label>
-        </FloatLabel>
-        <span class="ml-2">
-          <Button v-tooltip="t('form.generate')" icon="pi pi-sync" @click="generateApiKey"/>
-        </span>
-      </div>
-    </div>
-    <div class="field grid p-2 ml-2">
-      <FloatLabel>
-        <InputText
-            id="nameInput"
-            type="text"
-            class="text-base text-color surface-overlay p-2 input_Field"
-            v-model="commonNameInput"
-            :invalid="isCommonNameInvalid"
-        />
-        <label for="nameInput" class="col-fixed">{{ t("commonName") }}</label>
+  <div class="p-3 surface-200 border-round-md w-full">
+    <div class="flex align-items-center gap-2 mt-3">
+      <FloatLabel class="w-full">
+        <InputText id="apiInput" v-model="apiKey" :invalid="invalidApiKey" class="w-full"/>
+        <label for="apiInput">{{ t("common.key") }}</label>
       </FloatLabel>
+      <Button icon="pi pi-sync" v-tooltip="t('form.generateKey')" @click="generateApiKey" class="flex-shrink-0"/>
     </div>
-    <div class="field grid p-2 ml-2">
-      <FloatLabel>
-        <InputText
-            id="orgInput"
-            type="text"
-            class="text-base text-color surface-overlay p-2 input_Field"
-            v-model="organizationInput"
-            :invalid="isOrganizationInvalid"
-        />
-        <label for="orgInput" class="col-fixed">{{ t("organization") }}</label>
-      </FloatLabel>
-    </div>
-    <div class="field grid p-2 ml-2">
-      <FloatLabel>
-        <InputText
-            id="locInput"
-            type="text"
-            class="text-base text-color surface-overlay p-2 input_Field"
-            v-model="locationInput"
-            :invalid="isLocationInvalid"
-        />
-        <label for="locInput" class="col-fixed">{{ t("location") }}</label>
-      </FloatLabel>
-    </div>
-    <div class="flex gap-3 p-3">
-      <Button :label="t('form.addAPIKey')" @click="addApikey" :disabled="!isAddButtonActive"/>
-      <div v-if="selectedKey.split(';')[1] === 'true'" class="flex align-items-center text-green-600 text-xl">
-        <Button :label="t('form.deactivate')" @click="changeState" :disabled="!isChangeStateButtonActive"/>
-      </div>
-      <div v-else class="flex align-items-center text-red-600 text-xl">
-        <Button :label="t('form.activate')" @click="changeState" :disabled="!isChangeStateButtonActive"/>
-      </div>
+
+    <FloatLabel class="mt-4 w-full">
+      <InputText id="nameInput" v-model="cn" :invalid="invalidCN" class="w-full"/>
+      <label for="nameInput">{{ t("common.cn") }}</label>
+    </FloatLabel>
+
+    <FloatLabel class="mt-4 w-full">
+      <InputText id="orgInput" v-model="org" :invalid="invalidOrg" class="w-full"/>
+      <label for="orgInput">{{ t("common.o") }}</label>
+    </FloatLabel>
+
+    <FloatLabel class="mt-4 w-full">
+      <InputText id="locInput" v-model="loc" :invalid="invalidLoc" class="w-full"/>
+      <label for="locInput">{{ t("common.l") }}</label>
+    </FloatLabel>
+
+    <div class="flex flex-wrap mt-3 gap-3 justify-content-start">
+      <Button :label="t('form.addAPIKey')" @click="addNewKey" class="p-button-success" :disabled="!isAddButtonActive"/>
+      <Button v-if="selectedKey.split(';')[1] === 'true'" :label="t('form.deactivateKey')" @click="changeKeyState" class="p-button-danger" :disabled="!isChangeStateButtonActive"/>
+      <Button v-else :label="t('form.activateKey')" @click="changeKeyState" class="p-button-success" :disabled="!isChangeStateButtonActive"/>
     </div>
   </div>
 </template>
