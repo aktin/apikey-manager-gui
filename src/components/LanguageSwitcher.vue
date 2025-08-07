@@ -4,7 +4,7 @@ import {useI18n} from "vue-i18n";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
 import {useToast} from "primevue/usetoast";
-import {createSuccessToast} from "../services/ToastWrapper";
+import {createInfoToast} from "../services/ToastWrapper";
 
 const toast = useToast();
 const {t, locale} = useI18n();
@@ -29,7 +29,7 @@ const languages = ref([
 function setLanguage(lang: string): void {
   locale.value = lang;
   localStorage.setItem("lang", lang);
-  createSuccessToast(toast, t("common.success"), t("language.switched"));
+  createInfoToast(toast, t("common.info"), t("language.switched"));
 }
 
 watchEffect(() => {

@@ -25,6 +25,7 @@
   "common.o": "Organization",
   "common.l": "Location",
   "common.success" : "Success",
+  "common.info" : "Info Message",
 
   "form.inputError": "Input Error",
   "form.symbolError": "Cannot contain special characters",
