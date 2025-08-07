@@ -73,7 +73,6 @@ class BrokerConnection {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${this.adminApiKey}`,
-          "Content-Type": "application/json"
         }
       });
       const contentType = response.headers.get("Content-Type") || "";
@@ -96,7 +95,7 @@ class BrokerConnection {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${this.adminApiKey}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/xml"
         },
         body: clinicCredentials
       });
