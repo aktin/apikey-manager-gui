@@ -4,7 +4,7 @@ import {useToast} from "primevue/usetoast";
 import {useConfirm} from "primevue/useconfirm";
 import {useI18n} from "vue-i18n";
 import BrokerConnection from "../services/BrokerConnection";
-import { createSuccessToast, createErrorToast } from "../utils/ToastWrapper";
+import { createSuccessToast, createErrorToast } from "../services/ToastWrapper";
 
 import Dialog from "primevue/dialog";
 import FloatLabel from "primevue/floatlabel";

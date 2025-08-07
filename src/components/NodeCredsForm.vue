@@ -5,7 +5,7 @@ import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "../services/BrokerConnection";
 import {useToast} from "primevue/usetoast";
-import {createErrorToast, createSuccessToast} from "../utils/ToastWrapper";
+import {createErrorToast, createSuccessToast} from "../services/ToastWrapper";
 import {useI18n} from "vue-i18n";
 
 const {t} = useI18n();
