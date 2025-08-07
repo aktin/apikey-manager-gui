@@ -56,12 +56,12 @@ const credentials = ref<{ label: string; items: { label: string; command: () => 
 
 /** Ref to PrimeVue menu */
 const credentialsMenu = ref();
+const suppressInputValidation = ref(false);
 
 function openCredentialsMenu(event: Event): void {
   credentialsMenu.value?.toggle(event);
 }
 
-/** Get Credentials */
 function parseCredentialString(entry: string): { name: string; key: string; url: string } {
   const [name, key, url] = entry.split(";");
   return {name, key, url};
@@ -102,7 +102,7 @@ function changeSavedCreds(): void {
 
 function profileChanged(): void {
   profileNotChanged.value = savedProfile.value === profile.value || profile.value === "";
-  if (profile.value === "") {
+  if (!suppressInputValidation.value && profile.value === "") {
     createErrorToast(toast, t("inputError"), t("profile.profileEmpty"));
   }
   updateSaveButton();
@@ -110,7 +110,7 @@ function profileChanged(): void {
 
 function keyChanged(): void {
   keyNotChanged.value = savedKey.value === key.value || key.value === "";
-  if (key.value === "") {
+  if (!suppressInputValidation.value && key.value === "") {
     createErrorToast(toast, t("inputError"), t("profile.apiKeyEmpty"));
   }
   updateSaveButton();
@@ -118,7 +118,7 @@ function keyChanged(): void {
 
 function urlChanged(): void {
   urlNotChanged.value = savedUrl.value === url.value || url.value === "";
-  if (url.value === "") {
+  if (!suppressInputValidation.value && url.value === "") {
     createErrorToast(toast, t("inputError"), t("profile.urlEmpty"));
   }
   updateSaveButton();
@@ -228,11 +228,13 @@ async function deleteCredentials(): Promise<void> {
 
   await loadCredentialList();
 
+  suppressInputValidation.value = true;
   if (savedCredentials.value[0]) {
     await handleCredentialSelectionChange(savedCredentials.value[0]);
   } else {
     await insertCredentials("");
   }
+  suppressInputValidation.value = false;
 }
 
 function confirmDelete(event: Event): void {
@@ -271,7 +273,6 @@ onMounted(async () => {
     </div>
 
     <div v-else class="flex flex-row flex-wrap h-18rem">
-      <!-- Inputs -->
       <div class="flex flex-column justify-content-between">
         <div class="field grid mt-3 p-2 flex flex-wrap align-items-center">
           <FloatLabel>
@@ -295,10 +296,8 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Action Buttons -->
       <div class="flex flex-column justify-content-between ml-auto">
         <LanguageSwitcher/>
-
         <Button icon="pi pi-save" @click="saveCredentials" :disabled="saveDisabled" v-tooltip.bottom="t('profile.saveCredentials')"/>
         <Button icon="pi pi-trash" @click="confirmDelete" :disabled="deleteDisabled" v-tooltip.bottom="t('profile.deleteCredentials')"/>
         <Button icon="pi pi-arrow-right-arrow-left" @click="openCredentialsMenu" v-tooltip.bottom="t('profile.selectOption')"/>
