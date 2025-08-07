@@ -34,11 +34,11 @@ const savedName = ref<string>("");
 const savedKey = ref<string>("");
 const savedUrl = ref<string>("");
 
-const selectedCredentials = ref<{ name: string } | null>(null);
-const savedCredentials = ref<{ name: string }[]>([]);
-const credentials = ref<{ label: string; items: { label: string; command: () => void }[] }[]>([]);
+const selectedProfile = ref<{ name: string } | null>(null);
+const savedProfiles = ref<{ name: string }[]>([]);
+const profilesList = ref<{ label: string; items: { label: string; command: () => void }[] }[]>([]);
 
-const credentialsMenu = ref();
+const profilesMenu = ref();
 const suppressInputValidation = ref(false);
 
 const saveBtnDisabled = computed(() =>
@@ -56,66 +56,66 @@ const urlNotChanged = computed(() =>
     savedUrl.value === url.value || url.value === ""
 );
 
-function openCredentialsMenu(event: Event): void {
-  credentialsMenu.value?.toggle(event);
+function openProfilesMenu(event: Event): void {
+  profilesMenu.value?.toggle(event);
 }
 
-async function fetchCredentials(): Promise<CredentialProfile[]> {
+async function fetchProfiles(): Promise<CredentialProfile[]> {
   return await ProfileStorage.getAllProfiles();
 }
 
-function updateCredentialsList(creds: { name: string }[]): void {
-  const items = creds.map(cred => ({
-    label: cred.name,
-    command: () => handleCredentialSelectionChange(cred)
+function updateProfilesList(profiles: { name: string }[]): void {
+  const items = profiles.map(profile => ({
+    label: profile.name,
+    command: () => handleProfileChange(profile)
   }));
-  const label = creds.length > 0 ? t("profile.selectProfile") : t("profile.noSavedProfiles");
-  credentials.value = [{label, items}];
+  const label = profiles.length > 0 ? t("profile.selectProfile") : t("profile.noSavedProfiles");
+  profilesList.value = [{label, items}];
 }
 
-async function loadCredentialList(): Promise<void> {
-  const formatted = await fetchCredentials();
-  savedCredentials.value = formatted.map(({name}) => ({name}));
-  updateCredentialsList(savedCredentials.value);
+async function loadProfilesList(): Promise<void> {
+  const formatted = await fetchProfiles();
+  savedProfiles.value = formatted.map(({name}) => ({name}));
+  updateProfilesList(savedProfiles.value);
 }
 
-function changeSavedCreds(): void {
+function changeSavedProfile(): void {
   savedName.value = name.value;
   savedKey.value = key.value;
   savedUrl.value = url.value;
 }
 
-async function insertCredentials(profileName: string): Promise<void> {
+async function insertProfile(profileName: string): Promise<void> {
   const profileData = await ProfileStorage.getProfile(profileName);
   const isValid = !!profileData;
   name.value = profileData?.name ?? "";
   key.value = profileData?.key ?? "";
   url.value = profileData?.url ?? "";
 
-  selectedCredentials.value = isValid ? {name: name.value} : null;
+  selectedProfile.value = isValid ? {name: name.value} : null;
   deleteBtnDisabled.value = !isValid;
 
-  changeSavedCreds();
+  changeSavedProfile();
   BrokerConnection.setCredentials(url.value, key.value);
   await ProfileStorage.setLastSelected(name.value);
 }
 
-async function handleCredentialSelectionChange(cred: { name: string }): Promise<void> {
+async function handleProfileChange(profile: { name: string }): Promise<void> {
   logInBlocked.value = true;
-  await insertCredentials(cred.name);
+  await insertProfile(profile.name);
   logInBlocked.value = false;
-  createInfoToast(toast, t("common.info"), t("profile.switched", {profile: cred.name}));
+  createInfoToast(toast, t("common.info"), t("profile.switched", {profile: profile.name}));
 }
 
-async function loadLastSaved(): Promise<void> {
+async function loadLastSavedProfile(): Promise<void> {
   const last = await ProfileStorage.getLastSelected();
   if (typeof last === "string") {
-    selectedCredentials.value = {name: last};
-    await insertCredentials(last);
+    selectedProfile.value = {name: last};
+    await insertProfile(last);
   }
 }
 
-function checkCredentials(): boolean {
+function checkInputs(): boolean {
   const alphaNumericPattern = /^[a-zA-Z0-9]+$/;
   const urlPattern = /^https?:\/\/[^\s/$.?#].[^\s]*$/i;
   let isValid = true;
@@ -141,26 +141,26 @@ function checkCredentials(): boolean {
   return isValid;
 }
 
-async function saveCredentials(): Promise<void> {
-  if (!checkCredentials()) return;
+async function saveProfile(): Promise<void> {
+  if (!checkInputs()) return;
   const profileData: CredentialProfile = {name: name.value, key: key.value, url: url.value};
   await ProfileStorage.saveProfile(profileData);
   createSuccessToast(toast, t("common.success"), t("profile.createdNewProfile", {profile: name.value}));
-  await handleCredentialSelectionChange({name: name.value});
-  await loadCredentialList();
+  await handleProfileChange({name: name.value});
+  await loadProfilesList();
 }
 
-async function deleteCredentials(): Promise<void> {
-  const toDelete = selectedCredentials.value?.name;
+async function deleteProfile(): Promise<void> {
+  const toDelete = selectedProfile.value?.name;
   if (!toDelete) return;
   await ProfileStorage.deleteProfile(toDelete);
   createSuccessToast(toast, t("common.success"), t("profile.deletedProfile", {profile: toDelete}));
-  await loadCredentialList();
+  await loadProfilesList();
   suppressInputValidation.value = true;
-  if (savedCredentials.value[0]) {
-    await handleCredentialSelectionChange(savedCredentials.value[0]);
+  if (savedProfiles.value[0]) {
+    await handleProfileChange(savedProfiles.value[0]);
   } else {
-    await insertCredentials("");
+    await insertProfile("");
   }
   suppressInputValidation.value = false;
 }
@@ -176,21 +176,21 @@ function confirmDelete(event: Event): void {
     acceptClass: "p-button-danger p-button-sm",
     rejectLabel: t("profile.cancel"),
     acceptLabel: t("profile.delete"),
-    accept: deleteCredentials
+    accept: deleteProfile
   });
 }
 
 onMounted(async () => {
-  await loadLastSaved();
-  await loadCredentialList();
+  await loadLastSavedProfile();
+  await loadProfilesList();
 });
 </script>
 
 <template>
   <ConfirmPopup/>
-  <Button icon="pi pi-cog" @click="visible = true" v-tooltip.left="t('profile.configuration')"/>
+  <Button icon="pi pi-cog" @click="visible = true" v-tooltip.left="t('profile.openConfiguration')"/>
 
-  <Dialog v-model:visible="visible" modal :header="t('profile.editCredentials')" class="w-30rem h-25rem">
+  <Dialog v-model:visible="visible" modal :header="t('profile.configuration')" class="w-30rem h-25rem">
     <div v-if="logInBlocked" class="h-18rem flex align-items-center">
       <ProgressSpinner class="justify-content-center"/>
     </div>
@@ -221,10 +221,10 @@ onMounted(async () => {
 
       <div class="flex flex-column justify-content-between ml-auto">
         <LanguageSwitcher/>
-        <Button icon="pi pi-save" @click="saveCredentials" :disabled="saveBtnDisabled" v-tooltip.bottom="t('profile.saveProfile')"/>
+        <Button icon="pi pi-save" @click="saveProfile" :disabled="saveBtnDisabled" v-tooltip.bottom="t('profile.saveProfile')"/>
         <Button icon="pi pi-trash" @click="confirmDelete" :disabled="deleteBtnDisabled" v-tooltip.bottom="t('profile.deleteProfile')"/>
-        <Button icon="pi pi-arrow-right-arrow-left" @click="openCredentialsMenu" v-tooltip.bottom="t('profile.selectProfile')"/>
-        <Menu ref="credentialsMenu" :model="credentials" :popup="true"/>
+        <Button icon="pi pi-arrow-right-arrow-left" @click="openProfilesMenu" v-tooltip.bottom="t('profile.selectProfile')"/>
+        <Menu ref="profilesMenu" :model="profilesList" :popup="true"/>
       </div>
     </div>
   </Dialog>
