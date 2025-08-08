@@ -16,7 +16,7 @@ const {t} = useI18n();
 const apiKeyList = ref<Record<string, any>[]>([]);
 const selectedRow = ref<Record<string, any> | null>(null);
 const selectedApiKey = ref<string>("");
-const showInactiveKeys = ref(true);
+const showInactiveKeys = ref(false);
 
 const emit = defineEmits<{ (e: "update:selectedApiKey", value: string): void }>();
 
