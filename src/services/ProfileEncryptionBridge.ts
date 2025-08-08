@@ -1,6 +1,19 @@
-import * as keytar from "keytar";
-import { randomBytes } from "crypto";
-import { TextEncoder, TextDecoder } from "util";
+import path from "node:path";
+import {app} from "electron";
+import {randomBytes} from "crypto";
+import {TextDecoder, TextEncoder} from "util";
+
+let keytar: typeof import("keytar");
+
+if (app.isPackaged) {
+  // Manually load from resources folder in production
+  keytar = require(
+      path.join(app.getAppPath(), "..", "keytar", "build", "Release", "keytar.node")
+  );
+} else {
+  // Use regular require in dev mode
+  keytar = require("keytar");
+}
 
 const SERVICE = "BrokerCredentialStorage";
 const ACCOUNT = "encryption-key";
@@ -30,7 +43,7 @@ export async function encrypt(text: string): Promise<string> {
   const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
   const encoded = new TextEncoder().encode(text);
   const key = await getOrCreateKey();
-  const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
+  const encrypted = await crypto.subtle.encrypt({name: "AES-GCM", iv}, key, encoded);
   const combined = new Uint8Array(iv.length + encrypted.byteLength);
   combined.set(iv);
   combined.set(new Uint8Array(encrypted), iv.length);
@@ -42,6 +55,6 @@ export async function decrypt(base64: string): Promise<string> {
   const iv = binary.slice(0, IV_LENGTH);
   const data = binary.slice(IV_LENGTH);
   const key = await getOrCreateKey();
-  const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
+  const decrypted = await crypto.subtle.decrypt({name: "AES-GCM", iv}, key, data);
   return new TextDecoder().decode(decrypted);
 }
