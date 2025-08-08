@@ -1,4 +1,21 @@
 <script setup lang="ts">
+/**
+ * BrokerProfileManager.vue
+ *
+ * Manages encrypted broker credential profiles.
+ *
+ * Features:
+ * - Loads, saves, deletes, and switches between credential profiles
+ * - Validates input before saving (API key, profile name, and URL)
+ * - Integrates with AES-encrypted profile storage (via ProfileStorage)
+ * - Updates BrokerConnection credentials on profile switch
+ * - Displays localized toast messages and confirmation prompts
+ * - Persists last selected profile for reuse on startup
+ *
+ * UI:
+ * - Floating dialog with name, key, and URL inputs
+ * - Save/Delete/Select buttons and embedded language switcher
+ */
 import {computed, onMounted, ref} from "vue";
 import {useToast} from "primevue/usetoast";
 import {useConfirm} from "primevue/useconfirm";
@@ -24,7 +41,6 @@ const {t} = useI18n();
 
 const visible = ref<boolean>(false);
 const logInBlocked = ref<boolean>(false);
-
 const deleteBtnDisabled = ref<boolean>(true);
 
 const name = ref<string>("");
@@ -42,22 +58,16 @@ const profilesList = ref<{ label: string; items: { label: string; command: () =>
 const profilesMenu = ref();
 const suppressInputValidation = ref(false);
 
+// Save button is enabled only if something changed and inputs are valid
 const saveBtnDisabled = computed(() =>
     (nameNotChanged.value && keyNotChanged.value && urlNotChanged.value) ||
-    !name.value || !key.value || !url.value
-);
+    !name.value || !key.value || !url.value);
 
-const nameNotChanged = computed(() =>
-    savedName.value === name.value || name.value === ""
-);
-const keyNotChanged = computed(() =>
-    savedKey.value === key.value || key.value === ""
-);
-const urlNotChanged = computed(() =>
-    savedUrl.value === url.value || url.value === ""
-);
+const nameNotChanged = computed(() => savedName.value === name.value || name.value === "");
+const keyNotChanged = computed(() => savedKey.value === key.value || key.value === "");
+const urlNotChanged = computed(() => savedUrl.value === url.value || url.value === "");
 
-function openProfilesMenu(event: Event): void {
+function openProfileSelectionMenu(event: Event): void {
   profilesMenu.value?.toggle(event);
 }
 
@@ -65,7 +75,7 @@ async function fetchProfiles(): Promise<CredentialProfile[]> {
   return await ProfileStorage.getAllProfiles();
 }
 
-function updateProfilesList(profiles: { name: string }[]): void {
+function updateProfileMenuItems(profiles: { name: string }[]): void {
   const items = profiles.map(profile => ({
     label: profile.name,
     command: () => handleProfileChange(profile)
@@ -77,7 +87,7 @@ function updateProfilesList(profiles: { name: string }[]): void {
 async function loadProfilesList(): Promise<void> {
   const formatted = await fetchProfiles();
   savedProfiles.value = formatted.map(({name}) => ({name}));
-  updateProfilesList(savedProfiles.value);
+  updateProfileMenuItems(savedProfiles.value);
 }
 
 function changeSavedProfile(): void {
@@ -116,7 +126,7 @@ async function loadLastSavedProfile(): Promise<void> {
   }
 }
 
-function checkInputs(): boolean {
+function validateInputs(): boolean {
   const alphaNumericPattern = /^[a-zA-Z0-9]+$/;
   const urlPattern = /^https?:\/\/[^\s/$.?#].[^\s]*$/i;
   let isValid = true;
@@ -142,15 +152,22 @@ function checkInputs(): boolean {
   return isValid;
 }
 
-async function saveProfile(): Promise<void> {
-  if (!checkInputs()) return;
-  const profileData: CredentialProfile = {name: name.value, key: key.value, url: url.value};
+async function saveOrUpdateProfile(): Promise<void> {
+  if (!validateInputs()) return;
+  const profileData: CredentialProfile = {
+    name: name.value,
+    key: key.value,
+    url: url.value
+  };
   await ProfileStorage.saveProfile(profileData);
   createSuccessToast(toast, t("common.success"), t("profile.createdNewProfile", {profile: name.value}));
   await handleProfileChange({name: name.value});
   await loadProfilesList();
 }
 
+/**
+ * Deletes the currently selected profile and loads the fallback.
+ */
 async function deleteProfile(): Promise<void> {
   const toDelete = selectedProfile.value?.name;
   if (!toDelete) return;
@@ -188,15 +205,27 @@ onMounted(async () => {
 </script>
 
 <template>
+  <!-- Global confirm dialog used for deletion -->
   <ConfirmPopup/>
-  <Button icon="pi pi-cog" @click="visible = true" v-tooltip.left="t('profile.openConfiguration')"/>
 
-  <Dialog v-model:visible="visible" modal :header="t('profile.configuration')" class="w-30rem h-25rem">
+  <!-- Settings button to open dialog -->
+  <Button icon="pi pi-cog"
+          @click="visible = true"
+          v-tooltip.left="t('profile.openConfiguration')"/>
+
+  <!-- Profile manager dialog -->
+  <Dialog v-model:visible="visible"
+          modal
+          :header="t('profile.configuration')"
+          class="w-30rem h-25rem">
+
+    <!-- Show loading spinner during async profile switch -->
     <div v-if="logInBlocked" class="h-18rem flex align-items-center">
       <ProgressSpinner class="justify-content-center"/>
     </div>
 
     <div v-else class="flex flex-row flex-wrap h-18rem">
+      <!-- Input fields: name, key, URL -->
       <div class="flex flex-column justify-content-between">
         <div class="field grid mt-3 p-2 flex flex-wrap align-items-center">
           <FloatLabel>
@@ -220,11 +249,20 @@ onMounted(async () => {
         </div>
       </div>
 
+      <!-- Side controls: language switch, save/delete/select -->
       <div class="flex flex-column justify-content-between ml-auto">
         <LanguageSwitcher/>
-        <Button icon="pi pi-save" @click="saveProfile" :disabled="saveBtnDisabled" v-tooltip.bottom="t('profile.saveProfile')"/>
-        <Button icon="pi pi-trash" @click="confirmDelete" :disabled="deleteBtnDisabled" v-tooltip.bottom="t('profile.deleteProfile')"/>
-        <Button icon="pi pi-arrow-right-arrow-left" @click="openProfilesMenu" v-tooltip.bottom="t('profile.selectProfile')"/>
+        <Button icon="pi pi-save"
+                @click="saveOrUpdateProfile"
+                :disabled="saveBtnDisabled"
+                v-tooltip.bottom="t('profile.saveProfile')"/>
+        <Button icon="pi pi-trash"
+                @click="confirmDelete"
+                :disabled="deleteBtnDisabled"
+                v-tooltip.bottom="t('profile.deleteProfile')"/>
+        <Button icon="pi pi-arrow-right-arrow-left"
+                @click="openProfileSelectionMenu"
+                v-tooltip.bottom="t('profile.selectProfile')"/>
         <Menu ref="profilesMenu" :model="profilesList" :popup="true"/>
       </div>
     </div>

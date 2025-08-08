@@ -1,10 +1,12 @@
 /**
  * ESLint configuration for the Electron + Vue 3 + Vite project.
  *
- * Uses ESLint's flat config format (v9+), applying:
- * - Vue 3 essential rules for .vue components
- * - Recommended TypeScript rules
- * - Enforces double quotes
+ * Uses ESLint's modern flat config format (v9+).
+ * Applies:
+ * - Vue 3 essential rules for Single File Components (.vue)
+ * - Recommended rules for TypeScript
+ * - Consistent code style (double quotes, semicolons)
+ * - Warning for unused variables, ignoring those prefixed with `_`
  *
  * @see https://eslint.org/docs/latest/use/configure/configuration-files-new
  */

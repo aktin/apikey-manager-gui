@@ -1,12 +1,16 @@
 /**
  * Main process entry point for the Electron app.
  *
- * Initializes the application, sets up the main window, and handles IPC for
- * persistent storage via electron-store.
+ * Bootstraps the application by:
+ * - Creating the main browser window
+ * - Handling IPC for secure data access and encryption
+ * - Registering lifecycle events (e.g. window restore, quit behavior)
  *
- * Uses Electron Forge with Vite plugin for dev/prod compatibility.
+ * Integrates with:
+ * - Electron Forge (Vite plugin)
+ * - electron-store for persistent key-value storage
+ * - ProfileEncryptionBridge for AES-GCM encryption
  */
-
 import {app, BrowserWindow, ipcMain, screen} from "electron";
 import path from "node:path";
 import Store from "electron-store";
@@ -14,9 +18,12 @@ import {decrypt, encrypt} from "./services/ProfileEncryptionBridge";
 
 const store = new Store();
 
+// IPC handlers for secure key-value storage
 ipcMain.handle("store-get", (_event, key: string) => store.get(key));
 ipcMain.handle("store-set", (_event, key: string, value: unknown) => store.set(key, value));
 ipcMain.handle("store-delete", (_event, key: string) => store.delete(key));
+
+// IPC handlers for encryption bridge
 ipcMain.handle("encrypt", async (_event, plainText: string) => {
   return await encrypt(plainText);
 });
@@ -24,7 +31,7 @@ ipcMain.handle("decrypt", async (_event, encryptedText: string) => {
   return await decrypt(encryptedText);
 });
 
-
+// Creates and configures the main application window.
 const createWindow = () => {
   const {width, height} = screen.getPrimaryDisplay().workAreaSize;
   const mainWindow = new BrowserWindow({
@@ -44,7 +51,7 @@ const createWindow = () => {
   }
 };
 
-
+// Lifecycle: app ready
 app.whenReady().then(() => {
   createWindow();
 
@@ -55,6 +62,7 @@ app.whenReady().then(() => {
   });
 });
 
+// Lifecycle: quit on all windows closed (except macOS)
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();

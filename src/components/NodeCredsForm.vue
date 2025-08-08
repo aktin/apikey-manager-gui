@@ -1,4 +1,20 @@
 <script setup lang="ts">
+/**
+ * NodeCredsForm.vue
+ *
+ * Form component to add new API keys or activate/deactivate existing ones.
+ *
+ * Features:
+ * - Validates API key and DN components (CN, O, L) on input
+ * - Generates a secure random API key
+ * - Submits a formatted XML payload to the broker
+ * - Enables status toggle of the selected key
+ * - Displays toast messages on success/error
+ *
+ * Props:
+ * - `selectedKey`: A semicolon-delimited string of the form "apiKey;isActive"
+ *   used to identify and toggle the state of an existing key
+ */
 import {computed, defineProps, Ref, ref, watch} from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
@@ -11,25 +27,36 @@ import {useI18n} from "vue-i18n";
 const {t} = useI18n();
 const toast = useToast();
 
+// Form inputs
 const apiKey = ref("");
 const cn = ref("");
 const org = ref("");
 const loc = ref("");
 
+// Input validation flags
 const invalidApiKey = ref(false);
 const invalidCN = ref(false);
 const invalidOrg = ref(false);
 const invalidLoc = ref(false);
 
+// Validation rules
 const apiKeyLength = 16;
 const apiKeyPattern = /[^a-zA-Z0-9]/;
 const dnPattern = /[^a-zA-Z0-9 -]/;
 
+// Prop from parent: selected key to toggle state
 const props = defineProps<{ selectedKey: string }>();
 const selectedKey = ref(props.selectedKey);
 
-const isAddButtonActive = computed(() => apiKey.value.trim() !== "" && cn.value.trim() !== "" && org.value.trim() !== "" && loc.value.trim() !== "");
-const isChangeStateButtonActive = computed(() => selectedKey.value !== "");
+// Form button states
+const isAddButtonActive = computed(() =>
+    apiKey.value.trim() !== "" &&
+    cn.value.trim() !== "" &&
+    org.value.trim() !== "" &&
+    loc.value.trim() !== "");
+const isChangeStateButtonActive = computed(() =>
+    selectedKey.value !== "");
+
 
 function validateField(value: string, flag: Ref<boolean>, localeKey: string, pattern: RegExp) {
   if (pattern.test(value)) {
@@ -106,7 +133,9 @@ async function changeKeyState() {
 
 function generateApiKey() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  apiKey.value = Array.from({length: apiKeyLength}, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
+  apiKey.value = Array.from({length: apiKeyLength}, () =>
+      chars.charAt(Math.floor(Math.random() * chars.length))
+  ).join("");
 }
 
 watch(() => props.selectedKey, (val) => {
@@ -116,14 +145,22 @@ watch(() => props.selectedKey, (val) => {
 
 <template>
   <div class="p-3 surface-200 border-round-md w-full">
+    <!-- API key input with generate button -->
     <div class="flex align-items-center gap-2 mt-3">
       <FloatLabel class="w-full">
-        <InputText id="apiInput" v-model="apiKey" :invalid="invalidApiKey" class="w-full"/>
+        <InputText id="apiInput"
+                   v-model="apiKey"
+                   :invalid="invalidApiKey"
+                   class="w-full"/>
         <label for="apiInput">{{ t("common.key") }}</label>
       </FloatLabel>
-      <Button icon="pi pi-sync" v-tooltip="t('form.generateKey')" @click="generateApiKey" class="flex-shrink-0"/>
+      <Button icon="pi pi-sync"
+              v-tooltip="t('form.generateKey')"
+              @click="generateApiKey"
+              class="flex-shrink-0"/>
     </div>
 
+    <!-- DN Fields -->
     <FloatLabel class="mt-5 w-full">
       <InputText id="nameInput" v-model="cn" :invalid="invalidCN" class="w-full"/>
       <label for="nameInput">{{ t("common.cn") }}</label>
@@ -139,18 +176,17 @@ watch(() => props.selectedKey, (val) => {
       <label for="locInput">{{ t("common.l") }}</label>
     </FloatLabel>
 
+    <!-- Action buttons -->
     <div class="flex flex-wrap justify-content-between mt-4 gap-2">
-      <Button
-          :label="t('form.addAPIKey')"
-          @click="addNewKey"
-          :disabled="!isAddButtonActive"
-          class="text-sm"/>
-      <Button
-          :label="selectedKey.split(';')[1] === 'true' ? t('form.deactivateKey') : t('form.activateKey')"
-          @click="changeKeyState"
-          :disabled="!isChangeStateButtonActive"
-          :severity="selectedKey.split(';')[1] === 'true' ? 'danger' : 'success'"
-          class="text-sm"/>
+      <Button :label="t('form.addAPIKey')"
+              @click="addNewKey"
+              :disabled="!isAddButtonActive"
+              class="text-sm"/>
+      <Button :label="selectedKey.split(';')[1] === 'true' ? t('form.deactivateKey') : t('form.activateKey')"
+              @click="changeKeyState"
+              :disabled="!isChangeStateButtonActive"
+              :severity="selectedKey.split(';')[1] === 'true' ? 'danger' : 'success'"
+              class="text-sm"/>
     </div>
   </div>
 </template>

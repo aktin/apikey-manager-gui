@@ -1,10 +1,21 @@
 <script setup lang="ts">
+/**
+ * BrokerStatusIndicator.vue
+ *
+ * Displays the current connection status to the AKTIN Broker.
+ *
+ * Features:
+ * - Shows a green or red status indicator based on connectivity
+ * - Reacts to credential changes via `BrokerConnection.onCredentialsChange()`
+ * - Displays a warning icon if credentials are incomplete or missing
+ *
+ * This is a passive display component. It does not emit events.
+ */
 import {onMounted, ref} from "vue";
 import BrokerConnection from "../services/BrokerConnection";
 import {useI18n} from "vue-i18n";
 
 const {t} = useI18n();
-
 const connected = ref(false);
 const creds = ref(BrokerConnection.getCredentials());
 
@@ -28,18 +39,23 @@ onMounted(async () => {
 
 <template>
   <div class="flex align-items-center">
-    <!-- Green or red indicator based on connection -->
-    <div v-if="connected" class="flex align-items-center text-green-600 text-xl" v-tooltip.left="creds.url">
+    <!-- Connected: green icon and label -->
+    <div v-if="connected"
+         class="flex align-items-center text-green-600 text-xl"
+         v-tooltip.left="creds.url">
       <i class="pi pi-circle-fill mx-2"/>
       <p class="font-bold">{{ t("indicator.connected") }}</p>
     </div>
 
-    <div v-else class="flex align-items-center text-red-600 text-xl" v-tooltip.left="creds.url">
+    <!-- Disconnected: red icon and label -->
+    <div v-else
+         class="flex align-items-center text-red-600 text-xl"
+         v-tooltip.left="creds.url">
       <i class="pi pi-circle-fill mx-2"/>
       <p class="font-bold">{{ t("indicator.noConnection") }}</p>
     </div>
 
-    <!-- Warnings for missing credentials -->
+    <!-- Missing credentials: yellow warning icon -->
     <div class="ml-auto p-1">
       <span v-if="!creds.url || !creds.adminApiKey"
             class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"

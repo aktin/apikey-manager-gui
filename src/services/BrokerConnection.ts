@@ -1,3 +1,21 @@
+/**
+ * Singleton class to manage communication with the AKTIN Broker.
+ *
+ * Responsibilities:
+ * - Stores and manages broker connection credentials
+ * - Provides methods for API key lifecycle operations (add, activate, deactivate)
+ * - Emits change notifications to registered callback consumers
+ * - Interfaces with the broker’s HTTP API for status and node metadata
+ *
+ * Credential State:
+ * - Credentials must be initialized before any API operations
+ * - Call `setCredentials()` once, then wait for `waitForBrokerCredentials()` in consumers
+ *
+ * Lifecycle Events:
+ * - `onApiKeysChange(cb)` registers listeners for API key changes
+ * - `onCredentialsChange(cb)` notifies when broker credentials are updated
+ *
+ */
 class BrokerConnection {
   private static instance: BrokerConnection;
   private brokerURL = "";
@@ -13,6 +31,9 @@ class BrokerConnection {
     BrokerConnection.instance = this;
   }
 
+  /**
+   * Returns the singleton instance of the connection manager.
+   */
   public static getInstance(): BrokerConnection {
     if (!BrokerConnection.instance) {
       BrokerConnection.instance = new BrokerConnection();
@@ -81,8 +102,8 @@ class BrokerConnection {
       const response = await fetch(`${this.brokerURL}/api-keys`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${this.adminApiKey}`,
-        }
+          Authorization: `Bearer ${this.adminApiKey}`,
+        },
       });
       const contentType = response.headers.get("Content-Type") || "";
       if (!contentType.includes("text/plain")) {
@@ -90,8 +111,7 @@ class BrokerConnection {
         return {status: response.status, data: ""};
       }
       const text = await response.text();
-      const trimmed = text.trimStart();
-      return {status: response.status, data: trimmed};
+      return {status: response.status, data: text.trimStart()};
     } catch (error) {
       console.error("Failed to fetch API keys:", error);
       return {status: 500, data: ""};
@@ -103,10 +123,10 @@ class BrokerConnection {
       const response = await fetch(`${this.brokerURL}/api-keys`, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${this.adminApiKey}`,
-          "Content-Type": "application/xml"
+          Authorization: `Bearer ${this.adminApiKey}`,
+          "Content-Type": "application/xml",
         },
-        body: clinicCredentials
+        body: clinicCredentials,
       });
       await this.triggerApiKeysChange();
       return response.status;
@@ -129,8 +149,8 @@ class BrokerConnection {
       const response = await fetch(`${this.brokerURL}/api-keys/${apiKey}/${action}`, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${this.adminApiKey}`
-        }
+          Authorization: `Bearer ${this.adminApiKey}`,
+        },
       });
       await this.triggerApiKeysChange();
       return response.status;
@@ -145,8 +165,8 @@ class BrokerConnection {
       const response = await fetch(`${this.brokerURL}/broker/node/`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${this.adminApiKey}`
-        }
+          Authorization: `Bearer ${this.adminApiKey}`,
+        },
       });
       const contentType = response.headers.get("Content-Type") || "";
       if (!contentType.includes("application/xml")) {
@@ -162,5 +182,6 @@ class BrokerConnection {
   }
 }
 
+// Export singleton instance
 const connector = BrokerConnection.getInstance();
 export default connector;

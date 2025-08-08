@@ -1,18 +1,16 @@
 /**
  * Vite configuration for the Electron renderer process.
  *
- * This file is used by @electron-forge/plugin-vite to build the renderer (frontend)
- * part of the Electron application. It enables support for Vue 3 Single File Components
- * and applies any renderer-specific build settings.
+ * Used by Electron Forge to compile the frontend (Vue.js) part of the app.
+ * Applies Vue plugin to enable Single File Component (SFC) support.
  *
- * Referenced in `forge.config.js` under the `renderer` entry.
+ * This config:
+ * - Targets the Electron browser window (`mainWindow`)
+ * - Is referenced by `@electron-forge/plugin-vite` in `forge.config.js`
+ * - Should remain focused on frontend tooling only (no Node.js or Electron APIs)
  *
- * Note:
- * - This config targets the Electron browser window (`mainWindow`)
- * - Keep this config lightweight and scoped to frontend-only plugins
- *
- * @see https://vitejs.dev/config/
- * @see https://electronforge.io/config/plugins/vite
+ * @see https://vitejs.dev/config/ — Vite documentation
+ * @see https://electronforge.io/config/plugins/vite — Plugin usage
  */
 import {defineConfig} from 'vite';
 import vue from '@vitejs/plugin-vue';

@@ -1,12 +1,11 @@
 /**
- * Vue I18n configuration for multilingual support (en, de).
+ * Vue I18n configuration for multilingual support.
  *
- * Loads static JSON files as translation sources.
- * Uses Composition API mode (legacy: false) for Vue 3.
+ * Enables English and German translations using static JSON files.
+ * Uses Composition API mode (`legacy: false`) for Vue 3.
+ * Detects the preferred language from `localStorage`, falling back to English.
  *
- * The user's preferred language is read from localStorage.
- *
- * @see https://vue-i18n.intlify.dev/
+ * @see https://vue-i18n.intlify.dev/ — Vue I18n documentation
  */
 import {createI18n} from "vue-i18n";
 
@@ -21,8 +20,8 @@ const i18n = createI18n<[MessageSchema], "en" | "de">({
   fallbackLocale: "en",
   messages: {
     en,
-    de
-  }
+    de,
+  },
 });
 
 export default i18n;

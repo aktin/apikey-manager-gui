@@ -1,13 +1,16 @@
 /**
- * Renderer entry point for the Electron + Vue 3 application.
+ * Entry point for the Electron renderer process (Vue 3 SPA).
  *
- * Mounts the SPA to the DOM and registers global plugins like:
- * - PrimeVue UI framework
- * - Vue-i18n for internationalization
+ * Creates and mounts the Vue app, and registers global plugins:
+ * - PrimeVue for UI components
+ * - Vue-i18n for localization
+ * - PrimeVue ToastService for notifications
+ * - ConfirmationService for dialogs
+ * - Tooltip directive for UI hints
  *
- * Referenced by index.html via <script type="module">.
+ * Referenced in `index.html` as <script type="module" src="/src/renderer.ts">.
  */
-import {createApp} from "vue";
+import { createApp } from "vue";
 import App from "./App.vue";
 
 import i18n from "./i18n";

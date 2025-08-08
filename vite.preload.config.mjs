@@ -1,17 +1,16 @@
 /**
  * Vite configuration for the Electron preload script.
  *
- * This file defines how Vite should build the preload script used to expose
- * secure APIs via contextBridge to the renderer process.
+ * Used to bundle the preload script, which exposes secure IPC APIs
+ * from the main process to the renderer using `contextBridge`.
  *
- * Referenced in `forge.config.js` under the `build` section with target "preload".
+ * Key characteristics:
+ * - No UI or framework code: this file does not use Vue or other plugins.
+ * - Referenced by `@electron-forge/plugin-vite` with target `"preload"` in `forge.config.js`.
+ * - Output is included in the Electron `webPreferences.preload` setting.
  *
- * Notes:
- * - No plugins are needed (no Vue or UI code here)
- * - Can be extended to customize output directory, target, etc.
- *
- * @see https://vitejs.dev/config/
- * @see https://www.electronjs.org/docs/latest/tutorial/context-isolation
+ * @see https://vitejs.dev/config/ — Vite configuration docs
+ * @see https://www.electronjs.org/docs/latest/tutorial/context-isolation — Context isolation guide
  */
 import {defineConfig} from 'vite';
 

@@ -1,13 +1,14 @@
 /**
  * tsconfig.json
  *
- * TypeScript compiler configuration for the full Electron + Vue 3 + Vite app.
- * Covers both frontend (renderer) and backend (main/preload).
+ * TypeScript configuration for an Electron + Vue 3 + Vite project.
+ * Applies to all parts of the app: main, preload, and renderer.
  *
- * - Supports modern ES modules
- * - Enables strict type checking
- * - Skips lib checks for faster build
- * - Restricts to .ts/.vue files only (no JS)
+ * Key features:
+ * - Modern ECMAScript module support
+ * - Vue SFC and Vite compatibility
+ * - Strict type checking enabled
+ * - Lib checks and JS support are disabled for performance and safety
  *
  * @see https://www.typescriptlang.org/tsconfig
  * @see https://vitejs.dev/guide/features.html#typescript
@@ -18,14 +19,17 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    // Vue-specific settings
+
+    // Required for Vue 3 + Vite: preserve JSX tags in SFC templates
     "jsx": "preserve",
-    "types": [
-      "vite/client"
-    ],
-    // Interop and compatibility
+
+    // Types for Vite’s import.meta and client-specific globals
+    "types": ["vite/client"],
+
+    // Allow interop between CommonJS and ES modules (e.g., require → import)
     "esModuleInterop": true,
-    // Strictness and hygiene
+
+    // Type safety and best practices
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -34,6 +38,6 @@
   "include": [
     "src",
     "src/types",
-    "node_modules/@electron-forge/plugin-vite/forge-vite-env.d.ts"
+    "node_modules/@electron-forge/plugin-vite/forge-vite-env.d.ts" // Forge + Vite type declarations
   ]
 }
