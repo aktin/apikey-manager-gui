@@ -7,7 +7,7 @@
  * Uses Electron Forge with Vite plugin for dev/prod compatibility.
  */
 
-import {app, BrowserWindow, ipcMain} from "electron";
+import {app, BrowserWindow, ipcMain, screen} from "electron";
 import path from "node:path";
 import Store from "electron-store";
 import {decrypt, encrypt} from "./services/ProfileEncryptionBridge";
@@ -26,15 +26,15 @@ ipcMain.handle("decrypt", async (_event, encryptedText: string) => {
 
 
 const createWindow = () => {
+  const {width, height} = screen.getPrimaryDisplay().workAreaSize;
   const mainWindow = new BrowserWindow({
-    fullscreen: true,
+    width,
+    height,
+    show: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js")
     }
   });
-
-  mainWindow.maximize();
-
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
@@ -43,6 +43,7 @@ const createWindow = () => {
     );
   }
 };
+
 
 app.whenReady().then(() => {
   createWindow();
