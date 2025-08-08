@@ -124,25 +124,33 @@ watch(() => props.selectedKey, (val) => {
       <Button icon="pi pi-sync" v-tooltip="t('form.generateKey')" @click="generateApiKey" class="flex-shrink-0"/>
     </div>
 
-    <FloatLabel class="mt-4 w-full">
+    <FloatLabel class="mt-5 w-full">
       <InputText id="nameInput" v-model="cn" :invalid="invalidCN" class="w-full"/>
       <label for="nameInput">{{ t("common.cn") }}</label>
     </FloatLabel>
 
-    <FloatLabel class="mt-4 w-full">
+    <FloatLabel class="mt-5 w-full">
       <InputText id="orgInput" v-model="org" :invalid="invalidOrg" class="w-full"/>
       <label for="orgInput">{{ t("common.o") }}</label>
     </FloatLabel>
 
-    <FloatLabel class="mt-4 w-full">
+    <FloatLabel class="mt-5 w-full">
       <InputText id="locInput" v-model="loc" :invalid="invalidLoc" class="w-full"/>
       <label for="locInput">{{ t("common.l") }}</label>
     </FloatLabel>
 
-    <div class="flex flex-wrap mt-3 gap-3 justify-content-start">
-      <Button :label="t('form.addAPIKey')" @click="addNewKey" class="p-button-success" :disabled="!isAddButtonActive"/>
-      <Button v-if="selectedKey.split(';')[1] === 'true'" :label="t('form.deactivateKey')" @click="changeKeyState" class="p-button-danger" :disabled="!isChangeStateButtonActive"/>
-      <Button v-else :label="t('form.activateKey')" @click="changeKeyState" class="p-button-success" :disabled="!isChangeStateButtonActive"/>
+    <div class="flex flex-wrap justify-content-between mt-4 gap-2">
+      <Button
+          :label="t('form.addAPIKey')"
+          @click="addNewKey"
+          :disabled="!isAddButtonActive"
+          class="text-sm"/>
+      <Button
+          :label="selectedKey.split(';')[1] === 'true' ? t('form.deactivateKey') : t('form.activateKey')"
+          @click="changeKeyState"
+          :disabled="!isChangeStateButtonActive"
+          :severity="selectedKey.split(';')[1] === 'true' ? 'danger' : 'success'"
+          class="text-sm"/>
     </div>
   </div>
 </template>
