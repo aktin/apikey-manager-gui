@@ -1,12 +1,3 @@
-ipcMain.handle("encrypt", async (_event, plainText: string) => {
-  return await encrypt(plainText);
-});
-
-ipcMain.handle("decrypt", async (_event, encryptedText: string) => {
-  return await decrypt(encryptedText);
-});
-
-import { ipcMain } from "electron";
 import * as keytar from "keytar";
 import { randomBytes } from "crypto";
 import { TextEncoder, TextDecoder } from "util";
@@ -35,7 +26,7 @@ async function importKey(raw: Uint8Array): Promise<CryptoKey> {
   return await crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt", "decrypt"]);
 }
 
-async function encrypt(text: string): Promise<string> {
+export async function encrypt(text: string): Promise<string> {
   const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
   const encoded = new TextEncoder().encode(text);
   const key = await getOrCreateKey();
@@ -46,7 +37,7 @@ async function encrypt(text: string): Promise<string> {
   return btoa(String.fromCharCode(...combined));
 }
 
-async function decrypt(base64: string): Promise<string> {
+export async function decrypt(base64: string): Promise<string> {
   const binary = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
   const iv = binary.slice(0, IV_LENGTH);
   const data = binary.slice(IV_LENGTH);

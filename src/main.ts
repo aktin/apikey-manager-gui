@@ -10,14 +10,20 @@
 import {app, BrowserWindow, ipcMain} from "electron";
 import path from "node:path";
 import Store from "electron-store";
-import "./ProfileBridge";
+import {decrypt, encrypt} from "./services/ProfileEncryptionBridge";
 
 const store = new Store();
 
 ipcMain.handle("store-get", (_event, key: string) => store.get(key));
-ipcMain.handle("store-set",
-    (_event, key: string, value: unknown) => store.set(key, value));
+ipcMain.handle("store-set", (_event, key: string, value: unknown) => store.set(key, value));
 ipcMain.handle("store-delete", (_event, key: string) => store.delete(key));
+ipcMain.handle("encrypt", async (_event, plainText: string) => {
+  return await encrypt(plainText);
+});
+ipcMain.handle("decrypt", async (_event, encryptedText: string) => {
+  return await decrypt(encryptedText);
+});
+
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
