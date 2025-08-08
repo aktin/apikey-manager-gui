@@ -1,20 +1,33 @@
-const { FusesPlugin } = require('@electron-forge/plugin-fuses');
-const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+/**
+ * forge.config.js
+ *
+ * Main configuration file for Electron Forge.
+ * Defines how the app is built, packaged, and launched across environments.
+ *
+ * Key Features:
+ * - Uses @electron-forge/plugin-vite for Vite-powered builds (main, preload, renderer)
+ * - Enables runtime hardening using Electron Fuses
+ * - Outputs `.deb` packages for Linux by default
+ *
+ * Notes:
+ * - `asar: true` bundles source code in an archive (required for Fuse security options)
+ * - Adds native `keytar` module as extraResource for runtime availability
+ *
+ * @see https://www.electronforge.io/config — Forge configuration reference
+ * @see https://github.com/electron/forge — Plugin and packaging documentation
+ */
+const {FusesPlugin} = require('@electron-forge/plugin-fuses');
+const {FuseV1Options, FuseVersion} = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
     asar: true,
+    extraResource: [
+      'node_modules/keytar'
+    ],
   },
   rebuildConfig: {},
   makers: [
-    {
-      name: '@electron-forge/maker-squirrel',
-      config: {},
-    },
-    {
-      name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
-    },
     {
       name: '@electron-forge/maker-deb',
       config: {},
@@ -24,17 +37,14 @@ module.exports = {
     {
       name: '@electron-forge/plugin-vite',
       config: {
-        // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.
-        // If you are familiar with Vite configuration, it will look really familiar.
         build: [
           {
-            // `entry` is just an alias for `build.lib.entry` in the corresponding file of `config`.
-            entry: 'src/main.js',
+            entry: 'src/main.ts',
             config: 'vite.main.config.mjs',
             target: 'main',
           },
           {
-            entry: 'src/preload.js',
+            entry: 'src/preload.ts',
             config: 'vite.preload.config.mjs',
             target: 'preload',
           },
@@ -47,8 +57,7 @@ module.exports = {
         ],
       },
     },
-    // Fuses are used to enable/disable various Electron functionality
-    // at package time, before code signing the application
+    // FusePlugin disables unsafe or unnecessary Electron features
     new FusesPlugin({
       version: FuseVersion.V1,
       [FuseV1Options.RunAsNode]: false,

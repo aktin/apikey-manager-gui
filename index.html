@@ -1,12 +1,25 @@
+<!--
+  index.html
+
+  Entry point for the Electron renderer process (frontend).
+  Loaded inside a BrowserWindow and rendered by Electron.
+
+  - Vite injects the compiled frontend bundle here
+  - Vue mounts on the <div id="app">
+  - Referenced implicitly through `renderer.ts` and `vite.renderer.config.mjs`
+
+  @see https://vitejs.dev/guide/env-and-mode.html
+  @see https://www.electronforge.io/config/plugins/vite
+-->
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Key Manager</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>API Key Manager</title>
 </head>
 <body>
 <div id="app"></div>
-<script type="module" src="/src/renderer.js"></script>
+<script type="module" src="/src/renderer.ts"></script>
 </body>
 </html>

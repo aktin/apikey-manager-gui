@@ -1,40 +1,50 @@
 {
   "name": "apikey-manager-gui",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Cross-platform desktop app to manage API keys of the AKTIN Broker",
+  "author": "Daniel Kombeiz <dkombeiz@ukaachen.de>",
+  "contributors": [
+    "Alexander Kombeiz <akombeiz@ukaachen.de>"
+  ],
+  "license": "AGPL-3.0-or-later",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "lint": "eslint . --ext .ts,.vue"
   },
-  "keywords": [],
-  "author": "anonym",
-  "license": "MIT",
+  "keywords": [
+    "electron",
+    "vue",
+    "apikey manager",
+    "desktop app",
+    "AKTIN"
+  ],
+  "dependencies": {
+    "keytar": "^7.9.0"
+  },
   "devDependencies": {
     "@electron-forge/cli": "^7.8.1",
     "@electron-forge/maker-deb": "^7.8.1",
-    "@electron-forge/maker-rpm": "^7.8.1",
-    "@electron-forge/maker-squirrel": "^7.8.1",
-    "@electron-forge/maker-zip": "^7.8.1",
-    "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
     "@electron-forge/plugin-fuses": "^7.8.1",
     "@electron-forge/plugin-vite": "^7.8.1",
     "@electron/fuses": "^1.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0",
     "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/eslint-config-typescript": "^14.6.0",
     "electron": "^37.1.0",
+    "electron-store": "^10.1.0",
+    "eslint": "^9.31.0",
+    "eslint-plugin-vue": "^10.3.0",
+    "prettier": "^3.6.2",
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",
     "primevue": "^3.53.1",
     "vite": "^6.3.5",
     "vue": "^3.5.17",
-    "vue-router": "^4.5.1"
-  },
-  "dependencies": {
-    "electron-squirrel-startup": "^1.0.1",
-    "electron-store": "^10.1.0",
     "vue-i18n": "^11.1.7"
   }
 }

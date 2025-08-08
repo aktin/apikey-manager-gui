@@ -1,5 +1,50 @@
-# Vue 3 + Vite
+# AKTIN Broker API Key Manager
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Cross-platform desktop app for managing API keys of the AKTIN Emergency Department Data Registry Broker.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+Built with **Vue 3**, **PrimeVue** and **Electron Forge**.
+
+---
+
+## Features
+
+- Add, activate, and deactivate AKTIN Broker API keys
+- Save and switch between credential profiles
+- Encrypt credentials using AES-GCM with system keychain
+
+---
+
+## Development
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/your-org/apikey-manager-gui.git
+cd apikey-manager-gui
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start the app in development mode:
+
+```bash
+npm run start
+```
+
+This launches Electron with hot-reloading via Vite. Changes to Vue components are reflected instantly.
+
+---
+
+## Build for Production
+
+1. Bundle and package the app:
+
+```bash
+npm run make
+```
+
+2. Output files will be in the `out/` directory. Currently, only a `.deb` package is generated for Debian-based Linux systems.

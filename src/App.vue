@@ -1,37 +1,40 @@
 <script setup lang="ts">
-import {ref} from 'vue';
-import BrokerConnectionChecker from './components/BrokerConnectionChecker.vue'
-import ClinicCredentialsForm from "./components/ClinicCredentialsForm.vue";
-import ClinicCredentialsTable from "./components/ClinicCredentialsTable.vue";
-
+/**
+ * Root component of the Electron + Vue 3 application.
+ *
+ * Renders the full UI layout, including:
+ * - Credential table (NodeCredsTable)
+ * - Status indicator (BrokerStatusIndicator)
+ * - Credential form (NodeCredsForm)
+ * - Profile manager dialog (BrokerProfileManager)
+ * - Global toast notifications (PrimeVue)
+ *
+ * Manages the currently selected API key as shared state between components.
+ */
+import {ref} from "vue";
+import NodeCredsForm from "./components/NodeCredsForm.vue";
+import NodeCredsTable from "./components/NodeCredsTable.vue";
+import BrokerProfileManager from "./components/BrokerProfileManager.vue";
+import BrokerStatusIndicator from "./components/BrokerStatusIndicator.vue";
 import Toast from "primevue/toast";
 
 const selectedApiKey = ref("");
-const isConnected = ref(true);
-const isAuthorized = ref(false);
-
-const handleApiKeyUpdate = (newApiKey) => {
-  selectedApiKey.value = newApiKey;
-};
-
-const handleConnectionUpdate = (newConnectionStatus) => {
-  isConnected.value = newConnectionStatus;
-};
-
-const handleAuthorizationUpdate = (newAuthorizationStatus) => {
-  isAuthorized.value = newAuthorizationStatus;
-}
-
 </script>
 
 <template>
   <Toast/>
   <div class="m-3">
     <div class="grid">
-      <ClinicCredentialsTable @update:selectedApiKey="handleApiKeyUpdate" @update:isAuthorized="handleAuthorizationUpdate" class="col-10 surface-200 border-round-md"/>
-      <div class="col-2">
-        <BrokerConnectionChecker @update:isConnected="handleConnectionUpdate" :authorizationState="isAuthorized"/>
-        <ClinicCredentialsForm :selectedKey="selectedApiKey" :connectionStatus="isConnected" :authorizationState="isAuthorized" class="surface-200 border-round-md"/>
+      <NodeCredsTable
+          @update:selectedApiKey="selectedApiKey = $event"
+          class="col-10 surface-200 border-round-md"
+      />
+      <div class="col-2 flex flex-column gap-2">
+        <div class="flex align-items-center justify-content-between">
+          <BrokerStatusIndicator/>
+          <BrokerProfileManager/>
+        </div>
+        <NodeCredsForm :selectedKey="selectedApiKey" class="surface-200 border-round-md"/>
       </div>
     </div>
   </div>
