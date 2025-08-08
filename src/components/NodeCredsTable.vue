@@ -93,6 +93,7 @@ async function updateApiKeyList() {
 }
 
 onMounted(async () => {
+  await BrokerConnection.waitForBrokerCredentials();
   await updateApiKeyList();
   BrokerConnection.onApiKeysChange(async () => {
     await updateApiKeyList();

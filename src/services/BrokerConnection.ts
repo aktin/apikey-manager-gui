@@ -20,8 +20,17 @@ class BrokerConnection {
     return BrokerConnection.instance;
   }
 
-  public areCredentialsInitialized(): boolean {
-    return this.credentialsInitialized;
+  public async waitForBrokerCredentials(timeoutMs = 5000): Promise<void> {
+    const interval = 50;
+    const maxTries = timeoutMs / interval;
+    let tries = 0;
+    while (!this.credentialsInitialized && tries < maxTries) {
+      await new Promise((res) => setTimeout(res, interval));
+      tries++;
+    }
+    if (!this.credentialsInitialized) {
+      console.warn("Broker Credentials not initialized after timeout.");
+    }
   }
 
   public onApiKeysChange(callback: () => Promise<void>): void {

@@ -17,8 +17,9 @@ async function checkConnection(): Promise<void> {
   connected.value = await BrokerConnection.isConnected();
 }
 
-onMounted(() => {
-  checkConnection();
+onMounted(async () => {
+  await BrokerConnection.waitForBrokerCredentials();
+  await checkConnection();
   BrokerConnection.onCredentialsChange(async () => {
     await checkConnection();
   });
@@ -40,7 +41,7 @@ onMounted(() => {
 
     <!-- Warnings for missing credentials -->
     <div class="ml-auto p-1">
-      <span v-if="BrokerConnection.areCredentialsInitialized() && (!creds.url || !creds.adminApiKey)"
+      <span v-if="!creds.url || !creds.adminApiKey"
             class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
             v-tooltip.left="t('indicator.missingCredentials')"/>
     </div>
