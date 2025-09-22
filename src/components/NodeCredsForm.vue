@@ -42,7 +42,7 @@ const invalidLoc = ref(false);
 // Validation rules
 const apiKeyLength = 16;
 const apiKeyPattern = /[^a-zA-Z0-9]/;
-const dnPattern = /[^a-zA-Z0-9 -]/;
+const dnPattern = /[^a-zA-Z0-9 -äöüÄÖÜ]/;
 
 // Prop from parent: selected key to toggle state
 const props = defineProps<{ selectedKey: string }>();
@@ -144,7 +144,7 @@ watch(() => props.selectedKey, (val) => {
 </script>
 
 <template>
-  <div class="p-3 surface-200 border-round-md w-full">
+  <div class="p-3">
     <!-- API key input with generate button -->
     <div class="flex align-items-center gap-2 mt-3">
       <FloatLabel class="w-full">
