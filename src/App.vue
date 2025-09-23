@@ -16,6 +16,7 @@ import NodeCredsForm from "./components/NodeCredsForm.vue";
 import NodeCredsTable from "./components/NodeCredsTable.vue";
 import BrokerProfileManager from "./components/BrokerProfileManager.vue";
 import BrokerStatusIndicator from "./components/BrokerStatusIndicator.vue";
+import BrokerRequestViewer from "./components/BrokerRequestViewer.vue";
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import Toast from "primevue/toast";
@@ -43,6 +44,9 @@ const selectedApiKey = ref("");
             <NodeCredsForm :selectedKey="selectedApiKey" class="surface-200 border-round-md"/>
           </div>
         </div>
+      </TabPanel>
+      <TabPanel header="Requests">
+        <BrokerRequestViewer class="surface-500 border-round-md"/>
       </TabPanel>
     </TabView>
   </div>

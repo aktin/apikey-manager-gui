@@ -180,6 +180,27 @@ class BrokerConnection {
       return {status: 500, data: ""};
     }
   }
+
+  async getBrokerRequest(requestId: string): Promise<{ status: number; data: string }> {
+    try {
+      const response = await fetch(`${this.brokerURL}/broker/request/${requestId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.adminApiKey}`,
+        },
+      });
+      const contentType = response.headers.get("Content-Type") || "";
+      if (!contentType.includes("application/vnd.aktin.query.request+xml")) {
+        console.warn("Invalid broker request received");
+        return {status: response.status, data: ""};
+      }
+      const text = await response.text();
+      return {status: response.status, data: text};
+    } catch (error) {
+      console.error("Failed to fetch broker request:", error);
+      return {status: 500, data: ""};
+    }
+  }
 }
 
 // Export singleton instance
