@@ -144,7 +144,7 @@ watch(() => props.selectedKey, (val) => {
 </script>
 
 <template>
-  <div class="p-3 surface-200 border-round-md w-full">
+  <div class="p-3 w-full">
     <!-- API key input with generate button -->
     <div class="flex align-items-center gap-2 mt-3">
       <FloatLabel class="w-full">

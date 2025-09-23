@@ -32,7 +32,7 @@ const selectedApiKey = ref("");
     </div>
   </header>
   <div class="m-3">
-    <TabView class="border-solid">
+    <TabView>
       <TabPanel header="API Keys">
         <div class="grid">
           <NodeCredsTable
