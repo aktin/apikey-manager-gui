@@ -1,54 +1,64 @@
 import BrokerRequest, {Principal, Query, RepeatedExecution, SingleExecution} from "../types/BrokerRequest";
 import MomentWrapper from "./MomentWrapper";
 
-const toDate = (v: unknown): Date => (v != null ? new Date(v as any) : new Date(NaN));
+export function parseXmlBrokerRequest(xml: string): BrokerRequest {
+  const ns = "http://aktin.org/ns/exchange";
+  const xsi = "http://www.w3.org/2001/XMLSchema-instance";
 
-const toString = (v: unknown, fallback = ""): string => (v == null ? fallback : String(v));
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  const get1 = (tag: string) => doc.getElementsByTagNameNS(ns, tag)[0]?.textContent?.trim() ?? "";
 
-const toNumber = (v: unknown): number => {
-  if (typeof v === "number") return v;
-  if (v == null) return NaN;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : NaN;
-};
+  const idText = get1("id");
+  const referenceText = get1("reference");
+  const scheduledText = get1("scheduled");
 
-export function parseRequest(input: unknown): BrokerRequest {
-  const r = (input && typeof input === "object") ? (input as Record<string, unknown>) : {};
-  const q = (r.query && typeof r.query === "object") ? (r.query as Record<string, unknown>) : {};
+  const principalEl = doc.getElementsByTagNameNS(ns, "principal")[0];
+  const principal: Principal = {
+    name: principalEl?.getElementsByTagNameNS(ns, "name")[0]?.textContent?.trim() ?? "",
+    organization: principalEl?.getElementsByTagNameNS(ns, "organisation")[0]?.textContent?.trim() ?? "",
+    email: principalEl?.getElementsByTagNameNS(ns, "email")[0]?.textContent?.trim() ?? "",
+    phone: (() => {
+      const txt = principalEl?.getElementsByTagNameNS(ns, "phone")[0]?.textContent?.trim() ?? "";
+      return txt === "" ? null : txt;
+    })(),
+    tags: (() => {
+      const tagEls = principalEl?.getElementsByTagNameNS(ns, "tag");
+      return tagEls ? Array.from(tagEls).map(el => el.textContent?.trim() ?? "").filter(Boolean) : [];
+    })(),
+  };
 
-  const singleExecution: SingleExecution | undefined = q.singleExecution ? {
-    duration: MomentWrapper.createDuration((q.singleExecution as any).duration)
-  } : undefined;
+  const scheduleEl = doc.getElementsByTagNameNS(ns, "schedule")[0];
+  const scheduleType = scheduleEl?.getAttributeNS(xsi, "type") ?? "";
+  const durationText = scheduleEl?.getElementsByTagNameNS(ns, "duration")[0]?.textContent?.trim();
 
-  const repeatedExecution: RepeatedExecution | undefined = q.repeatedExecution ? {
-    id: toNumber((q.repeatedExecution as any).id),
-    duration: MomentWrapper.createDuration((q.repeatedExecution as any).duration),
-    interval: MomentWrapper.createDuration((q.repeatedExecution as any).interval),
-    intervalHours: toNumber((q.repeatedExecution as any).intervalHours),
-  } : undefined;
+  let singleExecution: SingleExecution | undefined;
+  let repeatedExecution: RepeatedExecution | undefined;
+
+  if (scheduleType === "singleExecution" && durationText) {
+    singleExecution = {duration: MomentWrapper.createDuration(durationText)};
+  } else if (scheduleType === "repeatedExecution") {
+    const reId = scheduleEl?.getElementsByTagNameNS(ns, "id")[0]?.textContent?.trim();
+    const intervalText = scheduleEl?.getElementsByTagNameNS(ns, "interval")[0]?.textContent?.trim();
+    const intervalHoursText = scheduleEl?.getElementsByTagNameNS(ns, "intervalHours")[0]?.textContent?.trim();
+    repeatedExecution = {
+      id: reId ? Number(reId) : Number.NaN,
+      duration: MomentWrapper.createDuration(durationText ?? ""),
+      interval: MomentWrapper.createDuration(intervalText ?? ""),
+      intervalHours: intervalHoursText ? Number(intervalHoursText) : Number.NaN,
+    };
+  }
 
   const query: Query = {
-    title: toString(q.title),
-    principal: parsePrincipal(q.principal),
+    title: get1("title"),
+    principal,
     singleExecution,
     repeatedExecution,
   };
 
   return {
-    id: toNumber(r.id),
-    referenceDate: toDate(r.referenceDate),
-    scheduledDate: toDate(r.scheduledDate),
+    id: Number(idText),
+    referenceDate: new Date(referenceText),
+    scheduledDate: new Date(scheduledText),
     query,
-  };
-}
-
-export function parsePrincipal(input: unknown): Principal {
-  const obj = (input && typeof input === "object") ? (input as Record<string, unknown>) : {};
-  return {
-    name: toString(obj.name),
-    organization: toString(obj.organization),
-    email: toString(obj.email),
-    phone: toString(obj.phone),
-    tags: Array.isArray(obj.tags) ? obj.tags.map(String).filter(Boolean) : [],
   };
 }
