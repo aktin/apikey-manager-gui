@@ -1,61 +1,117 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from "vue";
+import {onMounted, Ref, ref} from "vue";
 import BrokerConnection from "../services/BrokerConnection";
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
-import Checkbox from "primevue/checkbox";
 import InputText from "primevue/inputtext";
-import {FilterMatchMode} from "primevue/api";
 import {useToast} from "primevue/usetoast";
 import {useI18n} from "vue-i18n";
-import {createErrorToast} from "../services/ToastWrapper";
-import BrokerRequestViewer from "./BrokerRequestViewer.vue";
-import Button from 'primevue/button'
+import Button from "primevue/button"
+import {parseXmlBrokerRequest} from "../utils/Parser";
+import BrokerRequest from "../types/BrokerRequest";
+import {createErrorToast, createSuccessToast} from "../utils/ToastWrapper";
+import {formatDateToLocale, formatDurationToHumanReadable} from "../utils/MomentWrapper";
+import FloatLabel from "primevue/floatlabel";
 
-const id = ref<string>('')
-const loading = ref(false)
-const error = ref<string | null>(null)
-const request = ref<{ status: number; data: string } | null>(null)
+const {t} = useI18n()
+const toast = useToast()
 
-async function submit() {
-  error.value = null
-  const n = Number(id.value.trim())
-  if (!Number.isInteger(n) || n <= 0) {
-    error.value = 'Enter a positive integer.'
-    request.value = null
+const id = ref("")
+const invalidId = ref(false);
+const requestData: Ref<BrokerRequest | null> = ref(null);
+
+const idPattern = /^[1-9]\d*$/;
+
+async function fetchRequest() {
+  invalidId.value = false
+  if (!idPattern.test(id.value)) {
+    createErrorToast(toast, t("common.inputError"), t("brokerRequest.invalidId"));
+    invalidId.value = true;
     return
   }
-  loading.value = true
-  try {
-    request.value = await BrokerConnection.getBrokerRequest(String(n))
-  } catch {
-    error.value = 'Request failed.'
-    request.value = null
-  } finally {
-    loading.value = false
+  const resp = await BrokerConnection.getBrokerRequest(id.value)
+  switch (resp.status) {
+    case 200:
+      createSuccessToast(toast, t("common.success"), t("requestFetchedSuccessfully"));
+      requestData.value = parseXmlBrokerRequest(resp.data);
+      return;
+    case 404:
+      createErrorToast(toast, t("notFound"), t("requestNotFound"));
+      break;
+    case 401:
+      createErrorToast(toast, t("common.accessDenied"), t("form.noAuthorization"));
+      break;
+    case 500:
+      createErrorToast(toast, t("common.serverError"), t("common.serverErrorText"));
+      break;
+    default:
+      createErrorToast(toast, t("common.unexpectedError"), t("common.unexpectedErrorText", {code: resp.status}));
   }
 }
 
 onMounted(async () => {
   await BrokerConnection.waitForBrokerCredentials();
-  request.value = await BrokerConnection.getBrokerRequest("1")
-  BrokerConnection.onCredentialsChange(async () => {
-    //await TODO
-  });
 });
 </script>
 
-
 <template>
-  <form class="flex align-items-center gap-2" @submit.prevent="submit">
-    <InputText v-model="id" placeholder="Request ID" @keydown.enter.prevent="submit" />
-    <Button label="Search" :disabled="loading || !/^[1-9]\d*$/.test(id)" @click="submit" />
-  </form>
-
-  <div v-if="error" class="mt-2 p-error">{{ error }}</div>
-
-  <div v-if="request" class="mt-3">
-    <div>Status: {{ request.status }}</div>
-    <pre class="surface-100 p-2 border-round" style="white-space: pre-wrap">{{ request.data }}</pre>
+  <div class="flex flex-column align-items-center justify-content-center gap-3 p-3">
+    <div class="flex gap-2">
+      <FloatLabel class="w-full">
+        <InputText id="idInput"
+                   v-model="id"
+                   :invalid="invalidId"
+                   class="w-full"
+                   @keydown.enter.prevent="fetchRequest"/>
+        <label for="apiInput">{{ t("requestId") }}</label>
+      </FloatLabel>
+      <Button icon="pi pi-search" @click="fetchRequest" v-tooltip.left="t('fetchBrokerRequest')"/>
+    </div>
   </div>
+
+  <div v-if="requestData" class="surface-100 p-3 border-round col-8">
+    <h3>{{ requestData.query.title }}</h3>
+    <p><b>{{ t("brokerRequest.reference") }}:</b> {{ formatDateToLocale(requestData.referenceDate) }}</p>
+    <p><b>{{ t("brokerRequest.scheduled") }}:</b> {{ formatDateToLocale(requestData.scheduledDate) }}</p>
+    <p><b>{{ t("brokerRequest.principal") }}:</b>
+      {{ requestData.query.principal.name }} – {{ requestData.query.principal.organisation }}
+      ({{ requestData.query.principal.email }})
+    </p>
+    <p><b>{{ t("brokerRequest.tags") }}:</b> {{ requestData.query.principal.tags.join(", ") }}</p>
+    <p><b>{{ t("brokerRequest.scheduleType") }}:</b> {{ formatDurationToHumanReadable(requestData.query.singleExecution?.duration) }}</p>
+  </div>
+
+  <pre> {{ requestData }} </pre>
 </template>
+
+<!--
+
+OPTIONS {{broker-url}}/broker/request/1
+
+<request xmlns="http://aktin.org/ns/exchange" id="1">
+    <published>2025-09-23T14:31:49.976670Z</published>
+    <targeted>true</targeted>
+    <type>application/vnd.aktin.query.request+xml</type>
+</request>
+
+
+GET {{broker-url}}/broker/request/1/status
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<request-status-list xmlns="http://aktin.org/ns/exchange">
+    <request-status-info>
+        <node>1</node>
+        <deleted>2025-09-07T22:15:09.134904Z</deleted>
+        <retrieved>2025-09-07T22:14:19.611Z</retrieved>
+        <queued>2025-09-07T22:14:19.574Z</queued>
+        <processing>2025-09-07T22:14:19.662Z</processing>
+        <completed>2025-09-07T22:15:09.077Z</completed>
+        <type>text/plain</type>
+    </request-status-info>
+    <request-status-info>
+        <node>2</node>
+    </request-status-info>
+
+GET {{broker-url}}/broker/request/1/status/1
+
+TEXT
+
+-->
