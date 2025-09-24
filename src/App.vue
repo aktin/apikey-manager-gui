@@ -7,7 +7,7 @@ import Toast from "primevue/toast";
   <Toast/>
   <div id="app" class="flex flex-column h-screen">
     <ApplicationHeader/>
-    <main class="p-input-filled my-2 border-solid border-200">
+    <main class="m-3">
       <router-view></router-view>
     </main>
   </div>
