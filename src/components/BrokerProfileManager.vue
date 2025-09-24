@@ -21,7 +21,7 @@ import {useToast} from "primevue/usetoast";
 import {useConfirm} from "primevue/useconfirm";
 import {useI18n} from "vue-i18n";
 import BrokerConnection from "../services/BrokerConnection";
-import {createErrorToast, createInfoToast, createSuccessToast} from "../services/ToastWrapper";
+import {createErrorToast, createInfoToast, createSuccessToast} from "../utils/ToastWrapper";
 
 import Dialog from "primevue/dialog";
 import FloatLabel from "primevue/floatlabel";
@@ -33,7 +33,7 @@ import ProgressSpinner from "primevue/progressspinner";
 import Menu from "primevue/menu";
 import LanguageSwitcher from "./LanguageSwitcher.vue";
 import ProfileStorage from "../services/ProfileStorage";
-import {CredentialProfile} from "../types/CredentialProfile";
+import CredentialProfile from "../types/CredentialProfile";
 
 const toast = useToast();
 const confirm = useConfirm();
