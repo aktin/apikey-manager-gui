@@ -1,5 +1,5 @@
 import BrokerRequest, {Principal, Query, RepeatedExecution, SingleExecution} from "../types/BrokerRequest";
-import MomentWrapper from "./MomentWrapper";
+import {createDuration} from "./MomentWrapper";
 
 export function parseXmlBrokerRequest(xml: string): BrokerRequest {
   const ns = "http://aktin.org/ns/exchange";
@@ -35,15 +35,15 @@ export function parseXmlBrokerRequest(xml: string): BrokerRequest {
   let repeatedExecution: RepeatedExecution | undefined;
 
   if (scheduleType === "singleExecution" && durationText) {
-    singleExecution = {duration: MomentWrapper.createDuration(durationText)};
+    singleExecution = {duration: createDuration(durationText)};
   } else if (scheduleType === "repeatedExecution") {
     const reId = scheduleEl?.getElementsByTagNameNS(ns, "id")[0]?.textContent?.trim();
     const intervalText = scheduleEl?.getElementsByTagNameNS(ns, "interval")[0]?.textContent?.trim();
     const intervalHoursText = scheduleEl?.getElementsByTagNameNS(ns, "intervalHours")[0]?.textContent?.trim();
     repeatedExecution = {
       id: reId ? Number(reId) : Number.NaN,
-      duration: MomentWrapper.createDuration(durationText ?? ""),
-      interval: MomentWrapper.createDuration(intervalText ?? ""),
+      duration: createDuration(durationText ?? ""),
+      interval: createDuration(intervalText ?? ""),
       intervalHours: intervalHoursText ? Number(intervalHoursText) : Number.NaN,
     };
   }
