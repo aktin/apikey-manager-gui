@@ -1,4 +1,4 @@
-import BrokerRequest, {Principal, Query, RepeatedExecution, SingleExecution} from "../types/BrokerRequest";
+import BrokerRequest, {NodeStatusInfo, Principal, Query, RepeatedExecution, RequestInfo, SingleExecution} from "../types/BrokerRequest";
 import {createDuration} from "./MomentWrapper";
 
 export function parseXmlBrokerRequest(xml: string): BrokerRequest {
@@ -53,4 +53,35 @@ export function parseXmlBrokerRequest(xml: string): BrokerRequest {
     scheduledDate: new Date(scheduledText),
     query,
   };
+}
+
+export function parseXmlBrokerRequestInfo(xml: string): RequestInfo {
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  const published = doc.getElementsByTagName("published")[0]?.textContent || "";
+  const targeted = doc.getElementsByTagName("targeted")[0]?.textContent || "false";
+  return {
+    publishDate: new Date(published),
+    targeted: targeted.toLowerCase() === "true",
+  };
+}
+
+export function parseXmlBrokerRequestStatus(xml: string): NodeStatusInfo[] {
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  const infos = Array.from(doc.getElementsByTagName("request-status-info"));
+  return infos.map(el => ({
+    nodeId: Number(el.getElementsByTagName("node")[0]?.textContent || 0),
+    retrieved: optDate(el, "retrieved"),
+    queued: optDate(el, "queued"),
+    processing: optDate(el, "processing"),
+    completed: optDate(el, "completed"),
+    rejected: optDate(el, "rejected"),
+    failed: optDate(el, "failed"),
+    deleted: optDate(el, "deleted"),
+    expired: optDate(el, "expired"),
+  }));
+}
+
+function optDate(parent: Element, tag: string): Date | null {
+  const text = parent.getElementsByTagName(tag)[0]?.textContent;
+  return text ? new Date(text) : null;
 }

@@ -201,6 +201,69 @@ class BrokerConnection {
       return {status: 500, data: ""};
     }
   }
+
+  async getBrokerRequestInfo(requestId: string): Promise<{ status: number; data: string }> {
+    try {
+      const response = await fetch(`${this.brokerURL}/broker/request/${requestId}`, {
+        method: "OPTIONS",
+        headers: {
+          Authorization: `Bearer ${this.adminApiKey}`,
+        },
+      });
+      const contentType = response.headers.get("Content-Type") || "";
+      if (!contentType.includes("application/xml")) {
+        console.warn("Invalid broker request info received");
+        return {status: response.status, data: ""};
+      }
+      const text = await response.text();
+      return {status: response.status, data: text};
+    } catch (error) {
+      console.error("Failed to fetch broker request info:", error);
+      return {status: 500, data: ""};
+    }
+  }
+
+  async getBrokerRequestStatus(requestId: string): Promise<{ status: number; data: string }> {
+    try {
+      const response = await fetch(`${this.brokerURL}/broker/request/${requestId}/status`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.adminApiKey}`,
+        },
+      });
+      const contentType = response.headers.get("Content-Type") || "";
+      if (!contentType.includes("application/xml")) {
+        console.warn("Invalid broker request status received");
+        return {status: response.status, data: ""};
+      }
+      const text = await response.text();
+      return {status: response.status, data: text};
+    } catch (error) {
+      console.error("Failed to fetch broker request status:", error);
+      return {status: 500, data: ""};
+    }
+  }
+
+  async getBrokerRequestNodeStatus(requestId: string, nodeId: string): Promise<{ status: number; data: string }> {
+    try {
+      const response = await fetch(`${this.brokerURL}/broker/request/${requestId}/status/${nodeId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.adminApiKey}`,
+        },
+      });
+      const contentType = response.headers.get("Content-Type") || "";
+      if (!contentType.includes("text/plain")) {
+        console.warn("Invalid request node status received");
+        return {status: response.status, data: ""};
+      }
+      const text = await response.text();
+      return {status: response.status, data: text};
+    } catch (error) {
+      console.error("Failed to fetch request node status:", error);
+      return {status: 500, data: ""};
+    }
+  }
 }
 
 // Export singleton instance

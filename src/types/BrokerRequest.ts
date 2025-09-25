@@ -26,5 +26,22 @@ export interface RepeatedExecution {
   id: number;
   duration: MomentDuration;
   interval: MomentDuration;
-  intervalHours: number;
+  intervalHours: number | null;
+}
+
+export interface RequestInfo {
+  publishDate: Date;
+  targeted: boolean;
+}
+
+export interface NodeStatusInfo {
+  nodeId: number;
+  retrieved: Date | null;
+  queued: Date | null;
+  processing: Date | null;
+  completed: Date | null;
+  rejected: Date | null;
+  failed: Date | null;
+  deleted: Date | null;
+  expired: Date | null;
 }
