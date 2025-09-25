@@ -60,5 +60,22 @@
   "openConfig": "Konfiguration öffnen",
   "config": "Konfiguration",
   "saveProfile": "Profil speichern",
-  "deleteProfile": "Profil löschen"
+  "deleteProfile": "Profil löschen",
+  "keys": "API-Schlüssel",
+  "request": "Anfrage",
+  "requestId": "Anfragen ID",
+  "fetchRequest": "Anfrage abrufen",
+  "referenceDate": "Referenzdatum",
+  "scheduledDate": "Ausführungsdatum",
+  "principal": "Auftraggeber",
+  "tags": "Tags",
+  "year(s)": "Jahr(e)",
+  "month(s": "Monat(e)",
+  "day(s)": "Tag(e)",
+  "hour(s)": "Stunde(n)",
+  "minute(s)": "Minute(n)",
+  "second(s)": "Sekunde(n)",
+  "invalidRequestIdError": "Anfragen ID muss eine Zahl sein",
+  "requestFound": "Anfrage wurde gefunden",
+  "requestNotFound": "Anfrage konnte nicht gefunden werden"
 }

@@ -23,14 +23,14 @@ const idPattern = /^[1-9]\d*$/;
 async function fetchRequest() {
   invalidId.value = false
   if (!idPattern.test(id.value)) {
-    createErrorToast(toast, t("inputError"), t("brokerRequest.invalidId"));
+    createErrorToast(toast, t("inputError"), t("invalidRequestIdError"));
     invalidId.value = true;
     return
   }
   const resp = await BrokerConnection.getBrokerRequest(id.value)
   switch (resp.status) {
     case 200:
-      createSuccessToast(toast, t("success"), t("requestFetchedSuccessfully"));
+      createSuccessToast(toast, t("success"), t("requestFound"));
       requestData.value = parseXmlBrokerRequest(resp.data);
       return;
     case 404:
@@ -56,27 +56,27 @@ onMounted(async () => {
   <div class="flex flex-column align-items-center justify-content-center gap-3 p-3">
     <div class="flex gap-2">
       <FloatLabel class="w-full">
-        <InputText id="idInput"
+        <InputText id="requestIdInput"
                    v-model="id"
                    :invalid="invalidId"
-                   class="w-full"
                    @keydown.enter.prevent="fetchRequest"/>
-        <label for="apiInput">{{ t("requestId") }}</label>
+        <label for="requestIdInput">{{ t("requestId") }}</label>
       </FloatLabel>
-      <Button icon="pi pi-search" @click="fetchRequest" v-tooltip.left="t('fetchBrokerRequest')"/>
+      <Button icon="pi pi-search"
+              @click="fetchRequest"
+              v-tooltip.right="t('fetchRequest')"/>
     </div>
   </div>
 
   <div v-if="requestData" class="surface-100 p-3 border-round col-8">
     <h3>{{ requestData.query.title }}</h3>
-    <p><b>{{ t("brokerRequest.reference") }}:</b> {{ formatDateToLocale(requestData.referenceDate) }}</p>
-    <p><b>{{ t("brokerRequest.scheduled") }}:</b> {{ formatDateToLocale(requestData.scheduledDate) }}</p>
-    <p><b>{{ t("brokerRequest.principal") }}:</b>
-      {{ requestData.query.principal.name }} – {{ requestData.query.principal.organisation }}
-      ({{ requestData.query.principal.email }})
+    <p><b>{{ t("referenceDate") }}:</b> {{ formatDateToLocale(requestData.referenceDate) }}</p>
+    <p><b>{{ t("scheduledDate") }}:</b> {{ formatDateToLocale(requestData.scheduledDate) }}</p>
+    <p><b>{{ t("principal") }}:</b>
+      {{ requestData.query.principal.name }} – {{ requestData.query.principal.organization }} - ({{ requestData.query.principal.email }})
     </p>
-    <p><b>{{ t("brokerRequest.tags") }}:</b> {{ requestData.query.principal.tags.join(", ") }}</p>
-    <p><b>{{ t("brokerRequest.scheduleType") }}:</b> {{ formatDurationToHumanReadable(requestData.query.singleExecution?.duration) }}</p>
+    <p><b>{{ t("tags") }}:</b> {{ requestData.query.principal.tags.join(", ") }}</p>
+    <p><b>{{ t("scheduleType") }}:</b> {{ formatDurationToHumanReadable(requestData.query.singleExecution?.duration) }}</p>
   </div>
 
   <pre> {{ requestData }} </pre>

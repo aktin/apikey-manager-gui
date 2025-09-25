@@ -13,8 +13,8 @@ interface RouteConfig {
 const {t} = useI18n()
 
 const routing = computed<RouteConfig[]>(() => [
-  {label: t("header.apiKeys"), route: "/api-keys"},
-  {label: t("header.request"), route: "/request"},
+  {label: t("keys"), route: "/api-keys"},
+  {label: t("request"), route: "/request"},
 ])
 </script>
 

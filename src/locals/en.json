@@ -60,5 +60,22 @@
   "openConfig": "Open configuration",
   "config": "Configuration",
   "saveProfile": "Save profile",
-  "deleteProfile": "Delete profile"
+  "deleteProfile": "Delete profile",
+  "keys": "API keys",
+  "request": "Request",
+  "requestId": "Request ID",
+  "fetchRequest": "Fetch request",
+  "referenceDate": "Reference date",
+  "scheduledDate": "Execution date",
+  "principal": "Principal",
+  "tags": "Tags",
+  "year(s)": "Year(s)",
+  "month(s)": "Month(s)",
+  "day(s)": "Day(s)",
+  "hour(s)": "Hour(s)",
+  "minute(s)": "Minute(s)",
+  "second(s)": "Second(s)",
+  "invalidRequestIdError": "Request ID must be a number",
+  "requestFound": "Request found",
+  "requestNotFound": "Request not found"
 }
