@@ -70,7 +70,7 @@
   "principal": "Auftraggeber",
   "tags": "Tags",
   "year(s)": "Jahr(e)",
-  "month(s": "Monat(e)",
+  "month(s)": "Monat(e)",
   "day(s)": "Tag(e)",
   "hour(s)": "Stunde(n)",
   "minute(s)": "Minute(n)",
@@ -83,5 +83,9 @@
   "seriesId": "Serien ID",
   "duration": "Erhebungszeitraum",
   "interval": "Wiederholungsintervall",
-  "intervalHours": "Wiederholungsintervall (Stunden)"
+  "intervalHours": "Wiederholungsintervall (Stunden)",
+  "publishDate": "Veröffentlichungsdatum",
+  "targetedRequest": "Gezielte Anfrage",
+  "yes": "Ja",
+  "no": "Nein"
 }

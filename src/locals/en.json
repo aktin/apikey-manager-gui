@@ -83,5 +83,9 @@
   "seriesId": "Series ID",
   "duration": "Collection period",
   "interval": "Repeat interval",
-  "intervalHours": "Repeat interval (hours)"
+  "intervalHours": "Repeat interval (hours)",
+  "publishDate": "Publish date",
+  "targetedRequest": "Targeted Request",
+  "yes": "Yes",
+  "no": "No"
 }
