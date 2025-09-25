@@ -87,5 +87,12 @@
   "publishDate": "Veröffentlichungsdatum",
   "targetedRequest": "Gezielte Anfrage",
   "yes": "Ja",
-  "no": "Nein"
+  "no": "Nein",
+  "retrieved": "Abgeholt",
+  "queued": "In Warteschlange",
+  "processing": "In Bearbeitung",
+  "completed": "Abgeschlossen",
+  "rejected": "Abgelehnt",
+  "failed": "Fehlgeschlagen",
+  "expired": "Abgelaufen"
 }

@@ -87,5 +87,12 @@
   "publishDate": "Publish date",
   "targetedRequest": "Targeted Request",
   "yes": "Yes",
-  "no": "No"
+  "no": "No",
+  "retrieved": "Retrieved",
+  "queued": "Queued",
+  "processing": "Processing",
+  "rejected": "Rejected",
+  "completed": "Completed",
+  "failed": "Failed",
+  "expired": "Expired"
 }

@@ -11,6 +11,7 @@ import {createErrorToast, createSuccessToast} from "../utils/ToastWrapper";
 import {formatDateToLocale, formatDurationToHumanReadable} from "../utils/MomentWrapper";
 import FloatLabel from "primevue/floatlabel";
 import SimpleChipList from "./SimpleChipList.vue";
+import NodeStatusInfoTimeline from "./NodeStatusInfoTimeline.vue";
 
 const {t} = useI18n()
 const toast = useToast()
@@ -125,6 +126,18 @@ const exec = computed<execView | null>(() => {
   }
   return null;
 });
+
+const columns = computed(() => {
+  const all = requestStatus.value ?? [];
+  const half = Math.ceil(all.length / 2);
+  return {left: all.slice(0, half), right: all.slice(half)};
+});
+
+function hasAnyTimestamp(node: NodeStatusInfo): boolean {
+  return Object.entries(node)
+  .filter(([k]) => k !== "nodeId")
+  .some(([, v]) => v != null);
+}
 </script>
 
 <template>
@@ -143,32 +156,70 @@ const exec = computed<execView | null>(() => {
     </div>
   </div>
 
-  <div class="grid">
-    <div v-if="request && exec && requestInfo" class="surface-100 p-3 border-round col-7">
-      <h2 class="m-0 flex align-items-center gap-3 flex-wrap">
+  <div v-if="request && exec && requestInfo" class="surface-100 p-3 border-round">
+    <h2 class="m-0 flex align-items-center gap-3 flex-wrap">
         <span class="flex-1 min-w-0 text-2xl font-bold line-height-2">
           {{ request.query.title }}
         </span>
-        <span class="text-lg text-color-secondary">
+      <span class="text-lg text-color-secondary">
           ({{ exec.label }}<template v-if="exec.kind === 'repeated'">&nbsp;{{ exec.id }}</template>)
         </span>
-      </h2>
-      <SimpleChipList class="align-item-center" :chips="request.query.principal.tags"/>
+    </h2>
+    <SimpleChipList class="align-item-center" :chips="request.query.principal.tags"/>
 
-      <p><b>{{ t("publishDate") }}:</b> {{ formatDateToLocale(requestInfo.publishDate) }}</p>
-      <p><b>{{ t("targetedRequest") }}:</b> {{ requestInfo.targeted ? t("yes") : t("no") }}</p>
-      <p><b>{{ t("scheduledDate") }}:</b> {{ formatDateToLocale(request.scheduledDate) }}</p>
-      <p><b>{{ t("referenceDate") }}:</b> {{ formatDateToLocale(request.referenceDate) }}</p>
-      <p><b>{{ t("duration") }}:</b> {{ exec.duration }}</p>
-      <p v-if="exec.kind === 'repeated'"><b>{{ t("interval") }}:</b> {{ exec.interval }}</p>
-      <p v-if="exec.kind === 'repeated'"><b>{{ t("intervalHours") }}:</b> {{ exec.intervalHours }}</p>
+    <p><b>{{ t("publishDate") }}:</b> {{ formatDateToLocale(requestInfo.publishDate) }}</p>
+    <p><b>{{ t("targetedRequest") }}:</b> {{ requestInfo.targeted ? t("yes") : t("no") }}</p>
+    <p><b>{{ t("scheduledDate") }}:</b> {{ formatDateToLocale(request.scheduledDate) }}</p>
+    <p><b>{{ t("referenceDate") }}:</b> {{ formatDateToLocale(request.referenceDate) }}</p>
+    <p><b>{{ t("duration") }}:</b> {{ exec.duration }}</p>
+    <p v-if="exec.kind === 'repeated'"><b>{{ t("interval") }}:</b> {{ exec.interval }}</p>
+    <p v-if="exec.kind === 'repeated'"><b>{{ t("intervalHours") }}:</b> {{ exec.intervalHours }}</p>
+  </div>
+
+
+  <div v-if="columns.left.length || columns.right.length" class="grid">
+    <!-- left column -->
+    <div class="col-12 md:col-6">
+      <div
+          v-for="node in columns.left"
+          :key="node.nodeId"
+          class="flex justify-content-between border-bottom-1 surface-border py-2"
+      >
+        <span class="font-bold">Node {{ node.nodeId }}</span>
+        <template v-if="hasAnyTimestamp(node)">
+          <NodeStatusInfoTimeline :node-status-info="node"/>
+        </template>
+        <span v-else class="text-color-secondary text-sm">No status</span>
+      </div>
     </div>
 
-
-    <pre class="col-5">{{ request }} <br> {{ requestInfo }} <br> {{ requestStatus}}</pre>
+    <!-- right column -->
+    <div class="col-12 md:col-6">
+      <div
+          v-for="node in columns.right"
+          :key="node.nodeId"
+          class="flex justify-content-between border-bottom-1 surface-border py-2"
+      >
+        <span class="font-bold">Node {{ node.nodeId }}</span>
+        <template v-if="hasAnyTimestamp(node)">
+          <NodeStatusInfoTimeline :node-status-info="node"/>
+        </template>
+        <span v-else class="text-color-secondary text-sm">No status</span>
+      </div>
+    </div>
   </div>
+
+  <p v-else class="text-color-secondary">{{ t('noData') }}</p>
+
+
 </template>
 
 <!--
 summary der nodes
+
+ToDo Add Summary of Nodes
+ToDo Add color coding to states
+ToDo restructure header
+ToDo get common names from NodeCredsTable? Maybe add cash to BrokerConnection?
+
 -->
