@@ -77,5 +77,11 @@
   "second(s)": "Second(s)",
   "invalidRequestIdError": "Request ID must be a number",
   "requestFound": "Request found",
-  "requestNotFound": "Request not found"
+  "requestNotFound": "Request not found",
+  "singleRequest": "Single request",
+  "seriesRequest": "Series request",
+  "seriesId": "Series ID",
+  "duration": "Collection period",
+  "interval": "Repeat interval",
+  "intervalHours": "Repeat interval (hours)"
 }

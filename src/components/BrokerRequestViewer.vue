@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, Ref, ref} from "vue";
+import {computed, Ref, ref} from "vue";
 import BrokerConnection from "../services/BrokerConnection";
 import InputText from "primevue/inputtext";
 import {useToast} from "primevue/usetoast";
@@ -47,8 +47,33 @@ async function fetchRequest() {
   }
 }
 
-onMounted(async () => {
-  await BrokerConnection.waitForBrokerCredentials();
+type execView =
+    | { kind: "single"; label: string; duration: string }
+    | { kind: "repeated"; label: string; id: number; duration: string; interval: string; intervalHours: number | null };
+
+
+const exec = computed<execView | null>(() => {
+  const q = requestData.value?.query;
+  if (!q) return null;
+
+  if (q.singleExecution) {
+    return {
+      kind: "single",
+      label: t("singleRequest"),
+      duration: formatDurationToHumanReadable(q.singleExecution.duration),
+    };
+  }
+  if (q.repeatedExecution) {
+    return {
+      kind: "repeated",
+      label: t("seriesRequest"),
+      id: q.repeatedExecution.id,
+      duration: formatDurationToHumanReadable(q.repeatedExecution.duration),
+      interval: formatDurationToHumanReadable(q.repeatedExecution.interval),
+      intervalHours: q.repeatedExecution.intervalHours ?? 0,
+    };
+  }
+  return null;
 });
 </script>
 
@@ -56,33 +81,38 @@ onMounted(async () => {
   <div class="flex flex-column align-items-center justify-content-center gap-3 p-3">
     <div class="flex gap-2">
       <FloatLabel class="w-full">
-        <InputText id="requestIdInput"
-                   v-model="id"
-                   :invalid="invalidId"
-                   @keydown.enter.prevent="fetchRequest"/>
+        <InputText
+            id="requestIdInput"
+            v-model="id"
+            :invalid="invalidId"
+            @keydown.enter.prevent="fetchRequest"
+        />
         <label for="requestIdInput">{{ t("requestId") }}</label>
       </FloatLabel>
-      <Button icon="pi pi-search"
-              @click="fetchRequest"
-              v-tooltip.right="t('fetchRequest')"/>
+      <Button icon="pi pi-search" @click="fetchRequest" v-tooltip.right="t('fetchRequest')"/>
     </div>
   </div>
 
-  <div v-if="requestData" class="surface-100 p-3 border-round col-8">
-    <h3>{{ requestData.query.title }}</h3>
+  <div v-if="requestData && exec" class="surface-100 p-3 border-round col-8">
+    <h3 class="flex align-items-center gap-2">
+      {{ requestData.query.title }}
+      <span class="text-color-secondary">({{ exec.label }})</span>
+    </h3>
     <p><b>{{ t("referenceDate") }}:</b> {{ formatDateToLocale(requestData.referenceDate) }}</p>
     <p><b>{{ t("scheduledDate") }}:</b> {{ formatDateToLocale(requestData.scheduledDate) }}</p>
-    <p><b>{{ t("principal") }}:</b>
-      {{ requestData.query.principal.name }} – {{ requestData.query.principal.organization }} - ({{ requestData.query.principal.email }})
-    </p>
     <p><b>{{ t("tags") }}:</b> {{ requestData.query.principal.tags.join(", ") }}</p>
-    <p><b>{{ t("scheduleType") }}:</b> {{ formatDurationToHumanReadable(requestData.query.singleExecution?.duration) }}</p>
+    <p v-if="exec.kind === 'repeated'"><b>{{ t("seriesId") }}:</b> {{ exec.id }}</p>
+    <p><b>{{ t("duration") }}:</b> {{ exec.duration }}</p>
+    <p v-if="exec.kind === 'repeated'"><b>{{ t("interval") }}:</b> {{ exec.interval }}</p>
+    <p v-if="exec.kind === 'repeated'"><b>{{ t("intervalHours") }}:</b> {{ exec.intervalHours }}</p>
   </div>
 
-  <pre> {{ requestData }} </pre>
+  <pre>{{ requestData }}</pre>
 </template>
 
+
 <!--
+    <p><b>{{ t("scheduleType") }}:</b> {{ formatDurationToHumanReadable(requestData.query.singleExecution?.duration) }}</p>
 
 OPTIONS {{broker-url}}/broker/request/1
 

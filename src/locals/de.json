@@ -77,5 +77,11 @@
   "second(s)": "Sekunde(n)",
   "invalidRequestIdError": "Anfragen ID muss eine Zahl sein",
   "requestFound": "Anfrage wurde gefunden",
-  "requestNotFound": "Anfrage konnte nicht gefunden werden"
+  "requestNotFound": "Anfrage konnte nicht gefunden werden",
+  "singleRequest": "Einzelanfrage",
+  "seriesRequest": "Serienanfrage",
+  "seriesId": "Serien ID",
+  "duration": "Erhebungszeitraum",
+  "interval": "Wiederholungsintervall",
+  "intervalHours": "Wiederholungsintervall (Stunden)"
 }
