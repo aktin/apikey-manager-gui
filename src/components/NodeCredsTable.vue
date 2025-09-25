@@ -113,13 +113,13 @@ async function fetchAndFormatApiKeyList(): Promise<Record<string, any>[]> {
       return mergeAndFormatLists(keyResult, nodeMap);
     }
     case 401:
-      createErrorToast(toast, t("common.accessDenied"), t("table.unauthorized"));
+      createErrorToast(toast, t("accessDenied"), t("unauthorizedToViewKeys"));
       break;
     case 500:
-      createErrorToast(toast, t("common.serverError"), t("common.serverErrorText"));
+      createErrorToast(toast, t("serverError"), t("serverErrorOccurred"));
       break;
     default:
-      createErrorToast(toast, t("common.unexpectedError"), t("common.unexpectedErrorText", {code: keyResult.status}));
+      createErrorToast(toast, t("unexpectedError"), t("unexpectedErrorOccurred", {code: keyResult.status}));
       break;
   }
   return [];
@@ -166,56 +166,56 @@ watch(showInactiveKeys, async () => {
              :globalFilterFields="['CN', 'O', 'L', 'nodeId']"
              filterDisplay="row">
     <template #empty>
-      {{ t("table.emptyList") }}
+      {{ t("emptyKeyList") }}
     </template>
 
     <template #header>
       <div class="flex justify-content-between flex-wrap">
         <div>
           <InputText v-model="filters['global'].value"
-                     :placeholder="t('table.keywordSearchPlaceholder')"
+                     :placeholder="t('keywordSearch')"
                      class="text-base text-color surface-overlay p-2 input_Field"/>
-          <i v-tooltip="t('table.keywordSearchInfo')" class="pi pi-info-circle p-2"/>
+          <i v-tooltip="t('keywordSearchInfo')" class="pi pi-info-circle p-2"/>
         </div>
         <div class="flex align-items-center mr-2">
           <Checkbox v-model="showInactiveKeys" :binary="true" inputId="showInactive"/>
-          <label for="showInactive" class="ml-1">{{ t("table.showInactive") }}</label>
+          <label for="showInactive" class="ml-1">{{ t("showInactiveKeys") }}</label>
         </div>
       </div>
     </template>
 
     <!-- Node ID column with fallback icon if not linked -->
-    <Column field="nodeId" :header="t('table.nodeId')" :sortable="true" style="width: 4%">
+    <Column field="nodeId" :header="t('nodeId')" :sortable="true" style="width: 4%">
       <template #body="{ data }">
         <div class="flex justify-content-center">
           <span v-if="data.nodeId">{{ data.nodeId }}</span>
           <i v-else
              class="pi pi-question text-gray-300"
-             v-tooltip.left="t('table.nodeNotConnected')"/>
+             v-tooltip.left="t('nodeHasNoId')"/>
         </div>
       </template>
     </Column>
 
     <!-- Raw API key -->
-    <Column field="apiKey" :header="t('common.key')" style="width: 10%"/>
+    <Column field="apiKey" :header="t('key')" style="width: 10%"/>
 
     <!-- DN components -->
-    <Column field="CN" :header="t('common.cn')" :sortable="true" style="width: 35%"/>
-    <Column field="O" :header="t('common.o')" :sortable="true" style="width: 35%"/>
-    <Column field="L" :header="t('common.l')" :sortable="true" style="width: 10%"/>
+    <Column field="CN" :header="t('cn')" :sortable="true" style="width: 35%"/>
+    <Column field="O" :header="t('o')" :sortable="true" style="width: 35%"/>
+    <Column field="L" :header="t('l')" :sortable="true" style="width: 10%"/>
 
     <!-- Status column with icons for active/inactive/unknown -->
-    <Column field="isActive" :header="t('table.status')" :sortable="true" style="width: 6%">
+    <Column field="isActive" :header="t('status')" :sortable="true" style="width: 6%">
       <template #body="{ data }">
         <div class="flex justify-content-center">
           <i v-if="data.isActive === true"
-             v-tooltip="t('table.apiKeyActive')"
+             v-tooltip="t('keyIsActive')"
              class="pi pi-check-circle text-green-500"/>
           <i v-else-if="data.isActive === false"
-             v-tooltip="t('table.apiKeyInactive')"
+             v-tooltip="t('keyIsInactive')"
              class="pi pi-times-circle text-red-500"/>
           <i v-else
-             v-tooltip="t('table.apiKeyStatusUnknown')"
+             v-tooltip="t('keyStatusUnknown')"
              class="pi pi-question-circle text-gray-400"/>
         </div>
       </template>

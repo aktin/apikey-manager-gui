@@ -26,7 +26,7 @@ const languageMenu = ref();
  */
 const languages = ref([
   {
-    label: t("language.changeLang"),
+    label: t("switchLanguage"),
     items: [
       {
         label: "English",
@@ -48,7 +48,7 @@ const languages = ref([
 function setLanguage(lang: string): void {
   locale.value = lang;
   localStorage.setItem("lang", lang);
-  createInfoToast(toast, t("common.info"), t("language.switched", {lang}));
+  createInfoToast(toast, t("info"), t("languageSwitchedTo", {lang}));
 }
 
 watchEffect(() => {
@@ -67,7 +67,7 @@ watchEffect(() => {
     -->
     <Button icon="pi pi-language"
             @click="languageMenu?.toggle($event)"
-            v-tooltip.bottom="t('language.changeLang')"/>
+            v-tooltip.bottom="t('switchLanguage')"/>
     <!--
       Dropdown menu with language options (English, Deutsch).
       Triggered by the language button.

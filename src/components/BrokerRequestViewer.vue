@@ -23,27 +23,27 @@ const idPattern = /^[1-9]\d*$/;
 async function fetchRequest() {
   invalidId.value = false
   if (!idPattern.test(id.value)) {
-    createErrorToast(toast, t("common.inputError"), t("brokerRequest.invalidId"));
+    createErrorToast(toast, t("inputError"), t("brokerRequest.invalidId"));
     invalidId.value = true;
     return
   }
   const resp = await BrokerConnection.getBrokerRequest(id.value)
   switch (resp.status) {
     case 200:
-      createSuccessToast(toast, t("common.success"), t("requestFetchedSuccessfully"));
+      createSuccessToast(toast, t("success"), t("requestFetchedSuccessfully"));
       requestData.value = parseXmlBrokerRequest(resp.data);
       return;
     case 404:
       createErrorToast(toast, t("notFound"), t("requestNotFound"));
       break;
     case 401:
-      createErrorToast(toast, t("common.accessDenied"), t("form.noAuthorization"));
+      createErrorToast(toast, t("accessDenied"), t("noAuthorization"));
       break;
     case 500:
-      createErrorToast(toast, t("common.serverError"), t("common.serverErrorText"));
+      createErrorToast(toast, t("serverError"), t("serverErrorOccurred"));
       break;
     default:
-      createErrorToast(toast, t("common.unexpectedError"), t("common.unexpectedErrorText", {code: resp.status}));
+      createErrorToast(toast, t("unexpectedError"), t("unexpectedErrorOccurred", {code: resp.status}));
   }
 }
 
