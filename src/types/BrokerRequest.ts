@@ -15,12 +15,6 @@ export interface Query {
 }
 
 export interface Principal {
-  [key: string]: string | string[] | null;
-
-  name: string;
-  organization: string;
-  email: string;
-  phone: string | null;
   tags: string[];
 }
 

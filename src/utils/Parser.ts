@@ -14,19 +14,11 @@ export function parseXmlBrokerRequest(xml: string): BrokerRequest {
 
   const principalEl = doc.getElementsByTagNameNS(ns, "principal")[0];
   const principal: Principal = {
-    name: principalEl?.getElementsByTagNameNS(ns, "name")[0]?.textContent?.trim() ?? "",
-    organization: principalEl?.getElementsByTagNameNS(ns, "organisation")[0]?.textContent?.trim() ?? "",
-    email: principalEl?.getElementsByTagNameNS(ns, "email")[0]?.textContent?.trim() ?? "",
-    phone: (() => {
-      const txt = principalEl?.getElementsByTagNameNS(ns, "phone")[0]?.textContent?.trim() ?? "";
-      return txt === "" ? null : txt;
-    })(),
     tags: (() => {
       const tagEls = principalEl?.getElementsByTagNameNS(ns, "tag");
       return tagEls ? Array.from(tagEls).map(el => el.textContent?.trim() ?? "").filter(Boolean) : [];
     })(),
   };
-
   const scheduleEl = doc.getElementsByTagNameNS(ns, "schedule")[0];
   const scheduleType = scheduleEl?.getAttributeNS(xsi, "type") ?? "";
   const durationText = scheduleEl?.getElementsByTagNameNS(ns, "duration")[0]?.textContent?.trim();
