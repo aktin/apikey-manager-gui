@@ -161,7 +161,6 @@ watch(showInactiveKeys, async () => {
              selectionMode="single"
              :metaKeySelection="false"
              scrollable
-             style="max-height: 55rem"
              scroll-height="flex"
              :globalFilterFields="['CN', 'O', 'L', 'nodeId']"
              filterDisplay="row">
