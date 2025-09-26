@@ -106,7 +106,6 @@ type execView =
 const exec = computed<execView | null>(() => {
   const q = request.value?.query;
   if (!q) return null;
-
   if (q.singleExecution) {
     return {
       kind: "single",
@@ -166,14 +165,19 @@ function hasAnyTimestamp(node: NodeStatusInfo): boolean {
         </span>
     </h2>
     <SimpleChipList class="align-item-center" :chips="request.query.principal.tags"/>
-
-    <p><b>{{ t("publishDate") }}:</b> {{ formatDateToLocale(requestInfo.publishDate) }}</p>
-    <p><b>{{ t("targetedRequest") }}:</b> {{ requestInfo.targeted ? t("yes") : t("no") }}</p>
-    <p><b>{{ t("scheduledDate") }}:</b> {{ formatDateToLocale(request.scheduledDate) }}</p>
-    <p><b>{{ t("referenceDate") }}:</b> {{ formatDateToLocale(request.referenceDate) }}</p>
-    <p><b>{{ t("duration") }}:</b> {{ exec.duration }}</p>
-    <p v-if="exec.kind === 'repeated'"><b>{{ t("interval") }}:</b> {{ exec.interval }}</p>
-    <p v-if="exec.kind === 'repeated'"><b>{{ t("intervalHours") }}:</b> {{ exec.intervalHours }}</p>
+    <div class="flex flex-wrap gap-4">
+      <div class="flex-1 min-w-0">
+        <p><b>{{ t("publishDate") }}:</b> {{ formatDateToLocale(requestInfo.publishDate) }}</p>
+        <p><b>{{ t("scheduledDate") }}:</b> {{ formatDateToLocale(request.scheduledDate) }}</p>
+        <p><b>{{ t("referenceDate") }}:</b> {{ formatDateToLocale(request.referenceDate) }}</p>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p><b>{{ t("duration") }}:</b> {{ exec.duration }}</p>
+        <p v-if="exec.kind === 'repeated'"><b>{{ t("interval") }}:</b> {{ exec.interval }}</p>
+        <p v-if="exec.kind === 'repeated'"><b>{{ t("intervalHours") }}:</b> {{ exec.intervalHours }}</p>
+        <p><b>{{ t("targetedRequest") }}:</b> {{ requestInfo.targeted ? t("yes") : t("no") }}</p>
+      </div>
+    </div>
   </div>
 
 
@@ -215,11 +219,8 @@ function hasAnyTimestamp(node: NodeStatusInfo): boolean {
 </template>
 
 <!--
-summary der nodes
-
+ToDo get common names from NodeCredsTable? Maybe add cache to BrokerConnection?
 ToDo Add Summary of Nodes
-ToDo Add color coding to states
-ToDo restructure header
-ToDo get common names from NodeCredsTable? Maybe add cash to BrokerConnection?
-
+ToDo too many toasts on success
+ToDo get Node status message
 -->

@@ -84,7 +84,6 @@ function togglePanel(event: Event) {
           text
           v-tooltip.bottom="t('openStatusTimeline')"
   />
-
   <OverlayPanel ref="timelinePanel" showCloseIcon>
     <Timeline :value="statusArray">
       <template #opposite="{ item }">
