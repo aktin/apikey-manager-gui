@@ -109,6 +109,7 @@ async function fetchAndFormatApiKeyList(): Promise<Record<string, any>[]> {
   const nodeResult = await BrokerConnection.getBrokerNodeList();
   switch (keyResult.status) {
     case 200: {
+      BrokerConnection.updateNodeCacheFromXml(nodeResult.data);
       const nodeMap = nodeResult.status === 200 ? parseNodeIdMap(nodeResult.data) : new Map<string, string>();
       return mergeAndFormatLists(keyResult, nodeMap);
     }

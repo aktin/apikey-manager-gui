@@ -24,6 +24,8 @@ const requestStatus: Ref<NodeStatusInfo[] | null> = ref(null);
 
 const idPattern = /^[1-9]\d*$/;
 
+//const nodeCount = computed(() => requestStatus?.length ?? 0);
+
 async function fetchAllRequestData() {
   invalidId.value = false
   if (!idPattern.test(id.value)) {
@@ -137,6 +139,10 @@ function hasAnyTimestamp(node: NodeStatusInfo): boolean {
   .filter(([k]) => k !== "nodeId")
   .some(([, v]) => v != null);
 }
+
+function nodeLabel(id: number): string {
+  return BrokerConnection.getCachedNodeCN(id) ?? `#${id}`;
+}
 </script>
 
 <template>
@@ -180,47 +186,38 @@ function hasAnyTimestamp(node: NodeStatusInfo): boolean {
     </div>
   </div>
 
-
-  <div v-if="columns.left.length || columns.right.length" class="grid">
+  <div v-if="columns.left.length || columns.right.length" class="grid mt-2 mx-6">
     <!-- left column -->
     <div class="col-12 md:col-6">
-      <div
-          v-for="node in columns.left"
-          :key="node.nodeId"
-          class="flex justify-content-between border-bottom-1 surface-border py-2"
+      <div v-for="node in columns.left"
+           :key="node.nodeId"
+           class="flex justify-content-between border-bottom-1 surface-border py-2"
       >
-        <span class="font-bold">Node {{ node.nodeId }}</span>
+        <span class="font-bold">{{[node.nodeId]}} {{ nodeLabel(node.nodeId) }}</span>
         <template v-if="hasAnyTimestamp(node)">
           <NodeStatusInfoTimeline :node-status-info="node"/>
         </template>
-        <span v-else class="text-color-secondary text-sm">No status</span>
+        <span v-else class="text-color-secondary text-sm">{{ t("notRetrievedyet") }}</span>
       </div>
     </div>
 
     <!-- right column -->
     <div class="col-12 md:col-6">
-      <div
-          v-for="node in columns.right"
-          :key="node.nodeId"
-          class="flex justify-content-between border-bottom-1 surface-border py-2"
+      <div v-for="node in columns.right"
+           :key="node.nodeId"
+           class="flex justify-content-between border-bottom-1 surface-border py-2"
       >
-        <span class="font-bold">Node {{ node.nodeId }}</span>
+        <span class="font-bold">{{[node.nodeId]}} {{ nodeLabel(node.nodeId) }}</span>
         <template v-if="hasAnyTimestamp(node)">
           <NodeStatusInfoTimeline :node-status-info="node"/>
         </template>
-        <span v-else class="text-color-secondary text-sm">No status</span>
+        <span v-else class="text-color-secondary text-sm">{{ t("notRetrievedyet") }}</span>
       </div>
     </div>
   </div>
-
-  <p v-else class="text-color-secondary">{{ t('noData') }}</p>
-
-
 </template>
 
 <!--
-ToDo get common names from NodeCredsTable? Maybe add cache to BrokerConnection?
-ToDo Add Summary of Nodes
 ToDo too many toasts on success
 ToDo get Node status message
 -->
