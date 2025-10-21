@@ -94,5 +94,8 @@
   "rejected": "Rejected",
   "completed": "Completed",
   "failed": "Failed",
-  "expired": "Expired"
+  "expired": "Expired",
+  "notRetrievedyet": "Not retrieved yet",
+  "openStatusTimeline": "Open status timeline",
+  "openNodeStatusMessage": "Show node status message"
 }

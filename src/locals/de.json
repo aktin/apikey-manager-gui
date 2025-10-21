@@ -94,5 +94,8 @@
   "completed": "Abgeschlossen",
   "rejected": "Abgelehnt",
   "failed": "Fehlgeschlagen",
-  "expired": "Abgelaufen"
+  "expired": "Abgelaufen",
+  "notRetrievedyet": "Noch nicht abgeholt",
+  "openStatusTimeline": "Zeitstrahl öffnen",
+  "openNodeStatusMessage": "Knotenstatus anzeigen"
 }

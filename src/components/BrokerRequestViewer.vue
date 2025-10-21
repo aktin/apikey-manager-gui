@@ -12,6 +12,8 @@ import {formatDateToLocale, formatDurationToHumanReadable} from "../utils/Moment
 import FloatLabel from "primevue/floatlabel";
 import SimpleChipList from "./SimpleChipList.vue";
 import NodeStatusInfoTimeline from "./NodeStatusInfoTimeline.vue";
+import Dialog from "primevue/dialog";
+import ProgressSpinner from "primevue/progressspinner";
 
 const {t} = useI18n()
 const toast = useToast()
@@ -22,9 +24,12 @@ const request: Ref<BrokerRequest | null> = ref(null);
 const requestInfo: Ref<RequestInfo | null> = ref(null);
 const requestStatus: Ref<NodeStatusInfo[] | null> = ref(null);
 
-const idPattern = /^[1-9]\d*$/;
+const statusDialogVisible = ref(false);
+const statusDialogTitle = ref("");
+const statusDialogText = ref("");
+const statusLoading = ref(false);
 
-//const nodeCount = computed(() => requestStatus?.length ?? 0);
+const idPattern = /^[1-9]\d*$/;
 
 async function fetchAllRequestData() {
   invalidId.value = false
@@ -143,6 +148,37 @@ function hasAnyTimestamp(node: NodeStatusInfo): boolean {
 function nodeLabel(id: number): string {
   return BrokerConnection.getCachedNodeCN(id) ?? `#${id}`;
 }
+
+async function openNodeStatus(nodeIdNum: number) {
+  const reqId = id.value.trim();
+  if (!reqId) return;
+
+  statusDialogVisible.value = true;
+  statusDialogTitle.value = `${nodeLabel(nodeIdNum)}`;
+  statusDialogText.value = "";
+  statusLoading.value = true;
+
+  try {
+    const resp = await BrokerConnection.getBrokerRequestNodeStatus(reqId, String(nodeIdNum));
+    switch (resp.status) {
+      case 200:
+        statusDialogText.value = typeof resp.data === "string" ? resp.data : String(resp.data);
+        break;
+      case 404:
+        statusDialogText.value = t("notFound");
+        break;
+      case 401:
+        statusDialogText.value = t("noAuthorization");
+        break;
+      default:
+        statusDialogText.value = t("unexpectedErrorOccurred", {code: resp.status});
+    }
+  } catch (e) {
+    statusDialogText.value = t("serverErrorOccurred");
+  } finally {
+    statusLoading.value = false;
+  }
+}
 </script>
 
 <template>
@@ -193,7 +229,16 @@ function nodeLabel(id: number): string {
            :key="node.nodeId"
            class="flex justify-content-between border-bottom-1 surface-border py-2"
       >
-        <span class="font-bold">{{[node.nodeId]}} {{ nodeLabel(node.nodeId) }}</span>
+                <span class="font-bold flex align-items-center gap-2">
+  <Button
+      severity="secondary"
+      icon="pi pi-file"
+      text
+      v-tooltip.bottom="t('openStatusTimeline')"
+      @click="openNodeStatus(node.nodeId)"
+  />
+        <span class="font-bold">{{ [node.nodeId] }} {{ nodeLabel(node.nodeId) }}</span>
+</span>
         <template v-if="hasAnyTimestamp(node)">
           <NodeStatusInfoTimeline :node-status-info="node"/>
         </template>
@@ -207,7 +252,16 @@ function nodeLabel(id: number): string {
            :key="node.nodeId"
            class="flex justify-content-between border-bottom-1 surface-border py-2"
       >
-        <span class="font-bold">{{[node.nodeId]}} {{ nodeLabel(node.nodeId) }}</span>
+        <span class="font-bold flex align-items-center gap-2">
+        <Button
+            severity="secondary"
+            icon="pi pi-file"
+            text
+            v-tooltip.bottom="t('openNodeLog')"
+            @click="openNodeStatus(node.nodeId)"
+        />
+        <span class="font-bold">{{ [node.nodeId] }} {{ nodeLabel(node.nodeId) }}</span>
+      </span>
         <template v-if="hasAnyTimestamp(node)">
           <NodeStatusInfoTimeline :node-status-info="node"/>
         </template>
@@ -215,9 +269,15 @@ function nodeLabel(id: number): string {
       </div>
     </div>
   </div>
+  <Dialog
+      v-model:visible="statusDialogVisible"
+      :header="statusDialogTitle"
+      modal
+      style="width: 60vw; max-width: 900px"
+  >
+    <div v-if="statusLoading" class="flex justify-content-center p-4">
+      <ProgressSpinner/>
+    </div>
+    <pre v-else class="m-0" style="white-space: pre-wrap">{{ statusDialogText }}</pre>
+  </Dialog>
 </template>
-
-<!--
-ToDo too many toasts on success
-ToDo get Node status message
--->
