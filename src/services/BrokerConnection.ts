@@ -16,6 +16,7 @@
  * - `onCredentialsChange(cb)` notifies when broker credentials are updated
  *
  */
+// TODO: SIMPLIFY
 class BrokerConnection {
   private static instance: BrokerConnection;
   private brokerURL = "";
@@ -23,6 +24,8 @@ class BrokerConnection {
   private apiKeysChangeCallbacks: Array<() => Promise<void>> = [];
   private credentialChangeCallbacks: Array<() => Promise<void>> = [];
   private credentialsInitialized = false;
+
+  private nodeIdToCN = new Map<number, string>();
 
   private constructor() {
     if (BrokerConnection.instance) {
@@ -177,6 +180,107 @@ class BrokerConnection {
       return {status: response.status, data: text};
     } catch (error) {
       console.error("Failed to fetch broker nodes:", error);
+      return {status: 500, data: ""};
+    }
+  }
+
+  public updateNodeCacheFromXml(xml: string): void {
+    const ns = "http://aktin.org/ns/exchange";
+    const doc = new DOMParser().parseFromString(xml, "application/xml");
+    const nodes = Array.from(doc.getElementsByTagNameNS(ns, "node"));
+    this.nodeIdToCN.clear();
+    for (const n of nodes) {
+      const id = n.getElementsByTagNameNS(ns, "id")[0]?.textContent?.trim();
+      const dn = n.getElementsByTagNameNS(ns, "clientDN")[0]?.textContent?.trim() ?? "";
+      const cn = dn.split(",").find(p => p.startsWith("CN="))?.slice(3) ?? null;
+      if (id && cn) this.nodeIdToCN.set(Number(id), cn);
+    }
+  }
+
+  public getCachedNodeCN(id: number): string | null {
+    return this.nodeIdToCN.get(id) ?? null;
+  }
+
+  async getBrokerRequest(requestId: string): Promise<{ status: number; data: string }> {
+    try {
+      const response = await fetch(`${this.brokerURL}/broker/request/${requestId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.adminApiKey}`,
+        },
+      });
+      const contentType = response.headers.get("Content-Type") || "";
+      if (!contentType.includes("application/vnd.aktin.query.request+xml")) {
+        console.warn("Invalid broker request received");
+        return {status: response.status, data: ""};
+      }
+      const text = await response.text();
+      return {status: response.status, data: text};
+    } catch (error) {
+      console.error("Failed to fetch broker request:", error);
+      return {status: 500, data: ""};
+    }
+  }
+
+  async getBrokerRequestInfo(requestId: string): Promise<{ status: number; data: string }> {
+    try {
+      const response = await fetch(`${this.brokerURL}/broker/request/${requestId}`, {
+        method: "OPTIONS",
+        headers: {
+          Authorization: `Bearer ${this.adminApiKey}`,
+        },
+      });
+      const contentType = response.headers.get("Content-Type") || "";
+      if (!contentType.includes("application/xml")) {
+        console.warn("Invalid broker request info received");
+        return {status: response.status, data: ""};
+      }
+      const text = await response.text();
+      return {status: response.status, data: text};
+    } catch (error) {
+      console.error("Failed to fetch broker request info:", error);
+      return {status: 500, data: ""};
+    }
+  }
+
+  async getBrokerRequestStatus(requestId: string): Promise<{ status: number; data: string }> {
+    try {
+      const response = await fetch(`${this.brokerURL}/broker/request/${requestId}/status`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.adminApiKey}`,
+        },
+      });
+      const contentType = response.headers.get("Content-Type") || "";
+      if (!contentType.includes("application/xml")) {
+        console.warn("Invalid broker request status received");
+        return {status: response.status, data: ""};
+      }
+      const text = await response.text();
+      return {status: response.status, data: text};
+    } catch (error) {
+      console.error("Failed to fetch broker request status:", error);
+      return {status: 500, data: ""};
+    }
+  }
+
+  async getBrokerRequestNodeStatus(requestId: string, nodeId: string): Promise<{ status: number; data: string }> {
+    try {
+      const response = await fetch(`${this.brokerURL}/broker/request/${requestId}/status/${nodeId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.adminApiKey}`,
+        },
+      });
+      const contentType = response.headers.get("Content-Type") || "";
+      if (!contentType.includes("text/plain")) {
+        console.warn("Invalid request node status received");
+        return {status: response.status, data: ""};
+      }
+      const text = await response.text();
+      return {status: response.status, data: text};
+    } catch (error) {
+      console.error("Failed to fetch request node status:", error);
       return {status: 500, data: ""};
     }
   }
