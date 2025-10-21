@@ -115,7 +115,7 @@ async function handleProfileChange(profile: { name: string }): Promise<void> {
   logInBlocked.value = true;
   await insertProfile(profile.name);
   logInBlocked.value = false;
-  createInfoToast(toast, t("info"), t("profileSwitchedTo", {profile: profileName}));
+  createInfoToast(toast, t("info"), t("profileSwitchedTo", {profile: profile.name}));
 }
 
 async function loadLastSavedProfile(): Promise<void> {
