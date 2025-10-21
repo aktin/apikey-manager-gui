@@ -163,7 +163,9 @@ watch(showInactiveKeys, async () => {
              scrollable
              scroll-height="flex"
              :globalFilterFields="['CN', 'O', 'L', 'nodeId']"
-             filterDisplay="row">
+             filterDisplay="row"
+             sortField="nodeId"
+             :sortOrder="1">
     <template #empty>
       {{ t("emptyKeyList") }}
     </template>
