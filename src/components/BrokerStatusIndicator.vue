@@ -44,7 +44,7 @@ onMounted(async () => {
          class="flex align-items-center text-green-600 text-xl"
          v-tooltip.left="creds.url">
       <i class="pi pi-circle-fill mx-2"/>
-      <p class="font-bold">{{ t("indicator.connected") }}</p>
+      <p class="font-bold">{{ t("connected") }}</p>
     </div>
 
     <!-- Disconnected: red icon and label -->
@@ -52,14 +52,14 @@ onMounted(async () => {
          class="flex align-items-center text-red-600 text-xl"
          v-tooltip.left="creds.url">
       <i class="pi pi-circle-fill mx-2"/>
-      <p class="font-bold">{{ t("indicator.noConnection") }}</p>
+      <p class="font-bold">{{ t("noConnection") }}</p>
     </div>
 
     <!-- Missing credentials: yellow warning icon -->
     <div class="ml-auto p-1">
       <span v-if="!creds.url || !creds.adminApiKey"
             class="pi pi-exclamation-triangle text-3xl text-yellow-500 ml-2 mb-2"
-            v-tooltip.left="t('indicator.missingCredentials')"/>
+            v-tooltip.left="t('missingCredentials')"/>
     </div>
   </div>
 </template>
