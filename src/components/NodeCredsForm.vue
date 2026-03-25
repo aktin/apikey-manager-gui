@@ -42,7 +42,7 @@ const invalidLoc = ref(false);
 // Validation rules
 const apiKeyLength = 16;
 const apiKeyPattern = /[^a-zA-Z0-9]/;
-const dnPattern = /[^a-zA-Z0-9 -]/;
+const dnPattern = /[^a-zA-Z0-9 -äÄöÖüÜ]/;
 
 // Prop from parent: selected key to toggle state
 const props = defineProps<{ selectedKey: string }>();
