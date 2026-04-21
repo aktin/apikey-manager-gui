@@ -155,7 +155,7 @@ watch(() => props.selectedKey, (val) => {
         <label for="apiInput">{{ t("key") }}</label>
       </FloatLabel>
       <Button icon="pi pi-sync"
-              v-tooltip="t('generateKey')"
+              v-tooltip.bottom="t('generateKey')"
               @click="generateApiKey"
               class="flex-shrink-0"/>
     </div>
