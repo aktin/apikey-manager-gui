@@ -17,10 +17,11 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Checkbox from "primevue/checkbox";
 import InputText from "primevue/inputtext";
+import Button from "primevue/button";
 import {FilterMatchMode} from "primevue/api";
 import {useToast} from "primevue/usetoast";
 import {useI18n} from "vue-i18n";
-import {createErrorToast} from "../utils/ToastWrapper";
+import {createErrorToast, createSuccessToast} from "../utils/ToastWrapper";
 
 const toast = useToast();
 const {t} = useI18n();
@@ -50,6 +51,16 @@ function formatApiKeyPreview(apiKey: string): string {
     return "••••••••";
   }
   return `${apiKey.slice(0, 4)}••••••••${apiKey.slice(-4)}`;
+}
+
+async function copyApiKeyToClipboard(text: string) {
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    createSuccessToast(toast, t("success"), "API Key copied");
+  } catch (err) {
+    createErrorToast(toast, t("error"), "Failed to copy");
+  }
 }
 
 /**
@@ -212,9 +223,12 @@ watch(showInactiveKeys, async () => {
 
     <Column :header="t('key')" style="width: 14%">
       <template #body="{ data }">
-        <span style="font-family: monospace;">
-          {{ formatApiKeyPreview(data.apiKey) }}
-        </span>
+        <div class="flex align-items-center gap-2">
+          <span style="font-family: monospace;">
+            {{ selectedRow?.apiKey === data.apiKey ? data.apiKey : formatApiKeyPreview(data.apiKey) }}
+          </span>
+          <Button v-if="selectedRow?.apiKey === data.apiKey" icon="pi pi-copy" text rounded size="small" v-tooltip.top="'Copy full API Key'" @click.stop="copyApiKeyToClipboard(data.apiKey)"/>
+        </div>
       </template>
     </Column>
 
