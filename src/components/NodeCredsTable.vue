@@ -57,9 +57,9 @@ async function copyApiKeyToClipboard(text: string) {
   if (!text) return;
   try {
     await navigator.clipboard.writeText(text);
-    createSuccessToast(toast, t("success"), "API Key copied");
+    createSuccessToast(toast, t("success"), t("keyCopied"));
   } catch (err) {
-    createErrorToast(toast, t("error"), "Failed to copy");
+    createErrorToast(toast, t("error"), t("failedToCopy"));
   }
 }
 
@@ -227,7 +227,8 @@ watch(showInactiveKeys, async () => {
           <span style="font-family: monospace;">
             {{ selectedRow?.apiKey === data.apiKey ? data.apiKey : formatApiKeyPreview(data.apiKey) }}
           </span>
-          <Button v-if="selectedRow?.apiKey === data.apiKey" icon="pi pi-copy" text rounded size="small" v-tooltip.top="'Copy full API Key'" @click.stop="copyApiKeyToClipboard(data.apiKey)"/>
+          <Button v-if="selectedRow?.apiKey === data.apiKey" icon="pi pi-copy" text rounded size="small"
+                  v-tooltip.bottom="t('copyFullKey')" @click.stop="copyApiKeyToClipboard(data.apiKey)"/>
         </div>
       </template>
     </Column>

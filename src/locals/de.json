@@ -97,5 +97,8 @@
   "expired": "Abgelaufen",
   "notRetrievedyet": "Noch nicht abgeholt",
   "openStatusTimeline": "Zeitstrahl öffnen",
-  "openNodeStatusMessage": "Knotenstatus anzeigen"
+  "openNodeStatusMessage": "Knotenstatus anzeigen",
+  "copyFullKey": "Vollständigen API-Schlüssel kopieren",
+  "keyCopied": "API-Schlüssel kopiert",
+  "failedToCopy": "Kopieren fehlgeschlagen"
 }

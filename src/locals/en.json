@@ -97,5 +97,8 @@
   "expired": "Expired",
   "notRetrievedyet": "Not retrieved yet",
   "openStatusTimeline": "Open status timeline",
-  "openNodeStatusMessage": "Show node status message"
+  "openNodeStatusMessage": "Show node status message",
+  "copyFullKey": "Copy full API key",
+  "keyCopied": "API Key copied",
+  "failedToCopy": "Failed to copy"
 }
