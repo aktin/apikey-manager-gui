@@ -1,3 +1,6 @@
+/**
+ * Parsers that convert AKTIN Broker XML responses into typed domain objects.
+ */
 import {
   BrokerRequest,
   NodeStatusInfo,
@@ -9,6 +12,10 @@ import {
 } from "../types/BrokerRequest";
 import { createDuration } from "./MomentWrapper";
 
+/**
+ * Parses a broker request document (AKTIN exchange namespace) into a
+ * {@link BrokerRequest}, resolving its single- or repeated-execution schedule.
+ */
 export function parseXmlBrokerRequest(xml: string): BrokerRequest {
   const ns = "http://aktin.org/ns/exchange";
   const xsi = "http://www.w3.org/2001/XMLSchema-instance";
