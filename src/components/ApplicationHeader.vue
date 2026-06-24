@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import {computed} from "vue"
-import {useI18n} from "vue-i18n"
-import TabMenu from "primevue/tabmenu"
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import TabMenu from "primevue/tabmenu";
 import BrokerStatusIndicator from "./BrokerStatusIndicator.vue";
 import BrokerProfileManager from "./BrokerProfileManager.vue";
 
 interface RouteConfig {
-  label: string
-  route: string
+  label: string;
+  route: string;
 }
 
-const {t} = useI18n()
+const { t } = useI18n();
 
 const routing = computed<RouteConfig[]>(() => [
-  {label: t("keys"), route: "/api-keys"},
-  {label: t("request"), route: "/request"},
-])
+  { label: t("keys"), route: "/api-keys" },
+  { label: t("request"), route: "/request" }
+]);
 </script>
 
 <template>
@@ -31,8 +31,8 @@ const routing = computed<RouteConfig[]>(() => [
     </div>
 
     <div class="flex align-items-center gap-2 mr-3">
-      <BrokerStatusIndicator/>
-      <BrokerProfileManager/>
+      <BrokerStatusIndicator />
+      <BrokerProfileManager />
     </div>
   </div>
 </template>

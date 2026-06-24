@@ -3,5 +3,5 @@ import BrokerRequestViewer from "../components/BrokerRequestViewer.vue";
 </script>
 
 <template>
-  <BrokerRequestViewer/>
+  <BrokerRequestViewer />
 </template>

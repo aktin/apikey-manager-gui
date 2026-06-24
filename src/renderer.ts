@@ -10,7 +10,7 @@
  *
  * Referenced in `index.html` as <script type="module" src="/src/renderer.ts">.
  */
-import {createApp} from "vue";
+import { createApp } from "vue";
 import App from "./App.vue";
 
 import i18n from "./i18n";
@@ -28,10 +28,10 @@ import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 
 const app = createApp(App)
-.use(PrimeVue)
-.use(ToastService)
-.use(ConfirmationService)
-.use(i18n)
-.use(router)
-.directive("tooltip", Tooltip)
-.mount("#app");
+  .use(PrimeVue)
+  .use(ToastService)
+  .use(ConfirmationService)
+  .use(i18n)
+  .use(router)
+  .directive("tooltip", Tooltip)
+  .mount("#app");

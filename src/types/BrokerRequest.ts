@@ -1,4 +1,4 @@
-import {MomentDuration} from "../utils/MomentWrapper";
+import { MomentDuration } from "../utils/MomentWrapper";
 
 export default interface BrokerRequest {
   id: number;

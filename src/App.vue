@@ -4,9 +4,9 @@ import Toast from "primevue/toast";
 </script>
 
 <template>
-  <Toast/>
+  <Toast />
   <div class="flex flex-column h-screen">
-    <ApplicationHeader/>
+    <ApplicationHeader />
     <main class="m-3">
       <router-view></router-view>
     </main>

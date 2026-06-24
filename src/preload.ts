@@ -14,11 +14,12 @@ import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("storeAPI", {
   get: (key: string) => ipcRenderer.invoke("store-get", key),
-  set: (key: string, value: unknown) => ipcRenderer.invoke("store-set", key, value),
-  delete: (key: string) => ipcRenderer.invoke("store-delete", key),
+  set: (key: string, value: unknown) =>
+    ipcRenderer.invoke("store-set", key, value),
+  delete: (key: string) => ipcRenderer.invoke("store-delete", key)
 });
 
 contextBridge.exposeInMainWorld("profileCrypto", {
   encrypt: (text: string) => ipcRenderer.invoke("encrypt", text),
-  decrypt: (text: string) => ipcRenderer.invoke("decrypt", text),
+  decrypt: (text: string) => ipcRenderer.invoke("decrypt", text)
 });

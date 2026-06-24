@@ -16,46 +16,44 @@
  * @see https://www.electronforge.io/config — Forge configuration reference
  * @see https://github.com/electron/forge — Plugin and packaging documentation
  */
-const {FusesPlugin} = require('@electron-forge/plugin-fuses');
-const {FuseV1Options, FuseVersion} = require('@electron/fuses');
+const { FusesPlugin } = require("@electron-forge/plugin-fuses");
+const { FuseV1Options, FuseVersion } = require("@electron/fuses");
 
 module.exports = {
   packagerConfig: {
     asar: true,
-    extraResource: [
-      'node_modules/keytar'
-    ],
+    extraResource: ["node_modules/keytar"]
   },
   rebuildConfig: {},
   makers: [
     {
-      name: '@electron-forge/maker-deb',
-      config: {},
-    },
+      name: "@electron-forge/maker-deb",
+      config: {}
+    }
   ],
   plugins: [
     {
-      name: '@electron-forge/plugin-vite',
+      name: "@electron-forge/plugin-vite",
       config: {
         build: [
           {
-            entry: 'src/main.ts',
-            config: 'vite.main.config.mjs',
-            target: 'main',
+            entry: "src/main.ts",
+            config: "vite.main.config.mjs",
+            target: "main"
           },
           {
-            entry: 'src/preload.ts',
-            config: 'vite.preload.config.mjs',
-            target: 'preload',
-          },
+            entry: "src/preload.ts",
+            config: "vite.preload.config.mjs",
+            target: "preload"
+          }
         ],
         renderer: [
           {
-            name: 'main_window',
-            config: 'vite.renderer.config.mjs',
-          },
-        ],
-      },
+            name: "main_window",
+            config: "vite.renderer.config.mjs"
+          }
+        ]
+      }
     },
     // FusePlugin disables unsafe or unnecessary Electron features
     new FusesPlugin({
@@ -65,7 +63,7 @@ module.exports = {
       [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
       [FuseV1Options.EnableNodeCliInspectArguments]: false,
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-      [FuseV1Options.OnlyLoadAppFromAsar]: true,
-    }),
-  ],
+      [FuseV1Options.OnlyLoadAppFromAsar]: true
+    })
+  ]
 };

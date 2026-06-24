@@ -19,13 +19,15 @@ import {
 } from "@vue/eslint-config-typescript";
 
 export default defineConfigWithVueTs(
-    {ignores: ["**/.vite/**", "**/dist/**", "**/out/**", "**/node_modules/**"]},
-    pluginVue.configs["flat/essential"],
-    vueTsConfigs.recommended,
-    {
-      rules: {
-        "@typescript-eslint/no-unused-vars": ["warn",
-          {argsIgnorePattern: "^_", varsIgnorePattern: "^_"}]
-      }
+  { ignores: ["**/.vite/**", "**/dist/**", "**/out/**", "**/node_modules/**"] },
+  pluginVue.configs["flat/essential"],
+  vueTsConfigs.recommended,
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
+      ]
     }
+  }
 );

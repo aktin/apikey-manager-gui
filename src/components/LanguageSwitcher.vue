@@ -10,15 +10,15 @@
  * - Uses vue-i18n's Composition API (`locale.value`)
  * - Shows a confirmation toast when the language is changed
  */
-import {ref, watchEffect} from "vue";
-import {useI18n} from "vue-i18n";
+import { ref, watchEffect } from "vue";
+import { useI18n } from "vue-i18n";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
-import {useToast} from "primevue/usetoast";
-import {createInfoToast} from "../utils/ToastWrapper";
+import { useToast } from "primevue/usetoast";
+import { createInfoToast } from "../utils/ToastWrapper";
 
 const toast = useToast();
-const {t, locale} = useI18n();
+const { t, locale } = useI18n();
 const languageMenu = ref();
 
 /**
@@ -48,7 +48,7 @@ const languages = ref([
 function setLanguage(lang: string): void {
   locale.value = lang;
   localStorage.setItem("lang", lang);
-  createInfoToast(toast, t("info"), t("languageSwitchedTo", {lang}));
+  createInfoToast(toast, t("info"), t("languageSwitchedTo", { lang }));
 }
 
 watchEffect(() => {
@@ -65,13 +65,15 @@ watchEffect(() => {
       Button for opening the language switcher menu.
       Displays a tooltip and uses a PrimeIcons globe icon.
     -->
-    <Button icon="pi pi-language"
-            @click="languageMenu?.toggle($event)"
-            v-tooltip.bottom="t('switchLanguage')"/>
+    <Button
+      icon="pi pi-language"
+      @click="languageMenu?.toggle($event)"
+      v-tooltip.bottom="t('switchLanguage')"
+    />
     <!--
       Dropdown menu with language options (English, Deutsch).
       Triggered by the language button.
     -->
-    <Menu ref="languageMenu" :model="languages" :popup="true"/>
+    <Menu ref="languageMenu" :model="languages" :popup="true" />
   </div>
 </template>
