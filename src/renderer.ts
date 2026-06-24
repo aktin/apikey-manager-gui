@@ -18,17 +18,17 @@ import router from "./router";
 
 // PrimeVue imports
 import PrimeVue from "primevue/config";
+import Lara from "@primeuix/themes/lara";
 import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
 import ConfirmationService from "primevue/confirmationservice";
 
 // Styles imports
-import "primevue/resources/themes/lara-light-green/theme.css";
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 
 const app = createApp(App)
-  .use(PrimeVue)
+  .use(PrimeVue, { theme: { preset: Lara } })
   .use(ToastService)
   .use(ConfirmationService)
   .use(i18n)
