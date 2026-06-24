@@ -45,12 +45,10 @@ const SERVICE = "BrokerCredentialStorage";
 const ACCOUNT = "encryption-key";
 const IV_LENGTH = 12;
 
-let encryptionKey: Uint8Array;
+let encryptionKey: Uint8Array<ArrayBuffer>;
 
 /**
  * Loads the existing encryption key from keytar, or creates and stores a new one.
- *
- * @returns A CryptoKey usable for AES-GCM operations
  */
 async function getOrCreateKey(): Promise<CryptoKey> {
   if (encryptionKey) return await importKey(encryptionKey);
@@ -59,7 +57,7 @@ async function getOrCreateKey(): Promise<CryptoKey> {
   if (stored) {
     encryptionKey = Uint8Array.from(atob(stored), (c) => c.charCodeAt(0));
   } else {
-    encryptionKey = randomBytes(32);
+    encryptionKey = Uint8Array.from(randomBytes(32));
     await keytar.setPassword(
       SERVICE,
       ACCOUNT,
@@ -72,11 +70,8 @@ async function getOrCreateKey(): Promise<CryptoKey> {
 
 /**
  * Imports a raw 256-bit AES key into a usable `CryptoKey` instance.
- *
- * @param raw - Raw binary key data (32 bytes)
- * @returns A CryptoKey for use in AES-GCM
  */
-async function importKey(raw: Uint8Array): Promise<CryptoKey> {
+async function importKey(raw: Uint8Array<ArrayBuffer>): Promise<CryptoKey> {
   return await crypto.subtle.importKey("raw", raw, "AES-GCM", false, [
     "encrypt",
     "decrypt"
@@ -86,7 +81,6 @@ async function importKey(raw: Uint8Array): Promise<CryptoKey> {
 /**
  * Encrypts a UTF-8 string using AES-GCM.
  *
- * @param text - The plaintext to encrypt
  * @returns A base64-encoded string (IV + ciphertext)
  */
 export async function encrypt(text: string): Promise<string> {
@@ -108,7 +102,6 @@ export async function encrypt(text: string): Promise<string> {
  * Decrypts a previously encrypted base64-encoded string.
  *
  * @param base64 - A base64 string containing IV + ciphertext
- * @returns The decrypted UTF-8 string
  */
 export async function decrypt(base64: string): Promise<string> {
   const binary = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
