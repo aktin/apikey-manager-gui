@@ -35,7 +35,6 @@
   },
   "include": [
     "src",
-    "src/types",
     "node_modules/@electron-forge/plugin-vite/forge-vite-env.d.ts"
     // Forge + Vite type declarations
   ]

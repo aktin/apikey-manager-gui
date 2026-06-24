@@ -3,3 +3,7 @@ node_modules
 dist
 out
 package-lock.json
+.remember
+.idea
+.venv
+__pycache__
