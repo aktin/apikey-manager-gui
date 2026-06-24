@@ -6,7 +6,7 @@
  * - `key`: Admin API key for authenticating with the broker
  * - `url`: Base URL of the AKTIN broker instance
  */
-export interface CredentialProfile {
+export default interface CredentialProfile {
   name: string;
   key: string;
   url: string;

@@ -10,10 +10,11 @@
  *
  * Referenced in `index.html` as <script type="module" src="/src/renderer.ts">.
  */
-import { createApp } from "vue";
+import {createApp} from "vue";
 import App from "./App.vue";
 
 import i18n from "./i18n";
+import router from "./router";
 
 // PrimeVue imports
 import PrimeVue from "primevue/config";
@@ -31,5 +32,6 @@ const app = createApp(App)
 .use(ToastService)
 .use(ConfirmationService)
 .use(i18n)
+.use(router)
 .directive("tooltip", Tooltip)
 .mount("#app");

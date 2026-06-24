@@ -11,7 +11,7 @@
  *
  * Also supports saving and restoring the last selected profile.
  */
-import {CredentialProfile} from "../types/CredentialProfile";
+import CredentialProfile from "../types/CredentialProfile";
 
 export default class ProfileStorage {
   private static readonly PROFILE_KEY = "savedProfiles";
