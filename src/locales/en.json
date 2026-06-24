@@ -95,7 +95,7 @@
   "completed": "Completed",
   "failed": "Failed",
   "expired": "Expired",
-  "notRetrievedyet": "Not retrieved yet",
+  "notRetrievedYet": "Not retrieved yet",
   "openStatusTimeline": "Open status timeline",
   "openNodeStatusMessage": "Show node status message",
   "copyFullKey": "Copy full API key",

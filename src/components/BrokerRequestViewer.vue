@@ -327,7 +327,7 @@ async function openNodeStatus(nodeIdNum: number) {
           <NodeStatusInfoTimeline :node-status-info="node" />
         </template>
         <span v-else class="text-color-secondary text-sm">{{
-          t("notRetrievedyet")
+          t("notRetrievedYet")
         }}</span>
       </div>
     </div>
@@ -354,7 +354,7 @@ async function openNodeStatus(nodeIdNum: number) {
           <NodeStatusInfoTimeline :node-status-info="node" />
         </template>
         <span v-else class="text-color-secondary text-sm">{{
-          t("notRetrievedyet")
+          t("notRetrievedYet")
         }}</span>
       </div>
     </div>
