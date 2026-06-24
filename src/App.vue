@@ -5,7 +5,7 @@ import Toast from "primevue/toast";
 
 <template>
   <Toast/>
-  <div id="app" class="flex flex-column h-screen">
+  <div class="flex flex-column h-screen">
     <ApplicationHeader/>
     <main class="m-3">
       <router-view></router-view>

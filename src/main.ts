@@ -24,12 +24,8 @@ ipcMain.handle("store-set", (_event, key: string, value: unknown) => store.set(k
 ipcMain.handle("store-delete", (_event, key: string) => store.delete(key));
 
 // IPC handlers for encryption bridge
-ipcMain.handle("encrypt", async (_event, plainText: string) => {
-  return await encrypt(plainText);
-});
-ipcMain.handle("decrypt", async (_event, encryptedText: string) => {
-  return await decrypt(encryptedText);
-});
+ipcMain.handle("encrypt", (_event, plainText: string) => encrypt(plainText));
+ipcMain.handle("decrypt", (_event, encryptedText: string) => decrypt(encryptedText));
 
 // Creates and configures the main application window.
 const createWindow = () => {
