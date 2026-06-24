@@ -1,3 +1,8 @@
+/**
+ * Vue Router setup for the renderer SPA. Uses hash history (required for
+ * Electron's file:// loading), redirects "/" to the API-keys view, and falls
+ * back to a catch-all 404 alongside a manual /500 route.
+ */
 import { createRouter, createWebHashHistory } from "vue-router";
 import Error404 from "../views/Error404.vue";
 import Error500 from "../views/Error500.vue";
