@@ -37,7 +37,7 @@ import ProgressSpinner from "primevue/progressspinner";
 import Menu from "primevue/menu";
 import LanguageSwitcher from "./LanguageSwitcher.vue";
 import ProfileStorage from "../services/ProfileStorage";
-import CredentialProfile from "../types/CredentialProfile";
+import { CredentialProfile } from "../types/CredentialProfile";
 
 const toast = useToast();
 const confirm = useConfirm();

@@ -1,6 +1,12 @@
 import { MomentDuration } from "../utils/MomentWrapper";
 
-export default interface BrokerRequest {
+/**
+ * A scheduled query the broker runs against its nodes.
+ *
+ * Root of the broker-request domain model; composes the {@link Query} that
+ * defines what is asked. Parsed from broker XML by `Parser.parseXmlBrokerRequest`.
+ */
+export interface BrokerRequest {
   id: number;
   referenceDate: Date;
   scheduledDate: Date;
@@ -34,6 +40,13 @@ export interface RequestInfo {
   targeted: boolean;
 }
 
+/**
+ * Per-node processing status of a {@link BrokerRequest}.
+ *
+ * Each field holds the timestamp a lifecycle stage was reached for one node,
+ * or `null` if not yet reached. Fetched via `Parser.parseXmlBrokerRequestStatus`
+ * and rendered by the `NodeStatusInfoTimeline` component.
+ */
 export interface NodeStatusInfo {
   nodeId: number;
   retrieved: Date | null;

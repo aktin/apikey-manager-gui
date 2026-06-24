@@ -10,7 +10,8 @@ import {
   parseXmlBrokerRequestInfo,
   parseXmlBrokerRequestStatus
 } from "../utils/Parser";
-import BrokerRequest, {
+import {
+  BrokerRequest,
   NodeStatusInfo,
   RequestInfo
 } from "../types/BrokerRequest";
