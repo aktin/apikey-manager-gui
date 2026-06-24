@@ -1,45 +1,31 @@
 /**
  * ESLint configuration for the Electron + Vue 3 + Vite project.
  *
- * Uses ESLint's modern flat config format (v9+).
- * Applies:
- * - Vue 3 essential rules for Single File Components (.vue)
- * - Recommended rules for TypeScript
- * - Consistent code style (double quotes, semicolons)
- * - Warning for unused variables, ignoring those prefixed with `_`
+ * Uses ESLint's flat config format (v9+) via the official Vue tooling:
+ * - `eslint-plugin-vue` flat/essential rules for Single File Components (.vue)
+ * - `@vue/eslint-config-typescript` wires up `vue-eslint-parser` together with
+ *   typescript-eslint, so `<script lang="ts">` blocks and `.ts` files are parsed
+ *   and linted correctly (the manual parser setup before this could not parse SFCs).
  *
- * @see https://eslint.org/docs/latest/use/configure/configuration-files-new
+ * Formatting (quotes, semicolons, …) is owned by Prettier, not ESLint.
+ *
+ * @see https://eslint.org/docs/latest/use/configure/configuration-files
+ * @see https://github.com/vuejs/eslint-config-typescript
  */
-import vue from 'eslint-plugin-vue';
-import tseslint from '@typescript-eslint/eslint-plugin';
-import parser from '@typescript-eslint/parser';
+import pluginVue from "eslint-plugin-vue";
+import {
+  defineConfigWithVueTs,
+  vueTsConfigs
+} from "@vue/eslint-config-typescript";
 
-export default [
-  {
-    files: ['**/*.ts', '**/*.vue'],
-    ignores: ['node_modules', '.vite', 'dist'],
-    languageOptions: {
-      parser: parser,
-      parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: 'module'
+export default defineConfigWithVueTs(
+    {ignores: ["**/.vite/**", "**/dist/**", "**/out/**", "**/node_modules/**"]},
+    pluginVue.configs["flat/essential"],
+    vueTsConfigs.recommended,
+    {
+      rules: {
+        "@typescript-eslint/no-unused-vars": ["warn",
+          {argsIgnorePattern: "^_", varsIgnorePattern: "^_"}]
       }
-    },
-    plugins: {
-      vue,
-      '@typescript-eslint': tseslint
-    },
-    rules: {
-      ...vue.configs['vue3-essential'].rules,
-      ...tseslint.configs.recommended.rules,
-
-      // Formatting consistency
-      quotes: ['error', 'double'],
-      semi: ['error', 'always'],
-
-      // Code hygiene
-      'no-unused-vars': 'warn',
-      '@typescript-eslint/no-unused-vars': ['warn', {argsIgnorePattern: '^_'}]
     }
-  }
-];
+);

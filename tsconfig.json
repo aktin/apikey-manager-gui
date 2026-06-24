@@ -19,16 +19,17 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-
     // Required for Vue 3 + Vite: preserve JSX tags in SFC templates
     "jsx": "preserve",
-
-    // Types for Vite’s import.meta and client-specific globals
-    "types": ["vite/client"],
-
+    // Types for Vite’s import.meta/client globals and Node APIs (main/preload)
+    "types": [
+      "vite/client",
+      "node"
+    ],
     // Allow interop between CommonJS and ES modules (e.g., require → import)
     "esModuleInterop": true,
-
+    // Vite/esbuild transpiles each file in isolation — enforce that here
+    "isolatedModules": true,
     // Type safety and best practices
     "strict": true,
     "skipLibCheck": true,
@@ -38,6 +39,7 @@
   "include": [
     "src",
     "src/types",
-    "node_modules/@electron-forge/plugin-vite/forge-vite-env.d.ts" // Forge + Vite type declarations
+    "node_modules/@electron-forge/plugin-vite/forge-vite-env.d.ts"
+    // Forge + Vite type declarations
   ]
 }

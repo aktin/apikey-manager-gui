@@ -12,6 +12,6 @@
  * @see https://vitejs.dev/config/ — Vite configuration docs
  * @see https://www.electronjs.org/docs/latest/tutorial/context-isolation — Context isolation guide
  */
-import {defineConfig} from 'vite';
+import {defineConfig} from "vite";
 
 export default defineConfig({});

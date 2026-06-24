@@ -14,12 +14,12 @@
  * @see https://vitejs.dev/config/ — Vite config options
  * @see https://www.electronjs.org/docs/latest/tutorial/quick-start — Electron main process intro
  */
-import { defineConfig } from "vite";
+import {defineConfig} from "vite";
 import path from "node:path";
 
 export default defineConfig({
   build: {
-    target: "node20",
+    target: "node22",
     outDir: ".vite/build",
     rollupOptions: {
       input: path.resolve(__dirname, "src/main.ts"),
