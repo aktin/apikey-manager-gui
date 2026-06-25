@@ -43,7 +43,9 @@ const invalidLoc = ref(false);
 // Validation rules
 const apiKeyLength = 16;
 const apiKeyPattern = /[^a-zA-Z0-9]/;
-const dnPattern = /[^a-zA-Z0-9 -äÄöÖüÜ]/;
+// Allow letters, digits, spaces, German umlauts/ß and common org punctuation;
+// block DN-structural characters ("," and "=") and anything else.
+const dnPattern = /[^a-zA-Z0-9 äöüÄÖÜß&.()\/+-]/;
 
 // Prop from parent: selected key to toggle state
 const props = defineProps<{ selectedKey: string }>();
@@ -99,6 +101,14 @@ function validate() {
   validateField(loc.value, invalidLoc, "l", dnPattern);
 }
 
+/** Escapes XML-special characters so DN values are safe in the clientDn payload. */
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 async function addNewKey() {
   validate();
   if (
@@ -108,7 +118,7 @@ async function addNewKey() {
     invalidLoc.value
   )
     return;
-  const payload = `CN=${cn.value},O=${org.value},L=${loc.value}`;
+  const payload = `CN=${escapeXml(cn.value)},O=${escapeXml(org.value)},L=${escapeXml(loc.value)}`;
   const xml = `<ApiKeyCred><apiKey>${apiKey.value}</apiKey><clientDn>${payload}</clientDn></ApiKeyCred>`;
   const status = await BrokerConnection.addApiKey(xml);
   if (status === 201) {
