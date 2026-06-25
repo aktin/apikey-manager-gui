@@ -1,0 +1,72 @@
+# Release workflow
+#
+# Builds the Linux .deb and publishes a GitHub Release on version-tag push.
+# - Tag push (v*): verify the tag matches package.json, build, and publish a
+#   Release with auto-generated notes and the .deb attached.
+# - Manual run (workflow_dispatch): build only and upload the .deb as an artifact.
+#
+# Linux-only (matches the single maker-deb). Native build deps: libsecret
+# (keytar), fakeroot (maker-deb). Auth via the built-in GITHUB_TOKEN.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # keytar (libsecret) + maker-deb (fakeroot) native build deps,
+      # installed before npm ci because keytar builds during install.
+      - name: Install native build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev fakeroot
+
+      - run: npm ci
+
+      # Tag must match package.json version (tag trigger only).
+      - name: Verify tag matches package.json version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          PKG="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "v$PKG" ]; then
+            echo "::error::Tag $TAG does not match package.json version v$PKG"
+            exit 1
+          fi
+
+      - run: npm run make
+
+      # Resolve the built artifact and fail if none was produced.
+      - name: Locate .deb
+        id: deb
+        run: |
+          DEB="$(find out/make/deb -name '*.deb' | head -n1)"
+          if [ -z "$DEB" ]; then
+            echo "::error::No .deb produced by 'npm run make'"
+            exit 1
+          fi
+          echo "path=$DEB" >> "$GITHUB_OUTPUT"
+
+      # Tag push -> publish a GitHub Release with generated notes + the .deb.
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${GITHUB_REF_NAME}" "${{ steps.deb.outputs.path }}" --generate-notes
+
+      # Manual run -> expose the build as a downloadable artifact.
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apikey-manager-deb
+          path: ${{ steps.deb.outputs.path }}
