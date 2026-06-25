@@ -15,7 +15,7 @@
  * - `selectedKey`: A semicolon-delimited string of the form "apiKey;isActive"
  *   used to identify and toggle the state of an existing key
  */
-import { computed, defineProps, Ref, ref, watch } from "vue";
+import { computed, Ref, ref, watch } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
@@ -141,12 +141,23 @@ async function changeKeyState() {
   });
 }
 
+/**
+ * Generates a cryptographically secure API key, using rejection sampling to
+ * keep the character distribution unbiased.
+ */
 function generateApiKey() {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  apiKey.value = Array.from({ length: apiKeyLength }, () =>
-    chars.charAt(Math.floor(Math.random() * chars.length))
-  ).join("");
+  const maxUnbiased = Math.floor(256 / chars.length) * chars.length;
+  const result: string[] = [];
+  const byte = new Uint8Array(1);
+  while (result.length < apiKeyLength) {
+    crypto.getRandomValues(byte);
+    if (byte[0] < maxUnbiased) {
+      result.push(chars[byte[0] % chars.length]);
+    }
+  }
+  apiKey.value = result.join("");
 }
 
 watch(
