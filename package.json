@@ -34,9 +34,9 @@
     "@electron/fuses": "^1.8.0",
     "@typescript-eslint/eslint-plugin": "^8.37.0",
     "@typescript-eslint/parser": "^8.37.0",
-    "@vitejs/plugin-vue": "^5.2.4",
+    "@vitejs/plugin-vue": "^6.0.7",
     "@vue/eslint-config-typescript": "^14.6.0",
-    "electron": "^37.1.0",
+    "electron": "^39.8.5",
     "electron-store": "^10.1.0",
     "eslint": "^9.31.0",
     "eslint-plugin-vue": "^10.3.0",
@@ -44,7 +44,7 @@
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",
     "primevue": "^3.53.1",
-    "vite": "^6.3.5",
+    "vite": "^8.1.0",
     "vue": "^3.5.17",
     "vue-i18n": "^11.1.7"
   }
