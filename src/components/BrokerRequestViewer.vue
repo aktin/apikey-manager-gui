@@ -191,6 +191,17 @@ async function openNodeStatus(nodeIdNum: number) {
   }
 }
 
+/** Copies the open node status message to the clipboard. */
+async function copyStatusToClipboard(): Promise<void> {
+  if (!statusDialogText.value) return;
+  try {
+    await navigator.clipboard.writeText(statusDialogText.value);
+    createSuccessToast(toast, t("success"), t("statusCopied"));
+  } catch {
+    createErrorToast(toast, t("error"), t("failedToCopy"));
+  }
+}
+
 onMounted(async () => {
   await BrokerConnection.waitForBrokerCredentials();
   await BrokerConnection.refreshNodeCache();
@@ -308,10 +319,24 @@ onMounted(async () => {
 
   <Dialog
     v-model:visible="statusDialogVisible"
-    :header="statusDialogTitle"
     modal
     style="width: 60vw; max-width: 900px"
   >
+    <template #header>
+      <span class="flex align-items-center gap-2">
+        <span class="font-bold">{{ statusDialogTitle }}</span>
+        <Button
+          v-if="statusDialogText"
+          icon="pi pi-copy"
+          text
+          rounded
+          size="small"
+          v-tooltip.bottom="t('copyStatusMessage')"
+          @click="copyStatusToClipboard"
+        />
+      </span>
+    </template>
+
     <div v-if="statusLoading" class="flex justify-content-center p-4">
       <ProgressSpinner />
     </div>

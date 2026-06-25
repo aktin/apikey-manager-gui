@@ -104,5 +104,8 @@
   "error404Title": "Nicht gefunden",
   "error404Description": "Diese Seite spielt Verstecken – und sie gewinnt",
   "error500Title": "Interner Serverfehler",
-  "error500Description": "Entschuldigung, der Server hat gerade einen kleinen Aussetzer"
+  "error500Description": "Entschuldigung, der Server hat gerade einen kleinen Aussetzer",
+  "error": "Fehler",
+  "copyStatusMessage": "Statusmeldung kopieren",
+  "statusCopied": "Statusmeldung kopiert"
 }
