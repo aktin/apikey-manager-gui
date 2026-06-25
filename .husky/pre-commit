@@ -1,0 +1,5 @@
+# Format only the staged files with Prettier, then re-stage the result.
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -n "$staged" ] && echo "$staged" \
+  | xargs -r npx prettier --write --ignore-unknown \
+  && echo "$staged" | xargs -r git add

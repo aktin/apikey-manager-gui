@@ -12,29 +12,35 @@ type ToastType = ReturnType<typeof useToast>;
 
 const toastLife = 5000;
 
-export function createErrorToast(toast: ToastType, title: string, detail: string): void {
-  toast.add({
-    severity: "error",
-    summary: title,
-    detail,
-    life: toastLife,
-  });
+function createToast(
+  toast: ToastType,
+  severity: "error" | "success" | "info",
+  title: string,
+  detail: string
+): void {
+  toast.add({ severity, summary: title, detail, life: toastLife });
 }
 
-export function createSuccessToast(toast: ToastType, title: string, detail: string): void {
-  toast.add({
-    severity: "success",
-    summary: title,
-    detail,
-    life: toastLife,
-  });
+export function createErrorToast(
+  toast: ToastType,
+  title: string,
+  detail: string
+): void {
+  createToast(toast, "error", title, detail);
 }
 
-export function createInfoToast(toast: ToastType, title: string, detail: string): void {
-  toast.add({
-    severity: "info",
-    summary: title,
-    detail,
-    life: toastLife,
-  });
+export function createSuccessToast(
+  toast: ToastType,
+  title: string,
+  detail: string
+): void {
+  createToast(toast, "success", title, detail);
+}
+
+export function createInfoToast(
+  toast: ToastType,
+  title: string,
+  detail: string
+): void {
+  createToast(toast, "info", title, detail);
 }

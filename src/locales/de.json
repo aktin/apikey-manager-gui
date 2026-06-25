@@ -91,14 +91,18 @@
   "retrieved": "Abgeholt",
   "queued": "In Warteschlange",
   "processing": "In Bearbeitung",
-  "completed": "Abgeschlossen",
   "rejected": "Abgelehnt",
+  "completed": "Abgeschlossen",
   "failed": "Fehlgeschlagen",
   "expired": "Abgelaufen",
-  "notRetrievedyet": "Noch nicht abgeholt",
+  "notRetrievedYet": "Noch nicht abgeholt",
   "openStatusTimeline": "Zeitstrahl öffnen",
   "openNodeStatusMessage": "Knotenstatus anzeigen",
   "copyFullKey": "Vollständigen API-Schlüssel kopieren",
   "keyCopied": "API-Schlüssel kopiert",
-  "failedToCopy": "Kopieren fehlgeschlagen"
+  "failedToCopy": "Kopieren fehlgeschlagen",
+  "error404Title": "Nicht gefunden",
+  "error404Description": "Diese Seite spielt Verstecken – und sie gewinnt",
+  "error500Title": "Interner Serverfehler",
+  "error500Description": "Entschuldigung, der Server hat gerade einen kleinen Aussetzer"
 }

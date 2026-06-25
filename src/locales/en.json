@@ -95,10 +95,14 @@
   "completed": "Completed",
   "failed": "Failed",
   "expired": "Expired",
-  "notRetrievedyet": "Not retrieved yet",
+  "notRetrievedYet": "Not retrieved yet",
   "openStatusTimeline": "Open status timeline",
   "openNodeStatusMessage": "Show node status message",
   "copyFullKey": "Copy full API key",
   "keyCopied": "API Key copied",
-  "failedToCopy": "Failed to copy"
+  "failedToCopy": "Failed to copy",
+  "error404Title": "Not Found",
+  "error404Description": "This page is playing hide-and-seek and it's winning",
+  "error500Title": "Internal Server Error",
+  "error500Description": "Sorry, the server is currently having a bit of a meltdown"
 }

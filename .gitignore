@@ -73,4 +73,7 @@ dist/
 
 # JetBrains IDE
 .idea/
-.idea/workspace.xml
+
+# Python tooling artifacts
+.venv/
+__pycache__/

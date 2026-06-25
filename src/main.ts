@@ -11,29 +11,29 @@
  * - electron-store for persistent key-value storage
  * - ProfileEncryptionBridge for AES-GCM encryption
  */
-import {app, BrowserWindow, ipcMain, screen} from "electron";
+import { app, BrowserWindow, ipcMain, screen } from "electron";
 import path from "node:path";
 import Store from "electron-store";
-import {decrypt, encrypt} from "./services/ProfileEncryptionBridge";
+import { decrypt, encrypt } from "./services/ProfileEncryptionBridge";
 
 const store = new Store();
 
 // IPC handlers for secure key-value storage
 ipcMain.handle("store-get", (_event, key: string) => store.get(key));
-ipcMain.handle("store-set", (_event, key: string, value: unknown) => store.set(key, value));
+ipcMain.handle("store-set", (_event, key: string, value: unknown) =>
+  store.set(key, value)
+);
 ipcMain.handle("store-delete", (_event, key: string) => store.delete(key));
 
 // IPC handlers for encryption bridge
-ipcMain.handle("encrypt", async (_event, plainText: string) => {
-  return await encrypt(plainText);
-});
-ipcMain.handle("decrypt", async (_event, encryptedText: string) => {
-  return await decrypt(encryptedText);
-});
+ipcMain.handle("encrypt", (_event, plainText: string) => encrypt(plainText));
+ipcMain.handle("decrypt", (_event, encryptedText: string) =>
+  decrypt(encryptedText)
+);
 
 // Creates and configures the main application window.
 const createWindow = () => {
-  const {width, height} = screen.getPrimaryDisplay().workAreaSize;
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   const mainWindow = new BrowserWindow({
     width,
     height,
@@ -46,7 +46,7 @@ const createWindow = () => {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
     mainWindow.loadFile(
-        path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
+      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
     );
   }
 };

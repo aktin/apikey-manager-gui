@@ -12,8 +12,8 @@
  * @see https://vitejs.dev/config/ — Vite documentation
  * @see https://electronforge.io/config/plugins/vite — Plugin usage
  */
-import {defineConfig} from 'vite';
-import vue from '@vitejs/plugin-vue';
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
   plugins: [vue()]

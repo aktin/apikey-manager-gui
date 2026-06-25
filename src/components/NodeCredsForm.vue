@@ -15,16 +15,17 @@
  * - `selectedKey`: A semicolon-delimited string of the form "apiKey;isActive"
  *   used to identify and toggle the state of an existing key
  */
-import {computed, defineProps, Ref, ref, watch} from "vue";
+import { computed, Ref, ref, watch } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "../services/BrokerConnection";
-import {useToast} from "primevue/usetoast";
-import {createErrorToast, createSuccessToast} from "../utils/ToastWrapper";
-import {useI18n} from "vue-i18n";
+import { useToast } from "primevue/usetoast";
+import { createErrorToast, createSuccessToast } from "../utils/ToastWrapper";
+import { notifyStatusError } from "../utils/StatusToast";
+import { useI18n } from "vue-i18n";
 
-const {t} = useI18n();
+const { t } = useI18n();
 const toast = useToast();
 
 // Form inputs
@@ -49,18 +50,30 @@ const props = defineProps<{ selectedKey: string }>();
 const selectedKey = ref(props.selectedKey);
 
 // Form button states
-const isAddButtonActive = computed(() =>
+const isAddButtonActive = computed(
+  () =>
     apiKey.value.trim() !== "" &&
     cn.value.trim() !== "" &&
     org.value.trim() !== "" &&
-    loc.value.trim() !== "");
-const isChangeStateButtonActive = computed(() =>
-    selectedKey.value !== "");
+    loc.value.trim() !== ""
+);
+const isChangeStateButtonActive = computed(() => selectedKey.value !== "");
+const isSelectedKeyActive = computed(
+  () => selectedKey.value.split(";")[1] === "true"
+);
 
-
-function validateField(value: string, flag: Ref<boolean>, localeKey: string, pattern: RegExp) {
+function validateField(
+  value: string,
+  flag: Ref<boolean>,
+  localeKey: string,
+  pattern: RegExp
+) {
   if (pattern.test(value)) {
-    createErrorToast(toast, t("inputError"), t("fieldCharacterError", {fieldName: t(localeKey)}));
+    createErrorToast(
+      toast,
+      t("inputError"),
+      t("fieldCharacterError", { fieldName: t(localeKey) })
+    );
     flag.value = true;
   }
 }
@@ -72,7 +85,11 @@ function validate() {
   invalidLoc.value = false;
 
   if (apiKey.value.length !== apiKeyLength) {
-    createErrorToast(toast, t("inputError"), t("keyLengthError", {length: apiKeyLength}));
+    createErrorToast(
+      toast,
+      t("inputError"),
+      t("keyLengthError", { length: apiKeyLength })
+    );
     invalidApiKey.value = true;
   } else {
     validateField(apiKey.value, invalidApiKey, "key", apiKeyPattern);
@@ -84,63 +101,71 @@ function validate() {
 
 async function addNewKey() {
   validate();
-  if (invalidApiKey.value || invalidCN.value || invalidOrg.value || invalidLoc.value) return;
+  if (
+    invalidApiKey.value ||
+    invalidCN.value ||
+    invalidOrg.value ||
+    invalidLoc.value
+  )
+    return;
   const payload = `CN=${cn.value},O=${org.value},L=${loc.value}`;
   const xml = `<ApiKeyCred><apiKey>${apiKey.value}</apiKey><clientDn>${payload}</clientDn></ApiKeyCred>`;
   const status = await BrokerConnection.addApiKey(xml);
-  switch (status) {
-    case 201:
-      createSuccessToast(toast, t("success"), t("keyAdded"));
-      break;
-    case 404:
-      createErrorToast(toast, t("notFound"), t("noKeyListFound"));
-      break;
-    case 401:
-      createErrorToast(toast, t("accessDenied"), t("noAuthorization"));
-      break;
-    case 409:
-      createErrorToast(toast, t("conflict"), t("keyAlreadyExists"));
-      break;
-    case 500:
-      createErrorToast(toast, t("serverError"), t("serverErrorOccurred"));
-      break;
-    default:
-      createErrorToast(toast, t("unexpectedError"), t("unexpectedErrorOccurred", {code: status}));
+  if (status === 201) {
+    createSuccessToast(toast, t("success"), t("keyAdded"));
+    return;
   }
+  notifyStatusError(toast, t, status, {
+    404: { title: "notFound", message: "noKeyListFound" },
+    409: { title: "conflict", message: "keyAlreadyExists" }
+  });
 }
 
 async function changeKeyState() {
   const [key, isActive] = selectedKey.value.split(";");
   selectedKey.value = "";
-  const status = isActive === "false" ? await BrokerConnection.activateApiKey(key) : await BrokerConnection.deactivateApiKey(key);
-  switch (status) {
-    case 200:
-      createSuccessToast(toast, t("success"), isActive === "false" ? t("keyActivated") : t("keyDeactivated"));
-      break;
-    case 404:
-      createErrorToast(toast, t("notFound"), t("keyNotFound"));
-      break;
-    case 401:
-      createErrorToast(toast, t("accessDenied"), t("noAuthorization"));
-      break;
-    case 500:
-      createErrorToast(toast, t("serverError"), t("serverErrorOccurred"));
-      break;
-    default:
-      createErrorToast(toast, t("unexpectedError"), t("unexpectedErrorOccurred", {code: status}));
+  const status =
+    isActive === "false"
+      ? await BrokerConnection.activateApiKey(key)
+      : await BrokerConnection.deactivateApiKey(key);
+  if (status === 200) {
+    createSuccessToast(
+      toast,
+      t("success"),
+      isActive === "false" ? t("keyActivated") : t("keyDeactivated")
+    );
+    return;
   }
+  notifyStatusError(toast, t, status, {
+    404: { title: "notFound", message: "keyNotFound" }
+  });
 }
 
+/**
+ * Generates a cryptographically secure API key, using rejection sampling to
+ * keep the character distribution unbiased.
+ */
 function generateApiKey() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  apiKey.value = Array.from({length: apiKeyLength}, () =>
-      chars.charAt(Math.floor(Math.random() * chars.length))
-  ).join("");
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const maxUnbiased = Math.floor(256 / chars.length) * chars.length;
+  const result: string[] = [];
+  const byte = new Uint8Array(1);
+  while (result.length < apiKeyLength) {
+    crypto.getRandomValues(byte);
+    if (byte[0] < maxUnbiased) {
+      result.push(chars[byte[0] % chars.length]);
+    }
+  }
+  apiKey.value = result.join("");
 }
 
-watch(() => props.selectedKey, (val) => {
-  selectedKey.value = val;
-});
+watch(
+  () => props.selectedKey,
+  (val) => {
+    selectedKey.value = val;
+  }
+);
 </script>
 
 <template>
@@ -148,45 +173,68 @@ watch(() => props.selectedKey, (val) => {
     <!-- API key input with generate button -->
     <div class="flex align-items-center gap-2 mt-3">
       <FloatLabel class="w-full">
-        <InputText id="apiInput"
-                   v-model="apiKey"
-                   :invalid="invalidApiKey"
-                   class="w-full"/>
+        <InputText
+          id="apiInput"
+          v-model="apiKey"
+          :invalid="invalidApiKey"
+          class="w-full"
+        />
         <label for="apiInput">{{ t("key") }}</label>
       </FloatLabel>
-      <Button icon="pi pi-sync"
-              v-tooltip.bottom="t('generateKey')"
-              @click="generateApiKey"
-              class="flex-shrink-0"/>
+      <Button
+        icon="pi pi-sync"
+        v-tooltip.bottom="t('generateKey')"
+        @click="generateApiKey"
+        class="flex-shrink-0"
+      />
     </div>
 
     <!-- DN Fields -->
     <FloatLabel class="mt-5 w-full">
-      <InputText id="nameInput" v-model="cn" :invalid="invalidCN" class="w-full"/>
+      <InputText
+        id="nameInput"
+        v-model="cn"
+        :invalid="invalidCN"
+        class="w-full"
+      />
       <label for="nameInput">{{ t("cn") }}</label>
     </FloatLabel>
 
     <FloatLabel class="mt-5 w-full">
-      <InputText id="orgInput" v-model="org" :invalid="invalidOrg" class="w-full"/>
+      <InputText
+        id="orgInput"
+        v-model="org"
+        :invalid="invalidOrg"
+        class="w-full"
+      />
       <label for="orgInput">{{ t("o") }}</label>
     </FloatLabel>
 
     <FloatLabel class="mt-5 w-full">
-      <InputText id="locInput" v-model="loc" :invalid="invalidLoc" class="w-full"/>
+      <InputText
+        id="locInput"
+        v-model="loc"
+        :invalid="invalidLoc"
+        class="w-full"
+      />
       <label for="locInput">{{ t("l") }}</label>
     </FloatLabel>
 
     <!-- Action buttons -->
     <div class="flex flex-wrap justify-content-between mt-4 gap-2">
-      <Button :label="t('addKey')"
-              @click="addNewKey"
-              :disabled="!isAddButtonActive"
-              class="text-sm"/>
-      <Button :label="selectedKey.split(';')[1] === 'true' ? t('deactivate') : t('activate')"
-              @click="changeKeyState"
-              :disabled="!isChangeStateButtonActive"
-              :severity="selectedKey.split(';')[1] === 'true' ? 'danger' : 'success'"
-              class="text-sm"/>
+      <Button
+        :label="t('addKey')"
+        @click="addNewKey"
+        :disabled="!isAddButtonActive"
+        class="text-sm"
+      />
+      <Button
+        :label="isSelectedKeyActive ? t('deactivate') : t('activate')"
+        @click="changeKeyState"
+        :disabled="!isChangeStateButtonActive"
+        :severity="isSelectedKeyActive ? 'danger' : 'success'"
+        class="text-sm"
+      />
     </div>
   </div>
 </template>
