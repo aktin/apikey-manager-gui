@@ -9,6 +9,7 @@
   "unauthorizedToViewKeys": "You are not authorized to view API keys",
   "nodeId": "#",
   "nodeHasNoId": "Node has no ID assigned",
+  "connectedNodes": "Connected nodes",
   "status": "Status",
   "keyIsActive": "API key is active",
   "keyIsInactive": "API key is inactive",
