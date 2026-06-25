@@ -7,17 +7,19 @@
  * Features:
  * - Fetches API key list and broker node metadata from the AKTIN Broker
  * - Automatically updates on credential or key list changes
- * - Emits `update:selectedApiKey` when a row is selected
+ * - Shows the connected-node count and toggles the selected key's state
  * - Supports search, filtering, and toggling inactive keys
  * - Displays API keys in a masked preview format in the table
  */
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import BrokerConnection from "../services/BrokerConnection";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Checkbox from "primevue/checkbox";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
+import Divider from "primevue/divider";
+import NodeCredsForm from "./NodeCredsForm.vue";
 import { FilterMatchMode } from "@primevue/core/api";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
@@ -30,12 +32,11 @@ const { t } = useI18n();
 
 const apiKeyList = ref<Record<string, any>[]>([]);
 const selectedRow = ref<Record<string, any> | null>(null);
-const selectedApiKey = ref<string>("");
 const showInactiveKeys = ref(false);
+const nodeCount = ref(0);
 
-const emit = defineEmits<{
-  (e: "update:selectedApiKey", value: string): void;
-}>();
+// Whether the selected key is active; drives the toggle button label/severity
+const isSelectedActive = computed(() => selectedRow.value?.isActive === true);
 
 /**
  * Global search filter for the DataTable.
@@ -79,6 +80,7 @@ async function fetchAndFormatApiKeyList(): Promise<Record<string, any>[]> {
       nodeResult.status === 200
         ? parseNodeIdMap(nodeResult.data)
         : new Map<string, string>();
+    nodeCount.value = nodeMap.size;
     return mergeApiKeysWithNodes(keyResult.data, nodeMap);
   }
   notifyStatusError(toast, t, keyResult.status, {
@@ -108,10 +110,27 @@ onMounted(async () => {
   });
 });
 
-watch(selectedRow, (newVal) => {
-  selectedApiKey.value = newVal ? `${newVal.apiKey};${newVal.isActive}` : "";
-  emit("update:selectedApiKey", selectedApiKey.value);
-});
+/** Activates or deactivates the selected key, then clears the selection. */
+async function toggleSelectedKey() {
+  const row = selectedRow.value;
+  if (!row) return;
+  const wasActive = isSelectedActive.value;
+  const status = wasActive
+    ? await BrokerConnection.deactivateApiKey(row.apiKey)
+    : await BrokerConnection.activateApiKey(row.apiKey);
+  if (status === 200) {
+    createSuccessToast(
+      toast,
+      t("success"),
+      wasActive ? t("keyDeactivated") : t("keyActivated")
+    );
+    selectedRow.value = null;
+    return;
+  }
+  notifyStatusError(toast, t, status, {
+    404: { title: "notFound", message: "keyNotFound" }
+  });
+}
 
 watch(showInactiveKeys, async () => {
   await updateApiKeyList();
@@ -137,24 +156,43 @@ watch(showInactiveKeys, async () => {
     </template>
 
     <template #header>
-      <div class="flex justify-content-between flex-wrap">
-        <div>
+      <div
+        class="flex justify-content-between flex-wrap align-items-center gap-2"
+      >
+        <!-- Status + filters -->
+        <div class="flex align-items-center gap-2">
+          <span class="text-color-secondary white-space-nowrap">
+            {{ t("connectedNodes") }}: {{ nodeCount }}
+          </span>
+          <Divider layout="vertical" />
           <InputText
             v-model="filters['global'].value"
             :placeholder="t('keywordSearch')"
             class="text-base text-color surface-overlay p-2 input_Field"
           />
           <i v-tooltip="t('keywordSearchInfo')" class="pi pi-info-circle p-2" />
+          <div class="flex align-items-center">
+            <Checkbox
+              v-model="showInactiveKeys"
+              :binary="true"
+              inputId="showInactive"
+            />
+            <label for="showInactive" class="ml-1">{{
+              t("showInactiveKeys")
+            }}</label>
+          </div>
         </div>
-        <div class="flex align-items-center mr-2">
-          <Checkbox
-            v-model="showInactiveKeys"
-            :binary="true"
-            inputId="showInactive"
+
+        <!-- Actions -->
+        <div class="flex align-items-center gap-2 mr-2">
+          <NodeCredsForm />
+          <Button
+            :label="isSelectedActive ? t('deactivate') : t('activate')"
+            :severity="isSelectedActive ? 'danger' : 'success'"
+            :disabled="!selectedRow"
+            size="small"
+            @click="toggleSelectedKey"
           />
-          <label for="showInactive" class="ml-1">{{
-            t("showInactiveKeys")
-          }}</label>
         </div>
       </div>
     </template>

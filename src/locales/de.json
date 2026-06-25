@@ -9,6 +9,7 @@
   "unauthorizedToViewKeys": "Sie sind nicht berechtigt, API-Schlüssel anzuzeigen",
   "nodeId": "#",
   "nodeHasNoId": "Knoten hat noch keine ID",
+  "connectedNodes": "Verbundene Nodes",
   "status": "Status",
   "keyIsActive": "API-Schlüssel ist aktiv",
   "keyIsInactive": "API-Schlüssel ist inaktiv",

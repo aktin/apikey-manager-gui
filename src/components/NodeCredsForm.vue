@@ -2,23 +2,21 @@
 /**
  * NodeCredsForm.vue
  *
- * Form component to add new API keys or activate/deactivate existing ones.
+ * Self-contained "add API key" feature: an icon button that opens a modal
+ * dialog holding the key-creation form.
  *
  * Features:
  * - Validates API key and DN components (CN, O, L) on input
  * - Generates a secure random API key
  * - Submits a formatted XML payload to the broker
- * - Enables status toggle of the selected key
+ * - Clears the form and closes the dialog on success
  * - Displays toast messages on success/error
- *
- * Props:
- * - `selectedKey`: A semicolon-delimited string of the form "apiKey;isActive"
- *   used to identify and toggle the state of an existing key
  */
-import { computed, Ref, ref, watch } from "vue";
+import { computed, Ref, ref } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
+import Dialog from "primevue/dialog";
 import BrokerConnection from "../services/BrokerConnection";
 import { useToast } from "primevue/usetoast";
 import { createErrorToast, createSuccessToast } from "../utils/ToastWrapper";
@@ -27,6 +25,8 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 const toast = useToast();
+
+const visible = ref(false);
 
 // Form inputs
 const apiKey = ref("");
@@ -47,21 +47,13 @@ const apiKeyPattern = /[^a-zA-Z0-9]/;
 // block DN-structural characters ("," and "=") and anything else.
 const dnPattern = /[^a-zA-Z0-9 äöüÄÖÜß&.()\/+-]/;
 
-// Prop from parent: selected key to toggle state
-const props = defineProps<{ selectedKey: string }>();
-const selectedKey = ref(props.selectedKey);
-
-// Form button states
+// Add button is enabled only when all fields are filled
 const isAddButtonActive = computed(
   () =>
     apiKey.value.trim() !== "" &&
     cn.value.trim() !== "" &&
     org.value.trim() !== "" &&
     loc.value.trim() !== ""
-);
-const isChangeStateButtonActive = computed(() => selectedKey.value !== "");
-const isSelectedKeyActive = computed(
-  () => selectedKey.value.split(";")[1] === "true"
 );
 
 function validateField(
@@ -109,6 +101,13 @@ function escapeXml(value: string): string {
     .replace(/>/g, "&gt;");
 }
 
+function resetForm() {
+  apiKey.value = "";
+  cn.value = "";
+  org.value = "";
+  loc.value = "";
+}
+
 async function addNewKey() {
   validate();
   if (
@@ -123,31 +122,13 @@ async function addNewKey() {
   const status = await BrokerConnection.addApiKey(xml);
   if (status === 201) {
     createSuccessToast(toast, t("success"), t("keyAdded"));
+    resetForm();
+    visible.value = false;
     return;
   }
   notifyStatusError(toast, t, status, {
     404: { title: "notFound", message: "noKeyListFound" },
     409: { title: "conflict", message: "keyAlreadyExists" }
-  });
-}
-
-async function changeKeyState() {
-  const [key, isActive] = selectedKey.value.split(";");
-  selectedKey.value = "";
-  const status =
-    isActive === "false"
-      ? await BrokerConnection.activateApiKey(key)
-      : await BrokerConnection.deactivateApiKey(key);
-  if (status === 200) {
-    createSuccessToast(
-      toast,
-      t("success"),
-      isActive === "false" ? t("keyActivated") : t("keyDeactivated")
-    );
-    return;
-  }
-  notifyStatusError(toast, t, status, {
-    404: { title: "notFound", message: "keyNotFound" }
   });
 }
 
@@ -169,82 +150,75 @@ function generateApiKey() {
   }
   apiKey.value = result.join("");
 }
-
-watch(
-  () => props.selectedKey,
-  (val) => {
-    selectedKey.value = val;
-  }
-);
 </script>
 
 <template>
-  <div class="p-3 w-full">
-    <!-- API key input with generate button -->
-    <div class="flex align-items-center gap-2 mt-3">
+  <Button
+    icon="pi pi-plus"
+    size="small"
+    @click="visible = true"
+    v-tooltip.bottom="t('addKey')"
+  />
+
+  <Dialog v-model:visible="visible" modal :header="t('addKey')" class="w-30rem">
+    <div class="flex flex-column gap-4 pt-4">
+      <!-- API key input with generate button -->
+      <div class="flex align-items-center gap-2">
+        <FloatLabel class="w-full">
+          <InputText
+            id="apiInput"
+            v-model="apiKey"
+            :invalid="invalidApiKey"
+            class="w-full"
+          />
+          <label for="apiInput">{{ t("key") }}</label>
+        </FloatLabel>
+        <Button
+          icon="pi pi-sync"
+          v-tooltip.bottom="t('generateKey')"
+          @click="generateApiKey"
+          class="flex-shrink-0"
+        />
+      </div>
+
+      <!-- DN fields -->
       <FloatLabel class="w-full">
         <InputText
-          id="apiInput"
-          v-model="apiKey"
-          :invalid="invalidApiKey"
+          id="nameInput"
+          v-model="cn"
+          :invalid="invalidCN"
           class="w-full"
         />
-        <label for="apiInput">{{ t("key") }}</label>
+        <label for="nameInput">{{ t("cn") }}</label>
       </FloatLabel>
-      <Button
-        icon="pi pi-sync"
-        v-tooltip.bottom="t('generateKey')"
-        @click="generateApiKey"
-        class="flex-shrink-0"
-      />
+
+      <FloatLabel class="w-full">
+        <InputText
+          id="orgInput"
+          v-model="org"
+          :invalid="invalidOrg"
+          class="w-full"
+        />
+        <label for="orgInput">{{ t("o") }}</label>
+      </FloatLabel>
+
+      <FloatLabel class="w-full">
+        <InputText
+          id="locInput"
+          v-model="loc"
+          :invalid="invalidLoc"
+          class="w-full"
+        />
+        <label for="locInput">{{ t("l") }}</label>
+      </FloatLabel>
     </div>
 
-    <!-- DN Fields -->
-    <FloatLabel class="mt-5 w-full">
-      <InputText
-        id="nameInput"
-        v-model="cn"
-        :invalid="invalidCN"
-        class="w-full"
-      />
-      <label for="nameInput">{{ t("cn") }}</label>
-    </FloatLabel>
-
-    <FloatLabel class="mt-5 w-full">
-      <InputText
-        id="orgInput"
-        v-model="org"
-        :invalid="invalidOrg"
-        class="w-full"
-      />
-      <label for="orgInput">{{ t("o") }}</label>
-    </FloatLabel>
-
-    <FloatLabel class="mt-5 w-full">
-      <InputText
-        id="locInput"
-        v-model="loc"
-        :invalid="invalidLoc"
-        class="w-full"
-      />
-      <label for="locInput">{{ t("l") }}</label>
-    </FloatLabel>
-
-    <!-- Action buttons -->
-    <div class="flex flex-wrap justify-content-between mt-4 gap-2">
+    <template #footer>
       <Button
         :label="t('addKey')"
         @click="addNewKey"
         :disabled="!isAddButtonActive"
-        class="text-sm"
       />
-      <Button
-        :label="isSelectedKeyActive ? t('deactivate') : t('activate')"
-        @click="changeKeyState"
-        :disabled="!isChangeStateButtonActive"
-        :severity="isSelectedKeyActive ? 'danger' : 'success'"
-        class="text-sm"
-      />
-    </div>
-  </div>
+    </template>
+  </Dialog>
 </template>

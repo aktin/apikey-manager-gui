@@ -2,23 +2,14 @@
 /**
  * ApiKeyView.vue
  *
- * Route view for API-key management; pairs the key table with the add/toggle
- * form and shares the selected key between them.
+ * Route view for API-key management; hosts the API-key table, which carries its
+ * own add/toggle controls in the header.
  */
-import { ref } from "vue";
 import NodeCredsTable from "../components/NodeCredsTable.vue";
-import NodeCredsForm from "../components/NodeCredsForm.vue";
-
-const selectedApiKey = ref("");
 </script>
 
 <template>
-  <div class="grid">
-    <div class="col-10 surface-200 border-round-md">
-      <NodeCredsTable @update:selectedApiKey="selectedApiKey = $event" />
-    </div>
-    <div class="col-2">
-      <NodeCredsForm :selectedKey="selectedApiKey" />
-    </div>
+  <div class="surface-200 border-round-md">
+    <NodeCredsTable />
   </div>
 </template>
