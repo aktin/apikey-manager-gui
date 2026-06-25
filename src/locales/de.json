@@ -100,5 +100,9 @@
   "openNodeStatusMessage": "Knotenstatus anzeigen",
   "copyFullKey": "Vollständigen API-Schlüssel kopieren",
   "keyCopied": "API-Schlüssel kopiert",
-  "failedToCopy": "Kopieren fehlgeschlagen"
+  "failedToCopy": "Kopieren fehlgeschlagen",
+  "error404Title": "Nicht gefunden",
+  "error404Description": "Diese Seite spielt Verstecken – und sie gewinnt",
+  "error500Title": "Interner Serverfehler",
+  "error500Description": "Entschuldigung, der Server hat gerade einen kleinen Aussetzer"
 }

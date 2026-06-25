@@ -4,14 +4,17 @@
  *
  * Route view for unknown paths; renders ErrorCommon with 404 content.
  */
+import { useI18n } from "vue-i18n";
 import ErrorCommon from "./ErrorCommon.vue";
+
+const { t } = useI18n();
 </script>
 
 <template>
   <ErrorCommon
     code="404"
-    title="Not Found"
+    :title="t('error404Title')"
     kaomoji=" ┐(￣～￣)┌"
-    description="This page is playing hide-and-seek and it's winning"
+    :description="t('error404Description')"
   />
 </template>

@@ -4,14 +4,17 @@
  *
  * Route view for server errors; renders ErrorCommon with 500 content.
  */
+import { useI18n } from "vue-i18n";
 import ErrorCommon from "./ErrorCommon.vue";
+
+const { t } = useI18n();
 </script>
 
 <template>
   <ErrorCommon
     code="500"
-    title="Internal Server Error"
+    :title="t('error500Title')"
     kaomoji="ヽ(￣д￣;)ノ=3=3=3"
-    description="Sorry, the server is currently having a bit of a meltdown"
+    :description="t('error500Description')"
   />
 </template>
