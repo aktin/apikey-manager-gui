@@ -114,3 +114,61 @@ function optDate(parent: Element, tag: string): Date | null {
   const text = parent.getElementsByTagName(tag)[0]?.textContent;
   return text ? new Date(text) : null;
 }
+
+/**
+ * Parses a broker node list (AKTIN exchange namespace) into a mapping of each
+ * node's client DN to its node ID.
+ */
+export function parseNodeIdMap(xml: string): Map<string, string> {
+  const ns = "http://aktin.org/ns/exchange";
+  const map = new Map<string, string>();
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  const nodes = doc.getElementsByTagNameNS(ns, "node");
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    const id = node.getElementsByTagNameNS(ns, "id")[0]?.textContent?.trim();
+    const dn = node
+      .getElementsByTagNameNS(ns, "clientDN")[0]
+      ?.textContent?.trim();
+    if (id && dn) {
+      map.set(dn, id);
+    }
+  }
+  return map;
+}
+
+/**
+ * Merges the broker's plaintext API-key list with node IDs into table rows,
+ * splitting each DN into its components (CN, O, L) and flagging inactive keys.
+ */
+export function mergeApiKeysWithNodes(
+  keyData: string,
+  nodeMap: Map<string, string>
+): Record<string, any>[] {
+  return keyData
+    .trim()
+    .split("\n")
+    .filter((line) => line.includes("="))
+    .filter((line) => !line.includes("OU"))
+    .map((line) => {
+      const idx = line.indexOf("=");
+      const apiKey = line.slice(0, idx);
+      const dn = line.slice(idx + 1);
+      const row: Record<string, any> = {
+        raw: line,
+        apiKey,
+        dn,
+        nodeId: nodeMap.get(dn) ?? null,
+        isActive: true
+      };
+      for (const part of dn.split(",")) {
+        if (part.includes("=")) {
+          const [key, value] = part.split("=");
+          row[key] = value;
+        } else if (part === "INACTIVE") {
+          row.isActive = false;
+        }
+      }
+      return row;
+    });
+}

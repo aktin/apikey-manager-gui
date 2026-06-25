@@ -22,6 +22,8 @@ import { FilterMatchMode } from "primevue/api";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
 import { createErrorToast, createSuccessToast } from "../utils/ToastWrapper";
+import { notifyStatusError } from "../utils/StatusToast";
+import { mergeApiKeysWithNodes, parseNodeIdMap } from "../utils/Parser";
 
 const toast = useToast();
 const { t } = useI18n();
@@ -66,104 +68,22 @@ async function copyApiKeyToClipboard(text: string) {
 }
 
 /**
- * Parses an XML broker node list into a Map of clientDN → nodeId.
- *
- * @param xmlString - Raw XML string from broker
- * @returns A mapping of DN strings to node IDs
- */
-function parseNodeIdMap(xmlString: string): Map<string, string> {
-  const namespace = "http://aktin.org/ns/exchange";
-  const map = new Map<string, string>();
-  const parser = new DOMParser();
-  const xml = parser.parseFromString(xmlString, "application/xml");
-  const nodes = xml.getElementsByTagNameNS(namespace, "node");
-  for (let i = 0; i < nodes.length; i++) {
-    const node = nodes[i];
-    const id = node
-      .getElementsByTagNameNS(namespace, "id")[0]
-      ?.textContent?.trim();
-    const dn = node
-      .getElementsByTagNameNS(namespace, "clientDN")[0]
-      ?.textContent?.trim();
-    if (id && dn) {
-      map.set(dn, id);
-    }
-  }
-  return map;
-}
-
-/**
- * Merges broker API key entries with node IDs and formats them for table display.
- *
- * @param keyResult - Plaintext key list from the broker
- * @param nodeMap - Mapping of DNs to node IDs
- * @returns A normalized list of API key objects with metadata
- */
-function mergeAndFormatLists(
-  keyResult: { status: number; data: string },
-  nodeMap: Map<string, string>
-): Record<string, any>[] {
-  return keyResult.data
-    .trim()
-    .split("\n")
-    .filter((line) => line.includes("="))
-    .filter((line) => !line.includes("OU"))
-    .map((line) => {
-      const idx = line.indexOf("=");
-      const apiKey = line.slice(0, idx);
-      const dn = line.slice(idx + 1);
-      const nodeId = nodeMap.get(dn) ?? null;
-      const row: Record<string, any> = {
-        raw: line,
-        apiKey,
-        dn,
-        nodeId,
-        isActive: true
-      };
-      const parts = dn.split(",");
-      for (const part of parts) {
-        if (part.includes("=")) {
-          const [key, value] = part.split("=");
-          row[key] = value;
-        } else if (part === "INACTIVE") {
-          row.isActive = false;
-        }
-      }
-      return row;
-    });
-}
-
-/**
  * Fetches API keys and broker node metadata, then formats them for display.
- *
- * @returns A list of formatted API key entries
  */
 async function fetchAndFormatApiKeyList(): Promise<Record<string, any>[]> {
   const keyResult = await BrokerConnection.getApiKeys();
   const nodeResult = await BrokerConnection.getBrokerNodeList();
-  switch (keyResult.status) {
-    case 200: {
-      BrokerConnection.updateNodeCacheFromXml(nodeResult.data);
-      const nodeMap =
-        nodeResult.status === 200
-          ? parseNodeIdMap(nodeResult.data)
-          : new Map<string, string>();
-      return mergeAndFormatLists(keyResult, nodeMap);
-    }
-    case 401:
-      createErrorToast(toast, t("accessDenied"), t("unauthorizedToViewKeys"));
-      break;
-    case 500:
-      createErrorToast(toast, t("serverError"), t("serverErrorOccurred"));
-      break;
-    default:
-      createErrorToast(
-        toast,
-        t("unexpectedError"),
-        t("unexpectedErrorOccurred", { code: keyResult.status })
-      );
-      break;
+  if (keyResult.status === 200) {
+    BrokerConnection.updateNodeCacheFromXml(nodeResult.data);
+    const nodeMap =
+      nodeResult.status === 200
+        ? parseNodeIdMap(nodeResult.data)
+        : new Map<string, string>();
+    return mergeApiKeysWithNodes(keyResult.data, nodeMap);
   }
+  notifyStatusError(toast, t, keyResult.status, {
+    401: { title: "accessDenied", message: "unauthorizedToViewKeys" }
+  });
   return [];
 }
 
