@@ -5,7 +5,7 @@
  * Looks up a broker request by ID and shows its query metadata, execution
  * schedule, and per-node status, with an on-demand node status-message dialog.
  */
-import { computed, Ref, ref } from "vue";
+import { computed, onMounted, Ref, ref } from "vue";
 import BrokerConnection from "../services/BrokerConnection";
 import InputText from "primevue/inputtext";
 import { useToast } from "primevue/usetoast";
@@ -96,7 +96,6 @@ function hasAnyTimestamp(node: NodeStatusInfo): boolean {
     .some(([, v]) => v != null);
 }
 
-//TODO requires fetch by NodeCredsTable
 function nodeLabel(idNum: number): string {
   return BrokerConnection.getCachedNodeCN(idNum) ?? `#${idNum}`;
 }
@@ -191,6 +190,11 @@ async function openNodeStatus(nodeIdNum: number) {
     statusLoading.value = false;
   }
 }
+
+onMounted(async () => {
+  await BrokerConnection.waitForBrokerCredentials();
+  await BrokerConnection.refreshNodeCache();
+});
 </script>
 
 <template>

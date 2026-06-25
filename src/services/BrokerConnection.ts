@@ -97,6 +97,14 @@ class BrokerConnection {
     return this.api.getBrokerRequestNodeStatus(requestId, nodeId);
   }
 
+  /** Fetches the broker node list and repopulates the node-CN cache. */
+  async refreshNodeCache(): Promise<void> {
+    const result = await this.api.getBrokerNodeList();
+    if (result.status === 200) {
+      this.nodeCache.updateFromXml(result.data);
+    }
+  }
+
   updateNodeCacheFromXml(xml: string): void {
     this.nodeCache.updateFromXml(xml);
   }
