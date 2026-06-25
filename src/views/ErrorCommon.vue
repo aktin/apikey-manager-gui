@@ -1,4 +1,9 @@
 <script setup lang="ts">
+/**
+ * ErrorCommon.vue
+ *
+ * Shared layout for error pages: centered code, title, kaomoji and description.
+ */
 defineProps<{
   code: string;
   title: string;

@@ -1,4 +1,9 @@
 <script setup lang="ts">
+/**
+ * Error500.vue
+ *
+ * Route view for server errors; renders ErrorCommon with 500 content.
+ */
 import ErrorCommon from "./ErrorCommon.vue";
 </script>
 

@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * ApiKeyView.vue
+ *
+ * Route view for API-key management; pairs the key table with the add/toggle
+ * form and shares the selected key between them.
+ */
 import { ref } from "vue";
 import NodeCredsTable from "../components/NodeCredsTable.vue";
 import NodeCredsForm from "../components/NodeCredsForm.vue";

@@ -1,4 +1,9 @@
 <script setup lang="ts">
+/**
+ * Error404.vue
+ *
+ * Route view for unknown paths; renders ErrorCommon with 404 content.
+ */
 import ErrorCommon from "./ErrorCommon.vue";
 </script>
 
