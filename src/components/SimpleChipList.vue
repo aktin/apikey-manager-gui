@@ -5,6 +5,11 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * SimpleChipList.vue
+ *
+ * Renders a read-only row of labeled chips from a list of strings.
+ */
 import Chip from "primevue/chip";
 
 defineProps<{

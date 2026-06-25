@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * BrokerRequestViewer.vue
+ *
+ * Looks up a broker request by ID and shows its query metadata, execution
+ * schedule, and per-node status, with an on-demand node status-message dialog.
+ */
 import { computed, Ref, ref } from "vue";
 import BrokerConnection from "../services/BrokerConnection";
 import InputText from "primevue/inputtext";
@@ -16,6 +22,7 @@ import {
   RequestInfo
 } from "../types/BrokerRequest";
 import { createErrorToast, createSuccessToast } from "../utils/ToastWrapper";
+import { notifyStatusError, resolveStatusError } from "../utils/StatusToast";
 import {
   formatDateToLocale,
   formatDurationToHumanReadable
@@ -103,95 +110,62 @@ async function fetchAllRequestData() {
   }
   // Run in parallel. Each sub-fetch handles its own error toasts.
   const [okReq, okInfo, okStatus] = await Promise.all([
-    fetchRequest({ quietSuccess: true }),
-    fetchRequestInfo({ quietSuccess: true }),
-    fetchRequestStatus({ quietSuccess: true })
+    fetchRequest(),
+    fetchRequestInfo(),
+    fetchRequestStatus()
   ]);
   if (okReq && okInfo && okStatus) {
     createSuccessToast(toast, t("success"), t("requestFound"));
   }
 }
 
-async function fetchRequest(
-  opts: { quietSuccess?: boolean } = {}
+/**
+ * Fetches a request resource by the current ID, parses a 200 response into
+ * `target`, and shows a status error toast otherwise.
+ *
+ * @param notFoundKey - i18n message key for the resource-specific 404 case
+ * @returns whether the resource was fetched and parsed successfully
+ */
+async function fetchAndParse<T>(
+  fetcher: () => Promise<{ status: number; data: string }>,
+  parser: (data: string) => T,
+  target: Ref<T | null>,
+  notFoundKey: string
 ): Promise<boolean> {
-  const resp = await BrokerConnection.getBrokerRequest(id.value);
-  switch (resp.status) {
-    case 200:
-      request.value = parseXmlBrokerRequest(resp.data);
-      return true;
-    case 404:
-      createErrorToast(toast, t("notFound"), t("requestNotFound"));
-      return false;
-    case 401:
-      createErrorToast(toast, t("accessDenied"), t("noAuthorization"));
-      return false;
-    case 500:
-      createErrorToast(toast, t("serverError"), t("serverErrorOccurred"));
-      return false;
-    default:
-      createErrorToast(
-        toast,
-        t("unexpectedError"),
-        t("unexpectedErrorOccurred", { code: resp.status })
-      );
-      return false;
+  const resp = await fetcher();
+  if (resp.status === 200) {
+    target.value = parser(resp.data);
+    return true;
   }
+  notifyStatusError(toast, t, resp.status, {
+    404: { title: "notFound", message: notFoundKey }
+  });
+  return false;
 }
 
-async function fetchRequestInfo(
-  opts: { quietSuccess?: boolean } = {}
-): Promise<boolean> {
-  const resp = await BrokerConnection.getBrokerRequestInfo(id.value);
-  switch (resp.status) {
-    case 200:
-      requestInfo.value = parseXmlBrokerRequestInfo(resp.data);
-      return true;
-    case 404:
-      createErrorToast(toast, t("notFound"), t("requestInfoNotFound"));
-      return false;
-    case 401:
-      createErrorToast(toast, t("accessDenied"), t("noAuthorization"));
-      return false;
-    case 500:
-      createErrorToast(toast, t("serverError"), t("serverErrorOccurred"));
-      return false;
-    default:
-      createErrorToast(
-        toast,
-        t("unexpectedError"),
-        t("unexpectedErrorOccurred", { code: resp.status })
-      );
-      return false;
-  }
-}
+const fetchRequest = () =>
+  fetchAndParse(
+    () => BrokerConnection.getBrokerRequest(id.value),
+    parseXmlBrokerRequest,
+    request,
+    "requestNotFound"
+  );
 
-async function fetchRequestStatus(
-  opts: { quietSuccess?: boolean } = {}
-): Promise<boolean> {
-  const resp = await BrokerConnection.getBrokerRequestStatus(id.value);
-  switch (resp.status) {
-    case 200:
-      requestStatus.value = parseXmlBrokerRequestStatus(resp.data);
-      return true;
-    case 404:
-      createErrorToast(toast, t("notFound"), t("requestStatusNotFound"));
-      return false;
-    case 401:
-      createErrorToast(toast, t("accessDenied"), t("noAuthorization"));
-      return false;
-    case 500:
-      createErrorToast(toast, t("serverError"), t("serverErrorOccurred"));
-      return false;
-    default:
-      createErrorToast(
-        toast,
-        t("unexpectedError"),
-        t("unexpectedErrorOccurred", { code: resp.status })
-      );
-      return false;
-  }
-}
+const fetchRequestInfo = () =>
+  fetchAndParse(
+    () => BrokerConnection.getBrokerRequestInfo(id.value),
+    parseXmlBrokerRequestInfo,
+    requestInfo,
+    "requestInfoNotFound"
+  );
+
+const fetchRequestStatus = () =>
+  fetchAndParse(
+    () => BrokerConnection.getBrokerRequestStatus(id.value),
+    parseXmlBrokerRequestStatus,
+    requestStatus,
+    "requestStatusNotFound"
+  );
 
 async function openNodeStatus(nodeIdNum: number) {
   const reqId = id.value.trim();
@@ -205,20 +179,12 @@ async function openNodeStatus(nodeIdNum: number) {
       reqId,
       String(nodeIdNum)
     );
-    if (resp.status === 200) {
-      statusDialogText.value =
-        typeof resp.data === "string" ? resp.data : String(resp.data);
-    } else if (resp.status === 404) {
-      statusDialogText.value = t("nodeStatusNotFound");
-    } else if (resp.status === 401) {
-      statusDialogText.value = t("noAuthorization");
-    } else if (resp.status === 500) {
-      statusDialogText.value = t("serverErrorOccurred");
-    } else {
-      statusDialogText.value = t("unexpectedErrorOccurred", {
-        code: resp.status
-      });
-    }
+    statusDialogText.value =
+      resp.status === 200
+        ? String(resp.data)
+        : resolveStatusError(t, resp.status, {
+            404: { title: "notFound", message: "nodeStatusNotFound" }
+          }).detail;
   } catch {
     statusDialogText.value = t("serverErrorOccurred");
   } finally {
@@ -305,37 +271,13 @@ async function openNodeStatus(nodeIdNum: number) {
     v-if="columns.left.length || columns.right.length"
     class="grid mt-2 mx-6"
   >
-    <!-- left column -->
-    <div class="col-12 md:col-6">
+    <div
+      v-for="(column, colIndex) in [columns.left, columns.right]"
+      :key="colIndex"
+      class="col-12 md:col-6"
+    >
       <div
-        v-for="node in columns.left"
-        :key="node.nodeId"
-        class="flex justify-content-between border-bottom-1 surface-border py-2"
-      >
-        <span class="font-bold flex align-items-center gap-2">
-          <Button
-            severity="secondary"
-            icon="pi pi-file"
-            size="small"
-            text
-            v-tooltip.bottom="t('openNodeStatusMessage')"
-            @click="openNodeStatus(node.nodeId)"
-          />
-          <span>{{ [node.nodeId] }} {{ nodeLabel(node.nodeId) }}</span>
-        </span>
-        <template v-if="hasAnyTimestamp(node)">
-          <NodeStatusInfoTimeline :node-status-info="node" />
-        </template>
-        <span v-else class="text-color-secondary text-sm">{{
-          t("notRetrievedYet")
-        }}</span>
-      </div>
-    </div>
-
-    <!-- right column -->
-    <div class="col-12 md:col-6">
-      <div
-        v-for="node in columns.right"
+        v-for="node in column"
         :key="node.nodeId"
         class="flex justify-content-between border-bottom-1 surface-border py-2"
       >

@@ -22,6 +22,7 @@ import FloatLabel from "primevue/floatlabel";
 import BrokerConnection from "../services/BrokerConnection";
 import { useToast } from "primevue/usetoast";
 import { createErrorToast, createSuccessToast } from "../utils/ToastWrapper";
+import { notifyStatusError } from "../utils/StatusToast";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -57,6 +58,9 @@ const isAddButtonActive = computed(
     loc.value.trim() !== ""
 );
 const isChangeStateButtonActive = computed(() => selectedKey.value !== "");
+const isSelectedKeyActive = computed(
+  () => selectedKey.value.split(";")[1] === "true"
+);
 
 function validateField(
   value: string,
@@ -107,29 +111,14 @@ async function addNewKey() {
   const payload = `CN=${cn.value},O=${org.value},L=${loc.value}`;
   const xml = `<ApiKeyCred><apiKey>${apiKey.value}</apiKey><clientDn>${payload}</clientDn></ApiKeyCred>`;
   const status = await BrokerConnection.addApiKey(xml);
-  switch (status) {
-    case 201:
-      createSuccessToast(toast, t("success"), t("keyAdded"));
-      break;
-    case 404:
-      createErrorToast(toast, t("notFound"), t("noKeyListFound"));
-      break;
-    case 401:
-      createErrorToast(toast, t("accessDenied"), t("noAuthorization"));
-      break;
-    case 409:
-      createErrorToast(toast, t("conflict"), t("keyAlreadyExists"));
-      break;
-    case 500:
-      createErrorToast(toast, t("serverError"), t("serverErrorOccurred"));
-      break;
-    default:
-      createErrorToast(
-        toast,
-        t("unexpectedError"),
-        t("unexpectedErrorOccurred", { code: status })
-      );
+  if (status === 201) {
+    createSuccessToast(toast, t("success"), t("keyAdded"));
+    return;
   }
+  notifyStatusError(toast, t, status, {
+    404: { title: "notFound", message: "noKeyListFound" },
+    409: { title: "conflict", message: "keyAlreadyExists" }
+  });
 }
 
 async function changeKeyState() {
@@ -139,30 +128,17 @@ async function changeKeyState() {
     isActive === "false"
       ? await BrokerConnection.activateApiKey(key)
       : await BrokerConnection.deactivateApiKey(key);
-  switch (status) {
-    case 200:
-      createSuccessToast(
-        toast,
-        t("success"),
-        isActive === "false" ? t("keyActivated") : t("keyDeactivated")
-      );
-      break;
-    case 404:
-      createErrorToast(toast, t("notFound"), t("keyNotFound"));
-      break;
-    case 401:
-      createErrorToast(toast, t("accessDenied"), t("noAuthorization"));
-      break;
-    case 500:
-      createErrorToast(toast, t("serverError"), t("serverErrorOccurred"));
-      break;
-    default:
-      createErrorToast(
-        toast,
-        t("unexpectedError"),
-        t("unexpectedErrorOccurred", { code: status })
-      );
+  if (status === 200) {
+    createSuccessToast(
+      toast,
+      t("success"),
+      isActive === "false" ? t("keyActivated") : t("keyDeactivated")
+    );
+    return;
   }
+  notifyStatusError(toast, t, status, {
+    404: { title: "notFound", message: "keyNotFound" }
+  });
 }
 
 function generateApiKey() {
@@ -242,12 +218,10 @@ watch(
         class="text-sm"
       />
       <Button
-        :label="
-          selectedKey.split(';')[1] === 'true' ? t('deactivate') : t('activate')
-        "
+        :label="isSelectedKeyActive ? t('deactivate') : t('activate')"
         @click="changeKeyState"
         :disabled="!isChangeStateButtonActive"
-        :severity="selectedKey.split(';')[1] === 'true' ? 'danger' : 'success'"
+        :severity="isSelectedKeyActive ? 'danger' : 'success'"
         class="text-sm"
       />
     </div>

@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * NodeStatusInfoTimeline.vue
+ *
+ * Shows a node's most recent processing state as a button that opens a
+ * chronological timeline of its status timestamps.
+ */
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { NodeStatusInfo } from "../types/BrokerRequest";

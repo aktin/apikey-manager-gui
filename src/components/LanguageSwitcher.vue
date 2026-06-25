@@ -21,9 +21,6 @@ const toast = useToast();
 const { t, locale } = useI18n();
 const languageMenu = ref();
 
-/**
- * Language options displayed in the menu.
- */
 const languages = ref([
   {
     label: t("switchLanguage"),
@@ -61,19 +58,11 @@ watchEffect(() => {
 
 <template>
   <div>
-    <!--
-      Button for opening the language switcher menu.
-      Displays a tooltip and uses a PrimeIcons globe icon.
-    -->
     <Button
       icon="pi pi-language"
       @click="languageMenu?.toggle($event)"
       v-tooltip.bottom="t('switchLanguage')"
     />
-    <!--
-      Dropdown menu with language options (English, Deutsch).
-      Triggered by the language button.
-    -->
     <Menu ref="languageMenu" :model="languages" :popup="true" />
   </div>
 </template>

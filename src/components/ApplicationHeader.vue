@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * ApplicationHeader.vue
+ *
+ * Top navigation bar: route tabs (keys / request) alongside the broker status
+ * indicator and the profile manager.
+ */
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import TabMenu from "primevue/tabmenu";
