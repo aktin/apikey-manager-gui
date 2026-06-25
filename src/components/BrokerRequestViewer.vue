@@ -84,8 +84,20 @@ const exec = computed<execView | null>(() => {
   return null;
 });
 
-const columns = computed(() => {
+const nodeSearch = ref("");
+
+// Filters nodes by the displayed label (#id + CN), case-insensitive.
+const filteredStatus = computed(() => {
   const all = requestStatus.value ?? [];
+  const q = nodeSearch.value.trim().toLowerCase();
+  if (!q) return all;
+  return all.filter((n) =>
+    `${n.nodeId} ${nodeLabel(n.nodeId)}`.toLowerCase().includes(q)
+  );
+});
+
+const columns = computed(() => {
+  const all = filteredStatus.value;
   const half = Math.ceil(all.length / 2);
   return { left: all.slice(0, half), right: all.slice(half) };
 });
@@ -280,6 +292,17 @@ onMounted(async () => {
         </p>
       </div>
     </div>
+  </div>
+
+  <div
+    v-if="requestStatus && requestStatus.length"
+    class="flex justify-content-center mt-3"
+  >
+    <InputText
+      v-model="nodeSearch"
+      :placeholder="t('keywordSearch')"
+      class="w-20rem"
+    />
   </div>
 
   <div
