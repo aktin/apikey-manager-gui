@@ -18,7 +18,7 @@ import Column from "primevue/column";
 import Checkbox from "primevue/checkbox";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
-import { FilterMatchMode } from "primevue/api";
+import { FilterMatchMode } from "@primevue/core/api";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
 import { createErrorToast, createSuccessToast } from "../utils/ToastWrapper";
