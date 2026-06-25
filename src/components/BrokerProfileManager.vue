@@ -256,64 +256,67 @@ onMounted(async () => {
   />
 
   <!-- Profile manager dialog -->
-  <Dialog
-    v-model:visible="visible"
-    modal
-    :header="t('config')"
-    class="w-30rem h-25rem"
-  >
+  <Dialog v-model:visible="visible" modal :header="t('config')" class="w-30rem">
     <!-- Show loading spinner during async profile switch -->
-    <div v-if="logInBlocked" class="h-18rem flex align-items-center">
-      <ProgressSpinner class="justify-content-center" />
+    <div
+      v-if="logInBlocked"
+      class="flex align-items-center justify-content-center"
+      style="min-height: 14rem"
+    >
+      <ProgressSpinner />
     </div>
 
-    <div v-else class="flex flex-row flex-wrap h-18rem">
-      <!-- Input fields: name, key, URL -->
-      <div class="flex flex-column justify-content-between">
-        <div class="field grid mt-3 p-2 flex flex-wrap align-items-center">
-          <FloatLabel>
-            <InputText v-model="name" class="w-20rem" />
-            <label>{{ t("profileName") }}</label>
-          </FloatLabel>
-        </div>
+    <!-- Input fields: name, key, URL (all equal width) -->
+    <div v-else class="flex flex-column gap-5">
+      <FloatLabel class="w-full mt-4">
+        <InputText v-model="name" class="w-full" />
+        <label>{{ t("profileName") }}</label>
+      </FloatLabel>
 
-        <div class="field grid p-2 flex flex-wrap align-items-center">
-          <FloatLabel>
-            <Password v-model="key" toggleMask :feedback="false" />
-            <label>{{ t("profileKey") }}</label>
-          </FloatLabel>
-        </div>
+      <FloatLabel class="w-full">
+        <Password
+          v-model="key"
+          toggleMask
+          :feedback="false"
+          class="w-full"
+          input-class="w-full"
+        />
+        <label>{{ t("profileKey") }}</label>
+      </FloatLabel>
 
-        <div class="field grid p-2 flex flex-wrap align-items-center">
-          <FloatLabel>
-            <InputText v-model="url" class="w-20rem" />
-            <label>{{ t("profileUrl") }}</label>
-          </FloatLabel>
-        </div>
-      </div>
+      <FloatLabel class="w-full">
+        <InputText v-model="url" class="w-full" />
+        <label>{{ t("profileUrl") }}</label>
+      </FloatLabel>
+    </div>
 
-      <!-- Side controls: language switch, save/delete/select -->
-      <div class="flex flex-column justify-content-between ml-auto">
+    <!-- Footer: language switch (left) + grouped profile actions (right) -->
+    <template #footer>
+      <div class="flex align-items-center w-full">
         <LanguageSwitcher />
-        <Button
-          icon="pi pi-save"
-          @click="saveOrUpdateProfile"
-          :disabled="saveBtnDisabled"
-          v-tooltip.bottom="t('saveProfile')"
-        />
-        <Button
-          icon="pi pi-trash"
-          @click="confirmDelete"
-          :disabled="deleteBtnDisabled"
-          v-tooltip.bottom="t('deleteProfile')"
-        />
-        <Button
-          icon="pi pi-arrow-right-arrow-left"
-          @click="openProfileSelectionMenu"
-          v-tooltip.bottom="t('selectProfile')"
-        />
+        <div class="flex gap-2 ml-auto">
+          <Button
+            icon="pi pi-arrow-right-arrow-left"
+            severity="secondary"
+            @click="openProfileSelectionMenu"
+            v-tooltip.bottom="t('selectProfile')"
+          />
+          <Button
+            icon="pi pi-save"
+            @click="saveOrUpdateProfile"
+            :disabled="saveBtnDisabled"
+            v-tooltip.bottom="t('saveProfile')"
+          />
+          <Button
+            icon="pi pi-trash"
+            severity="danger"
+            @click="confirmDelete"
+            :disabled="deleteBtnDisabled"
+            v-tooltip.bottom="t('deleteProfile')"
+          />
+        </div>
         <Menu ref="profilesMenu" :model="profilesList" :popup="true" />
       </div>
-    </div>
+    </template>
   </Dialog>
 </template>
