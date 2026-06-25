@@ -31,13 +31,8 @@ type StateKey = (typeof orderedStates)[number];
 const mostActualState = computed<StateKey | null>(() => {
   const nsi = props.nodeStatusInfo;
   let latestKey: StateKey | null = null;
-  let latestDate: Date | null = null;
   for (const key of orderedStates) {
-    const ts = nsi[key];
-    if (ts && (!latestDate || ts > latestDate)) {
-      latestDate = ts;
-      latestKey = key;
-    }
+    if (nsi[key]) latestKey = key;
   }
   return latestKey;
 });

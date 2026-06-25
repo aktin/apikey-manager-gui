@@ -104,5 +104,8 @@
   "error404Title": "Not Found",
   "error404Description": "This page is playing hide-and-seek and it's winning",
   "error500Title": "Internal Server Error",
-  "error500Description": "Sorry, the server is currently having a bit of a meltdown"
+  "error500Description": "Sorry, the server is currently having a bit of a meltdown",
+  "error": "Error",
+  "copyStatusMessage": "Copy status message",
+  "statusCopied": "Status message copied"
 }

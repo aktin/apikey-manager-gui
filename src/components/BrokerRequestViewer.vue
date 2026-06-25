@@ -84,8 +84,20 @@ const exec = computed<execView | null>(() => {
   return null;
 });
 
-const columns = computed(() => {
+const nodeSearch = ref("");
+
+// Filters nodes by the displayed label (#id + CN), case-insensitive.
+const filteredStatus = computed(() => {
   const all = requestStatus.value ?? [];
+  const q = nodeSearch.value.trim().toLowerCase();
+  if (!q) return all;
+  return all.filter((n) =>
+    `${n.nodeId} ${nodeLabel(n.nodeId)}`.toLowerCase().includes(q)
+  );
+});
+
+const columns = computed(() => {
+  const all = filteredStatus.value;
   const half = Math.ceil(all.length / 2);
   return { left: all.slice(0, half), right: all.slice(half) };
 });
@@ -191,6 +203,17 @@ async function openNodeStatus(nodeIdNum: number) {
   }
 }
 
+/** Copies the open node status message to the clipboard. */
+async function copyStatusToClipboard(): Promise<void> {
+  if (!statusDialogText.value) return;
+  try {
+    await navigator.clipboard.writeText(statusDialogText.value);
+    createSuccessToast(toast, t("success"), t("statusCopied"));
+  } catch {
+    createErrorToast(toast, t("error"), t("failedToCopy"));
+  }
+}
+
 onMounted(async () => {
   await BrokerConnection.waitForBrokerCredentials();
   await BrokerConnection.refreshNodeCache();
@@ -272,6 +295,17 @@ onMounted(async () => {
   </div>
 
   <div
+    v-if="requestStatus && requestStatus.length"
+    class="flex justify-content-center mt-3"
+  >
+    <InputText
+      v-model="nodeSearch"
+      :placeholder="t('keywordSearch')"
+      class="w-20rem"
+    />
+  </div>
+
+  <div
     v-if="columns.left.length || columns.right.length"
     class="grid mt-2 mx-6"
   >
@@ -308,10 +342,24 @@ onMounted(async () => {
 
   <Dialog
     v-model:visible="statusDialogVisible"
-    :header="statusDialogTitle"
     modal
     style="width: 60vw; max-width: 900px"
   >
+    <template #header>
+      <span class="flex align-items-center gap-2">
+        <span class="font-bold">{{ statusDialogTitle }}</span>
+        <Button
+          v-if="statusDialogText"
+          icon="pi pi-copy"
+          text
+          rounded
+          size="small"
+          v-tooltip.bottom="t('copyStatusMessage')"
+          @click="copyStatusToClipboard"
+        />
+      </span>
+    </template>
+
     <div v-if="statusLoading" class="flex justify-content-center p-4">
       <ProgressSpinner />
     </div>
