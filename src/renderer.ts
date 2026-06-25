@@ -26,6 +26,7 @@ import ConfirmationService from "primevue/confirmationservice";
 // Styles imports
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
+import "./style.css";
 
 const app = createApp(App)
   .use(PrimeVue, { theme: { preset: Lara } })
