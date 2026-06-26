@@ -29,11 +29,12 @@ export class BrokerApiClient {
   /**
    * Authenticated GET/OPTIONS that returns the body only when the response
    * content type matches; on mismatch returns an empty body, and on network
-   * error returns status 500 with an empty body.
+   * error returns status 500 with an empty body. Pass a null
+   * `expectedContentType` to accept any content type (content-agnostic).
    */
   private async request(
     pathSuffix: string,
-    expectedContentType: string,
+    expectedContentType: string | null,
     label: string,
     method: "GET" | "OPTIONS" = "GET"
   ): Promise<{ status: number; data: string }> {
@@ -46,7 +47,7 @@ export class BrokerApiClient {
         }
       });
       const contentType = response.headers.get("Content-Type") || "";
-      if (!contentType.includes(expectedContentType)) {
+      if (expectedContentType && !contentType.includes(expectedContentType)) {
         console.warn(`Invalid ${label} received`);
         return { status: response.status, data: "" };
       }
@@ -116,6 +117,41 @@ export class BrokerApiClient {
 
   async getBrokerNodeList(): Promise<{ status: number; data: string }> {
     return this.request("/broker/node/", "application/xml", "broker node list");
+  }
+
+  async getBrokerNode(
+    nodeId: string
+  ): Promise<{ status: number; data: string }> {
+    return this.request(
+      `/broker/node/${nodeId}`,
+      "application/xml",
+      "broker node"
+    );
+  }
+
+  async getBrokerNodeStats(
+    nodeId: string
+  ): Promise<{ status: number; data: string }> {
+    return this.request(
+      `/broker/node/${nodeId}/stats`,
+      "application/xml",
+      "broker node stats"
+    );
+  }
+
+  /**
+   * Fetches an arbitrary node resource (`/broker/node/{id}/{path}`). Accepts any
+   * content type, since the resource path and its content are node-defined.
+   */
+  async getBrokerNodeResource(
+    nodeId: string,
+    path: string
+  ): Promise<{ status: number; data: string }> {
+    return this.request(
+      `/broker/node/${nodeId}/${path}`,
+      null,
+      "broker node resource"
+    );
   }
 
   async getAllBrokerRequests(): Promise<{ status: number; data: string }> {

@@ -20,7 +20,8 @@ const { t } = useI18n();
 
 const routing = computed<RouteConfig[]>(() => [
   { label: t("keys"), route: "/api-keys" },
-  { label: t("request"), route: "/request" }
+  { label: t("request"), route: "/request" },
+  { label: t("nodes"), route: "/nodes" }
 ]);
 </script>
 

@@ -1,3 +1,5 @@
+import { parseXmlBrokerNodeList } from "../utils/Parser";
+
 /**
  * Caches the mapping from broker node id to its certificate CN, rebuilt from
  * the broker node-list XML.
@@ -7,20 +9,9 @@ export class NodeCnCache {
 
   /** Clears and repopulates the cache from a broker node-list XML document. */
   updateFromXml(xml: string): void {
-    const ns = "http://aktin.org/ns/exchange";
-    const doc = new DOMParser().parseFromString(xml, "application/xml");
-    const nodes = Array.from(doc.getElementsByTagNameNS(ns, "node"));
     this.nodeIdToCN.clear();
-    for (const n of nodes) {
-      const id = n.getElementsByTagNameNS(ns, "id")[0]?.textContent?.trim();
-      const dn =
-        n.getElementsByTagNameNS(ns, "clientDN")[0]?.textContent?.trim() ?? "";
-      const cn =
-        dn
-          .split(",")
-          .find((p) => p.startsWith("CN="))
-          ?.slice(3) ?? null;
-      if (id && cn) this.nodeIdToCN.set(Number(id), cn);
+    for (const { id, cn } of parseXmlBrokerNodeList(xml)) {
+      if (cn && Number.isFinite(id)) this.nodeIdToCN.set(id, cn);
     }
   }
 

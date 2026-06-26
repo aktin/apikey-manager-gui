@@ -72,6 +72,23 @@ class BrokerConnection {
     return this.api.getBrokerNodeList();
   }
 
+  getBrokerNode(nodeId: string): Promise<{ status: number; data: string }> {
+    return this.api.getBrokerNode(nodeId);
+  }
+
+  getBrokerNodeStats(
+    nodeId: string
+  ): Promise<{ status: number; data: string }> {
+    return this.api.getBrokerNodeStats(nodeId);
+  }
+
+  getBrokerNodeResource(
+    nodeId: string,
+    path: string
+  ): Promise<{ status: number; data: string }> {
+    return this.api.getBrokerNodeResource(nodeId, path);
+  }
+
   getAllBrokerRequests(): Promise<{ status: number; data: string }> {
     return this.api.getAllBrokerRequests();
   }
