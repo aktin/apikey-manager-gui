@@ -11,6 +11,13 @@ import {
   RequestListEntry,
   SingleExecution
 } from "../types/BrokerRequest";
+import {
+  BrokerNode,
+  NodeError,
+  NodeListEntry,
+  NodeStats,
+  PropertyEntry
+} from "../types/BrokerNode";
 import { createDuration } from "./MomentWrapper";
 
 /**
@@ -151,6 +158,107 @@ export function parseNodeIdMap(xml: string): Map<string, string> {
     }
   }
   return map;
+}
+
+/** Extracts the CN, O, and L components from a certificate distinguished name. */
+function splitDn(dn: string): {
+  cn: string | null;
+  o: string | null;
+  l: string | null;
+} {
+  const part = (key: string) =>
+    dn
+      .split(",")
+      .map((p) => p.trim())
+      .find((p) => p.startsWith(`${key}=`))
+      ?.slice(key.length + 1) ?? null;
+  return { cn: part("CN"), o: part("O"), l: part("L") };
+}
+
+/**
+ * Parses the broker node list (AKTIN exchange namespace) into entries holding
+ * each node's id, CN, and last-contact timestamp.
+ */
+export function parseXmlBrokerNodeList(xml: string): NodeListEntry[] {
+  const ns = "http://aktin.org/ns/exchange";
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  return Array.from(doc.getElementsByTagNameNS(ns, "node")).map((el) => {
+    const lastContact = el
+      .getElementsByTagNameNS(ns, "last-contact")[0]
+      ?.textContent?.trim();
+    return {
+      id: Number(el.getElementsByTagNameNS(ns, "id")[0]?.textContent?.trim()),
+      cn: splitDn(
+        el.getElementsByTagNameNS(ns, "clientDN")[0]?.textContent?.trim() ?? ""
+      ).cn,
+      lastContact: lastContact ? new Date(lastContact) : null
+    };
+  });
+}
+
+/**
+ * Parses a single broker node document (AKTIN exchange namespace) into a
+ * {@link BrokerNode}, splitting its DN and collecting any module names.
+ */
+export function parseXmlBrokerNode(xml: string): BrokerNode {
+  const ns = "http://aktin.org/ns/exchange";
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  const get1 = (tag: string) =>
+    doc.getElementsByTagNameNS(ns, tag)[0]?.textContent?.trim() ?? "";
+  const lastContact = get1("last-contact");
+  return {
+    id: Number(get1("id")),
+    ...splitDn(get1("clientDN")),
+    lastContact: lastContact ? new Date(lastContact) : null,
+    websocket: get1("websocket").toLowerCase() === "true",
+    modules: Array.from(doc.getElementsByTagNameNS(ns, "module"))
+      .map((m) => m.textContent?.trim() ?? "")
+      .filter(Boolean)
+  };
+}
+
+/** Parses a node's import-statistics document into a {@link NodeStats}. */
+export function parseXmlNodeStats(xml: string): NodeStats {
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  const txt = (tag: string) =>
+    doc.getElementsByTagName(tag)[0]?.textContent?.trim() ?? "";
+  const toDate = (tag: string) => {
+    const value = txt(tag);
+    return value ? new Date(value) : null;
+  };
+  const lastErrors: NodeError[] = Array.from(
+    doc.getElementsByTagName("error")
+  ).map((el) => {
+    const repeats = el.getAttribute("repeats");
+    const timestamp = el.getAttribute("timestamp");
+    return {
+      message: el.textContent?.trim() ?? "",
+      repeats: repeats ? Number(repeats) : null,
+      timestamp: timestamp ? new Date(timestamp) : null
+    };
+  });
+  return {
+    start: toDate("start"),
+    lastWrite: toDate("last-write"),
+    lastReject: toDate("last-reject"),
+    imported: Number(txt("imported") || 0),
+    updated: Number(txt("updated") || 0),
+    invalid: Number(txt("invalid") || 0),
+    failed: Number(txt("failed") || 0),
+    lastErrors
+  };
+}
+
+/**
+ * Parses a Java-properties XML document (`<entry key="...">value</entry>`) into
+ * key/value pairs. Generic across node resources (versions, import-scripts, …).
+ */
+export function parseXmlProperties(xml: string): PropertyEntry[] {
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  return Array.from(doc.getElementsByTagName("entry")).map((el) => ({
+    key: el.getAttribute("key") ?? "",
+    value: el.textContent?.trim() ?? ""
+  }));
 }
 
 /**

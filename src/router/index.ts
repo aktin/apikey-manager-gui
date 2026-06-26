@@ -8,6 +8,7 @@ import Error404 from "../views/Error404.vue";
 import Error500 from "../views/Error500.vue";
 import ApiKeyView from "../views/ApiKeyView.vue";
 import RequestView from "../views/RequestView.vue";
+import NodeView from "../views/NodeView.vue";
 
 const routes = [
   {
@@ -21,6 +22,10 @@ const routes = [
   {
     path: "/request",
     component: RequestView
+  },
+  {
+    path: "/nodes",
+    component: NodeView
   },
   { path: "/500", component: Error500 },
   { path: "/:catchAll(.*)", component: Error404 }

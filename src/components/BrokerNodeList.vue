@@ -1,17 +1,17 @@
 <script setup lang="ts">
 /**
- * BrokerRequestList.vue
+ * BrokerNodeList.vue
  *
- * Lists all broker requests (id + publish date), newest first, with an id
- * filter. Emits the id of the request the user selects.
+ * Lists all broker nodes (id + CN), by id ascending, with an id/name filter.
+ * Emits the id of the node the user selects.
  */
 import { computed, onMounted, ref } from "vue";
 import InputText from "primevue/inputtext";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
 import BrokerConnection from "../services/BrokerConnection";
-import { parseXmlBrokerRequestList } from "../utils/Parser";
-import { RequestListEntry } from "../types/BrokerRequest";
+import { parseXmlBrokerNodeList } from "../utils/Parser";
+import { NodeListEntry } from "../types/BrokerNode";
 import { notifyStatusError } from "../utils/StatusToast";
 import { formatDateToLocale } from "../utils/MomentWrapper";
 
@@ -21,24 +21,24 @@ const toast = useToast();
 defineProps<{ selectedId: number | null }>();
 const emit = defineEmits<{ (e: "select", id: number): void }>();
 
-const requests = ref<RequestListEntry[]>([]);
+const nodes = ref<NodeListEntry[]>([]);
 const filter = ref("");
 
-// Requests whose id contains the filter, newest first.
-const filteredRequests = computed(() => {
-  const q = filter.value.trim();
+// Nodes whose id or CN contains the filter, by id ascending.
+const filteredNodes = computed(() => {
+  const q = filter.value.trim().toLowerCase();
   const list = q
-    ? requests.value.filter((r) => String(r.id).includes(q))
-    : requests.value;
-  return [...list].sort(
-    (a, b) => b.publishDate.getTime() - a.publishDate.getTime()
-  );
+    ? nodes.value.filter((n) =>
+        `${n.id} ${n.cn ?? ""}`.toLowerCase().includes(q)
+      )
+    : nodes.value;
+  return [...list].sort((a, b) => a.id - b.id);
 });
 
-async function loadRequests() {
-  const resp = await BrokerConnection.getAllBrokerRequests();
+async function loadNodes() {
+  const resp = await BrokerConnection.getBrokerNodeList();
   if (resp.status === 200) {
-    requests.value = parseXmlBrokerRequestList(resp.data);
+    nodes.value = parseXmlBrokerNodeList(resp.data);
     return;
   }
   notifyStatusError(toast, t, resp.status, {});
@@ -46,44 +46,48 @@ async function loadRequests() {
 
 onMounted(async () => {
   await BrokerConnection.waitForBrokerCredentials();
-  await loadRequests();
+  await loadNodes();
 });
 </script>
 
 <template>
   <div class="flex flex-column gap-2">
-    <InputText v-model="filter" :placeholder="t('requestId')" class="w-full" />
+    <InputText
+      v-model="filter"
+      :placeholder="t('keywordSearch')"
+      class="w-full"
+    />
     <div
       class="flex justify-content-between px-2 pb-1 border-bottom-1 surface-border text-xs font-bold text-color-secondary"
     >
-      <span>{{ t("requestId") }}</span>
-      <span>{{ t("publishDate") }}</span>
+      <span>{{ t("nodes") }}</span>
+      <span>{{ t("lastContact") }}</span>
     </div>
     <div class="overflow-y-auto" style="max-height: calc(100vh - 10rem)">
       <div
-        v-for="req in filteredRequests"
-        :key="req.id"
+        v-for="node in filteredNodes"
+        :key="node.id"
         class="flex justify-content-between align-items-center px-2 py-2 border-bottom-1 surface-border border-round cursor-pointer"
-        :class="{ selected: req.id === selectedId }"
-        @click="emit('select', req.id)"
+        :class="{ selected: node.id === selectedId }"
+        @click="emit('select', node.id)"
       >
-        <span class="font-bold">#{{ req.id }}</span>
+        <span class="font-bold">[{{ node.id }}] {{ node.cn ?? "—" }}</span>
         <span class="text-color-secondary text-sm">
-          {{ formatDateToLocale(req.publishDate) }}
+          {{ formatDateToLocale(node.lastContact) }}
         </span>
       </div>
       <div
-        v-if="!filteredRequests.length"
+        v-if="!filteredNodes.length"
         class="text-color-secondary text-center p-3"
       >
-        {{ t("emptyRequestList") }}
+        {{ t("emptyNodeList") }}
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* Colored highlight for the request whose detail is shown (PrimeVue's selection tint). */
+/* Colored highlight for the node whose detail is shown (PrimeVue's selection tint). */
 .selected {
   background: var(--p-highlight-background);
   color: var(--p-highlight-color);
