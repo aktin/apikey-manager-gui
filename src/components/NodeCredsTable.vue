@@ -80,8 +80,12 @@ async function fetchAndFormatApiKeyList(): Promise<Record<string, any>[]> {
       nodeResult.status === 200
         ? parseNodeIdMap(nodeResult.data)
         : new Map<string, string>();
-    nodeCount.value = nodeMap.size;
-    return mergeApiKeysWithNodes(keyResult.data, nodeMap);
+    const merged = mergeApiKeysWithNodes(keyResult.data, nodeMap);
+    // Connected nodes = active keys that resolved to a broker node id.
+    nodeCount.value = merged.filter(
+      (entry) => entry.nodeId != null && entry.isActive === true
+    ).length;
+    return merged;
   }
   notifyStatusError(toast, t, keyResult.status, {
     401: { title: "accessDenied", message: "unauthorizedToViewKeys" }
@@ -254,17 +258,17 @@ watch(showInactiveKeys, async () => {
         <div class="flex justify-content-center">
           <i
             v-if="data.isActive === true"
-            v-tooltip="t('keyIsActive')"
+            v-tooltip.left="t('keyIsActive')"
             class="pi pi-check-circle text-green-500"
           />
           <i
             v-else-if="data.isActive === false"
-            v-tooltip="t('keyIsInactive')"
+            v-tooltip.left="t('keyIsInactive')"
             class="pi pi-times-circle text-red-500"
           />
           <i
             v-else
-            v-tooltip="t('keyStatusUnknown')"
+            v-tooltip.left="t('keyStatusUnknown')"
             class="pi pi-question-circle text-gray-400"
           />
         </div>

@@ -8,6 +8,7 @@ import {
   Query,
   RepeatedExecution,
   RequestInfo,
+  RequestListEntry,
   SingleExecution
 } from "../types/BrokerRequest";
 import { createDuration } from "./MomentWrapper";
@@ -64,7 +65,7 @@ export function parseXmlBrokerRequest(xml: string): BrokerRequest {
       id: reId ? Number(reId) : Number.NaN,
       duration: createDuration(durationText ?? ""),
       interval: createDuration(intervalText ?? ""),
-      intervalHours: intervalHoursText ? Number(intervalHoursText) : Number.NaN
+      intervalHours: intervalHoursText ? Number(intervalHoursText) : null
     };
   }
 
@@ -81,6 +82,21 @@ export function parseXmlBrokerRequest(xml: string): BrokerRequest {
     scheduledDate: new Date(scheduledText),
     query
   };
+}
+
+/**
+ * Parses a broker request list (AKTIN exchange namespace) into entries holding
+ * each request's id and publish date.
+ */
+export function parseXmlBrokerRequestList(xml: string): RequestListEntry[] {
+  const ns = "http://aktin.org/ns/exchange";
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  return Array.from(doc.getElementsByTagNameNS(ns, "request")).map((el) => ({
+    id: Number(el.getAttribute("id")),
+    publishDate: new Date(
+      el.getElementsByTagNameNS(ns, "published")[0]?.textContent?.trim() ?? ""
+    )
+  }));
 }
 
 export function parseXmlBrokerRequestInfo(xml: string): RequestInfo {
