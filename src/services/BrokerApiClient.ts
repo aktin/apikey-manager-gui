@@ -118,6 +118,14 @@ export class BrokerApiClient {
     return this.request("/broker/node/", "application/xml", "broker node list");
   }
 
+  async getAllBrokerRequests(): Promise<{ status: number; data: string }> {
+    return this.request(
+      "/broker/request",
+      "application/xml",
+      "broker request list"
+    );
+  }
+
   async getBrokerRequest(
     requestId: string
   ): Promise<{ status: number; data: string }> {

@@ -40,6 +40,12 @@ export interface RequestInfo {
   targeted: boolean;
 }
 
+/** One entry of the broker request list (`GET /broker/request`). */
+export interface RequestListEntry {
+  id: number;
+  publishDate: Date;
+}
+
 /**
  * Per-node processing status of a {@link BrokerRequest}.
  *
