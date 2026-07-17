@@ -2,9 +2,10 @@
 /**
  * BrokerRequestViewer.vue
  *
- * Shows a selected broker request's query metadata, execution schedule, and
- * per-node status, with an on-demand node status-message dialog. The request is
- * chosen by the `requestId` prop; nothing is fetched while it is null.
+ * Shows a selected broker request's query metadata (title, description, SQL),
+ * execution schedule, and per-node status, with an on-demand node
+ * status-message dialog. The request is chosen by the `requestId` prop;
+ * nothing is fetched while it is null.
  */
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import BrokerConnection from "../services/BrokerConnection";
@@ -37,6 +38,7 @@ import {
 import SimpleChipList from "./SimpleChipList.vue";
 import NodeStatusInfoTimeline from "./NodeStatusInfoTimeline.vue";
 import Dialog from "primevue/dialog";
+import Panel from "primevue/panel";
 import ProgressSpinner from "primevue/progressspinner";
 import Tag from "primevue/tag";
 import Badge from "primevue/badge";
@@ -57,12 +59,15 @@ const statusDialogTitle = ref("");
 const statusDialogText = ref("");
 const statusLoading = ref(false);
 
+const descriptionCollapsed = ref(false);
+const sqlCollapsed = ref(false);
+
 type execView =
   | { kind: "single"; label: string; duration: string }
   | {
       kind: "repeated";
       label: string;
-      id: number;
+      id: number | null;
       duration: string;
       interval: string;
       intervalHours: number | null;
@@ -140,6 +145,8 @@ async function loadRequest() {
   requestInfo.value = null;
   requestStatus.value = null;
   nodeSearch.value = "";
+  descriptionCollapsed.value = false;
+  sqlCollapsed.value = false;
   if (props.requestId == null) return;
   await Promise.all([fetchRequest(), fetchRequestInfo(), fetchRequestStatus()]);
 }
@@ -229,6 +236,18 @@ async function copyStatusToClipboard(): Promise<void> {
   }
 }
 
+/** Copies the request's SQL query to the clipboard. */
+async function copySqlToClipboard(): Promise<void> {
+  const sql = request.value?.query.sql;
+  if (!sql) return;
+  try {
+    await navigator.clipboard.writeText(sql);
+    createSuccessToast(toast, t("success"), t("sqlCopied"));
+  } catch {
+    createErrorToast(toast, t("error"), t("failedToCopy"));
+  }
+}
+
 onMounted(async () => {
   await BrokerConnection.waitForBrokerCredentials();
   await BrokerConnection.refreshNodeCache();
@@ -257,7 +276,9 @@ watch(() => props.requestId, loadRequest);
       <div class="flex align-items-center flex-wrap gap-2 my-3">
         <Tag
           :value="
-            exec.kind === 'repeated' ? `${exec.label} ${exec.id}` : exec.label
+            exec.kind === 'repeated' && exec.id != null
+              ? `${exec.label} ${exec.id}`
+              : exec.label
           "
           :severity="exec.kind === 'repeated' ? 'warn' : 'info'"
         />
@@ -314,6 +335,50 @@ watch(() => props.requestId, loadRequest);
           </div>
         </div>
       </div>
+      <Panel
+        v-if="request.query.description"
+        v-model:collapsed="descriptionCollapsed"
+        toggleable
+        class="mt-3"
+      >
+        <template #header>
+          <span
+            class="flex-1 cursor-pointer font-bold"
+            @click="descriptionCollapsed = !descriptionCollapsed"
+          >
+            {{ t("descriptionSection") }}
+          </span>
+        </template>
+        <p class="m-0 line-height-3" style="white-space: pre-wrap">
+          {{ request.query.description }}
+        </p>
+      </Panel>
+      <Panel
+        v-if="request.query.sql"
+        v-model:collapsed="sqlCollapsed"
+        toggleable
+        class="mt-3"
+      >
+        <template #header>
+          <span
+            class="flex-1 cursor-pointer font-bold"
+            @click="sqlCollapsed = !sqlCollapsed"
+          >
+            {{ t("querySection") }}
+          </span>
+        </template>
+        <template #icons>
+          <Button
+            icon="pi pi-copy"
+            text
+            rounded
+            size="small"
+            v-tooltip.bottom="t('copySqlQuery')"
+            @click="copySqlToClipboard"
+          />
+        </template>
+        <pre class="m-0 text-sm overflow-x-auto">{{ request.query.sql }}</pre>
+      </Panel>
     </div>
 
     <div

@@ -124,5 +124,9 @@
   "error500Description": "Sorry, the server is currently having a bit of a meltdown",
   "error": "Error",
   "copyStatusMessage": "Copy status message",
-  "statusCopied": "Status message copied"
+  "statusCopied": "Status message copied",
+  "querySection": "Query",
+  "descriptionSection": "Description",
+  "copySqlQuery": "Copy SQL query",
+  "sqlCopied": "SQL query copied"
 }

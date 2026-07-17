@@ -124,5 +124,9 @@
   "error500Description": "Entschuldigung, der Server hat gerade einen kleinen Aussetzer",
   "error": "Fehler",
   "copyStatusMessage": "Statusmeldung kopieren",
-  "statusCopied": "Statusmeldung kopiert"
+  "statusCopied": "Statusmeldung kopiert",
+  "querySection": "Abfrage",
+  "descriptionSection": "Beschreibung",
+  "copySqlQuery": "SQL-Abfrage kopieren",
+  "sqlCopied": "SQL-Abfrage kopiert"
 }
