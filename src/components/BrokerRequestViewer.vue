@@ -2,7 +2,7 @@
 /**
  * BrokerRequestViewer.vue
  *
- * Shows a selected broker request's query metadata (title, description, SQL),
+ * Shows a selected broker request's query metadata (title, description, query),
  * execution schedule, and per-node status, with an on-demand node
  * status-message dialog. The request is chosen by the `requestId` prop;
  * nothing is fetched while it is null.
@@ -60,7 +60,7 @@ const statusDialogText = ref("");
 const statusLoading = ref(false);
 
 const descriptionCollapsed = ref(false);
-const sqlCollapsed = ref(false);
+const queryCollapsed = ref(false);
 
 type execView =
   | { kind: "single"; label: string; duration: string }
@@ -146,7 +146,7 @@ async function loadRequest() {
   requestStatus.value = null;
   nodeSearch.value = "";
   descriptionCollapsed.value = false;
-  sqlCollapsed.value = false;
+  queryCollapsed.value = false;
   if (props.requestId == null) return;
   await Promise.all([fetchRequest(), fetchRequestInfo(), fetchRequestStatus()]);
 }
@@ -236,13 +236,12 @@ async function copyStatusToClipboard(): Promise<void> {
   }
 }
 
-/** Copies the request's SQL query to the clipboard. */
-async function copySqlToClipboard(): Promise<void> {
-  const sql = request.value?.query.sql;
-  if (!sql) return;
+async function copyQueryToClipboard(): Promise<void> {
+  const xml = request.value?.query.queryXml;
+  if (!xml) return;
   try {
-    await navigator.clipboard.writeText(sql);
-    createSuccessToast(toast, t("success"), t("sqlCopied"));
+    await navigator.clipboard.writeText(xml);
+    createSuccessToast(toast, t("success"), t("queryCopied"));
   } catch {
     createErrorToast(toast, t("error"), t("failedToCopy"));
   }
@@ -375,15 +374,15 @@ watch(() => props.requestId, loadRequest);
         </p>
       </Panel>
       <Panel
-        v-if="request.query.sql"
-        v-model:collapsed="sqlCollapsed"
+        v-if="request.query.queryXml"
+        v-model:collapsed="queryCollapsed"
         toggleable
         class="mt-3"
       >
         <template #header>
           <span
             class="flex-1 cursor-pointer font-bold"
-            @click="sqlCollapsed = !sqlCollapsed"
+            @click="queryCollapsed = !queryCollapsed"
           >
             {{ t("querySection") }}
           </span>
@@ -394,11 +393,13 @@ watch(() => props.requestId, loadRequest);
             text
             rounded
             size="small"
-            v-tooltip.bottom="t('copySqlQuery')"
-            @click="copySqlToClipboard"
+            v-tooltip.bottom="t('copyQuery')"
+            @click="copyQueryToClipboard"
           />
         </template>
-        <pre class="m-0 text-sm overflow-x-auto">{{ request.query.sql }}</pre>
+        <pre class="m-0 text-sm overflow-x-auto">{{
+          request.query.queryXml
+        }}</pre>
       </Panel>
     </div>
 

@@ -84,22 +84,16 @@ export function parseXmlBrokerRequest(xml: string): BrokerRequest {
     };
   }
 
-  // The <sql> extension lives in its own namespace; its <source> children
-  // hold the SQL text (fall back to the element's own text if none exist).
+  // The query's <sql> extension element (whose sources may hold SQL, R, or
+  // Python code) lives in its own namespace; keep the whole element as
+  // serialized XML (tag, attributes, and children such as <source>).
   const sqlEl = doc.getElementsByTagNameNS("*", "sql")[0];
-  const sqlSources = sqlEl
-    ? Array.from(sqlEl.getElementsByTagNameNS("*", "source"))
-        .map((el) => el.textContent?.trim() ?? "")
-        .filter(Boolean)
-    : [];
-  const sql = sqlSources.length
-    ? sqlSources.join("\n")
-    : (sqlEl?.textContent?.trim() ?? "");
+  const queryXml = sqlEl ? new XMLSerializer().serializeToString(sqlEl) : "";
 
   const query: Query = {
     title: get1("title"),
     description: get1("description"),
-    sql,
+    queryXml,
     principal,
     singleExecution,
     repeatedExecution

@@ -16,7 +16,8 @@ export interface BrokerRequest {
 export interface Query {
   title: string;
   description: string;
-  sql: string;
+  /** The request's query extension element as serialized XML. */
+  queryXml: string;
   principal: Principal;
   singleExecution?: SingleExecution;
   repeatedExecution?: RepeatedExecution;

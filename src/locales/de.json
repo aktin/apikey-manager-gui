@@ -130,6 +130,6 @@
   "name": "Name",
   "email": "E-Mail",
   "phone": "Telefon",
-  "copySqlQuery": "SQL-Abfrage kopieren",
-  "sqlCopied": "SQL-Abfrage kopiert"
+  "copyQuery": "Abfrage kopieren",
+  "queryCopied": "Abfrage kopiert"
 }
