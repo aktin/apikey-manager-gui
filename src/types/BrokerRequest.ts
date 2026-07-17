@@ -15,6 +15,8 @@ export interface BrokerRequest {
 
 export interface Query {
   title: string;
+  description: string;
+  sql: string;
   principal: Principal;
   singleExecution?: SingleExecution;
   repeatedExecution?: RepeatedExecution;
@@ -29,7 +31,7 @@ export interface SingleExecution {
 }
 
 export interface RepeatedExecution {
-  id: number;
+  id: number | null;
   duration: MomentDuration;
   interval: MomentDuration;
   intervalHours: number | null;
@@ -44,6 +46,16 @@ export interface RequestInfo {
 export interface RequestListEntry {
   id: number;
   publishDate: Date;
+}
+
+/**
+ * Row model of the broker request list: the list-entry fields plus the series
+ * id and principal tags parsed from the request's definition XML (the list
+ * endpoint does not return them).
+ */
+export interface RequestQuerySummary extends RequestListEntry {
+  seriesId: number | null;
+  tags: string[];
 }
 
 /**

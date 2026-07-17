@@ -68,16 +68,31 @@ export function parseXmlBrokerRequest(xml: string): BrokerRequest {
     const intervalHoursText = scheduleEl
       ?.getElementsByTagNameNS(ns, "intervalHours")[0]
       ?.textContent?.trim();
+    const reIdNum = Number(reId);
     repeatedExecution = {
-      id: reId ? Number(reId) : Number.NaN,
+      id: reId && Number.isFinite(reIdNum) ? reIdNum : null,
       duration: createDuration(durationText ?? ""),
       interval: createDuration(intervalText ?? ""),
       intervalHours: intervalHoursText ? Number(intervalHoursText) : null
     };
   }
 
+  // The <sql> extension lives in its own namespace; its <source> children
+  // hold the SQL text (fall back to the element's own text if none exist).
+  const sqlEl = doc.getElementsByTagNameNS("*", "sql")[0];
+  const sqlSources = sqlEl
+    ? Array.from(sqlEl.getElementsByTagNameNS("*", "source"))
+        .map((el) => el.textContent?.trim() ?? "")
+        .filter(Boolean)
+    : [];
+  const sql = sqlSources.length
+    ? sqlSources.join("\n")
+    : (sqlEl?.textContent?.trim() ?? "");
+
   const query: Query = {
     title: get1("title"),
+    description: get1("description"),
+    sql,
     principal,
     singleExecution,
     repeatedExecution
