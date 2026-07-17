@@ -124,5 +124,12 @@
   "error500Description": "Sorry, the server is currently having a bit of a meltdown",
   "error": "Error",
   "copyStatusMessage": "Copy status message",
-  "statusCopied": "Status message copied"
+  "statusCopied": "Status message copied",
+  "querySection": "Query",
+  "descriptionSection": "Description",
+  "name": "Name",
+  "email": "Email",
+  "phone": "Phone",
+  "copyQuery": "Copy query",
+  "queryCopied": "Query copied"
 }

@@ -2,43 +2,68 @@
 /**
  * BrokerRequestList.vue
  *
- * Lists all broker requests (id + publish date), newest first, with an id
- * filter. Emits the id of the request the user selects.
+ * Table of all broker requests (id, series id, tags, publish date), newest
+ * first, with a text filter over id, series id, and tags. Each row is a
+ * RequestQuerySummary: series id and tags come from the request's cached query
+ * definition, since the list endpoint returns only id and publish date. Emits
+ * the id of the request the user selects.
  */
 import { computed, onMounted, ref } from "vue";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
 import InputText from "primevue/inputtext";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
 import BrokerConnection from "../services/BrokerConnection";
 import { parseXmlBrokerRequestList } from "../utils/Parser";
-import { RequestListEntry } from "../types/BrokerRequest";
+import { RequestQuerySummary } from "../types/BrokerRequest";
 import { notifyStatusError } from "../utils/StatusToast";
 import { formatDateToLocale } from "../utils/MomentWrapper";
+import SimpleChipList from "./SimpleChipList.vue";
+import Tag from "primevue/tag";
 
 const { t } = useI18n();
 const toast = useToast();
 
-defineProps<{ selectedId: number | null }>();
+const props = defineProps<{ selectedId: number | null }>();
 const emit = defineEmits<{ (e: "select", id: number): void }>();
 
-const requests = ref<RequestListEntry[]>([]);
+const requests = ref<RequestQuerySummary[]>([]);
 const filter = ref("");
 
-// Requests whose id contains the filter, newest first.
+const selectedRow = computed(
+  () => requests.value.find((r) => r.id === props.selectedId) ?? null
+);
+
+// Requests whose id, series id, or tags contain the filter.
 const filteredRequests = computed(() => {
-  const q = filter.value.trim();
-  const list = q
-    ? requests.value.filter((r) => String(r.id).includes(q))
-    : requests.value;
-  return [...list].sort(
-    (a, b) => b.publishDate.getTime() - a.publishDate.getTime()
-  );
+  const q = filter.value.trim().toLowerCase();
+  if (!q) return requests.value;
+  return requests.value.filter((r) => searchText(r).includes(q));
 });
 
+// Text the filter matches against: request id, series id, and tags.
+function searchText(row: RequestQuerySummary): string {
+  return `${row.id} ${row.seriesId ?? ""} ${row.tags.join(" ")}`.toLowerCase();
+}
+
+// Bumped on every load so a superseded load's late results are discarded.
+let loadGeneration = 0;
+
 async function loadRequests() {
+  const generation = ++loadGeneration;
   const resp = await BrokerConnection.getAllBrokerRequests();
   if (resp.status === 200) {
-    requests.value = parseXmlBrokerRequestList(resp.data);
+    const entries = parseXmlBrokerRequestList(resp.data);
+    if (generation !== loadGeneration) return;
+    // Placeholder rows render immediately; series id and tags fill in once
+    // every request's query summary has resolved.
+    requests.value = entries.map((e) => ({ ...e, seriesId: null, tags: [] }));
+    const rows = await Promise.all(
+      entries.map((e) => BrokerConnection.getRequestQuerySummary(e))
+    );
+    if (generation !== loadGeneration) return;
+    requests.value = rows;
     return;
   }
   notifyStatusError(toast, t, resp.status, {});
@@ -52,40 +77,59 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-column gap-2">
-    <InputText v-model="filter" :placeholder="t('requestId')" class="w-full" />
-    <div
-      class="flex justify-content-between px-2 pb-1 border-bottom-1 surface-border text-xs font-bold text-color-secondary"
+    <InputText
+      v-model="filter"
+      :placeholder="t('keywordSearch')"
+      class="w-full"
+    />
+    <DataTable
+      :value="filteredRequests"
+      :selection="selectedRow"
+      selectionMode="single"
+      :metaKeySelection="false"
+      dataKey="id"
+      sortField="publishDate"
+      :sortOrder="-1"
+      scrollable
+      scroll-height="calc(100vh - 12rem)"
+      @row-select="emit('select', $event.data.id)"
     >
-      <span>{{ t("requestId") }}</span>
-      <span>{{ t("publishDate") }}</span>
-    </div>
-    <div class="overflow-y-auto" style="max-height: calc(100vh - 10rem)">
-      <div
-        v-for="req in filteredRequests"
-        :key="req.id"
-        class="flex justify-content-between align-items-center px-2 py-2 border-bottom-1 surface-border border-round cursor-pointer"
-        :class="{ selected: req.id === selectedId }"
-        @click="emit('select', req.id)"
-      >
-        <span class="font-bold">#{{ req.id }}</span>
-        <span class="text-color-secondary text-sm">
-          {{ formatDateToLocale(req.publishDate) }}
-        </span>
-      </div>
-      <div
-        v-if="!filteredRequests.length"
-        class="text-color-secondary text-center p-3"
-      >
+      <template #empty>
         {{ t("emptyRequestList") }}
-      </div>
-    </div>
+      </template>
+
+      <Column field="id" :header="t('requestId')" :sortable="true">
+        <template #body="{ data }">
+          <span class="font-bold">#{{ data.id }}</span>
+        </template>
+      </Column>
+
+      <Column field="seriesId" :header="t('seriesId')" :sortable="true">
+        <template #body="{ data }">
+          <div class="flex justify-content-center">
+            <Tag
+              v-if="data.seriesId != null"
+              :value="data.seriesId"
+              severity="warn"
+            />
+            <span v-else>—</span>
+          </div>
+        </template>
+      </Column>
+
+      <Column :header="t('tags')">
+        <template #body="{ data }">
+          <SimpleChipList :chips="data.tags" />
+        </template>
+      </Column>
+
+      <Column field="publishDate" :header="t('publishDate')" :sortable="true">
+        <template #body="{ data }">
+          <span class="text-color-secondary text-sm">
+            {{ formatDateToLocale(data.publishDate) }}
+          </span>
+        </template>
+      </Column>
+    </DataTable>
   </div>
 </template>
-
-<style scoped>
-/* Colored highlight for the request whose detail is shown (PrimeVue's selection tint). */
-.selected {
-  background: var(--p-highlight-background);
-  color: var(--p-highlight-color);
-}
-</style>

@@ -37,7 +37,14 @@ export function parseXmlBrokerRequest(xml: string): BrokerRequest {
   const scheduledText = get1("scheduled");
 
   const principalEl = doc.getElementsByTagNameNS(ns, "principal")[0];
+  const principalText = (tag: string) =>
+    principalEl?.getElementsByTagNameNS(ns, tag)[0]?.textContent?.trim() ||
+    null;
   const principal: Principal = {
+    name: principalText("name"),
+    organisation: principalText("organisation"),
+    email: principalText("email"),
+    phone: principalText("phone"),
     tags: (() => {
       const tagEls = principalEl?.getElementsByTagNameNS(ns, "tag");
       return tagEls
@@ -68,16 +75,25 @@ export function parseXmlBrokerRequest(xml: string): BrokerRequest {
     const intervalHoursText = scheduleEl
       ?.getElementsByTagNameNS(ns, "intervalHours")[0]
       ?.textContent?.trim();
+    const reIdNum = Number(reId);
     repeatedExecution = {
-      id: reId ? Number(reId) : Number.NaN,
+      id: reId && Number.isFinite(reIdNum) ? reIdNum : null,
       duration: createDuration(durationText ?? ""),
       interval: createDuration(intervalText ?? ""),
       intervalHours: intervalHoursText ? Number(intervalHoursText) : null
     };
   }
 
+  // The query's <sql> extension element (whose sources may hold SQL, R, or
+  // Python code) lives in its own namespace; keep the whole element as
+  // serialized XML (tag, attributes, and children such as <source>).
+  const sqlEl = doc.getElementsByTagNameNS("*", "sql")[0];
+  const queryXml = sqlEl ? new XMLSerializer().serializeToString(sqlEl) : "";
+
   const query: Query = {
     title: get1("title"),
+    description: get1("description"),
+    queryXml,
     principal,
     singleExecution,
     repeatedExecution

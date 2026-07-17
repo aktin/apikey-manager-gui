@@ -13,6 +13,8 @@
 import { BrokerApiClient } from "./BrokerApiClient";
 import { BrokerCredentials } from "./BrokerCredentials";
 import { NodeCnCache } from "./NodeCnCache";
+import { RequestQueryCache } from "./RequestQueryCache";
+import { RequestListEntry, RequestQuerySummary } from "../types/BrokerRequest";
 
 class BrokerConnection {
   private static instance: BrokerConnection;
@@ -20,6 +22,12 @@ class BrokerConnection {
   private readonly credentials = new BrokerCredentials();
   private readonly api = new BrokerApiClient(this.credentials);
   private readonly nodeCache = new NodeCnCache();
+  private readonly requestQueryCache = new RequestQueryCache();
+
+  private constructor() {
+    // Cached request ids are broker-specific; drop them on profile switches.
+    this.credentials.onChange(async () => this.requestQueryCache.clear());
+  }
 
   static getInstance(): BrokerConnection {
     if (!BrokerConnection.instance) {
@@ -132,6 +140,33 @@ class BrokerConnection {
 
   getCachedNodeCN(id: number): string | null {
     return this.nodeCache.get(id);
+  }
+
+  /**
+   * Returns the list-row summary for a request: its list-entry fields merged
+   * with the cached series id and tags, fetching and parsing the definition
+   * XML on a cache miss. Never rejects; when the definition cannot be fetched
+   * or parsed, the row degrades to placeholders (no series id, no tags).
+   */
+  async getRequestQuerySummary(
+    entry: RequestListEntry
+  ): Promise<RequestQuerySummary> {
+    try {
+      if (!this.requestQueryCache.get(entry.id)) {
+        const result = await this.api.getBrokerRequest(String(entry.id));
+        if (result.status === 200) {
+          this.requestQueryCache.updateFromXml(entry.id, result.data);
+        }
+      }
+      const fields = this.requestQueryCache.get(entry.id);
+      return {
+        ...entry,
+        seriesId: fields?.seriesId ?? null,
+        tags: fields?.tags ?? []
+      };
+    } catch {
+      return { ...entry, seriesId: null, tags: [] };
+    }
   }
 }
 

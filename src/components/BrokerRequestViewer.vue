@@ -2,9 +2,10 @@
 /**
  * BrokerRequestViewer.vue
  *
- * Shows a selected broker request's query metadata, execution schedule, and
- * per-node status, with an on-demand node status-message dialog. The request is
- * chosen by the `requestId` prop; nothing is fetched while it is null.
+ * Shows a selected broker request's query metadata (title, description, query),
+ * execution schedule, and per-node status, with an on-demand node
+ * status-message dialog. The request is chosen by the `requestId` prop;
+ * nothing is fetched while it is null.
  */
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import BrokerConnection from "../services/BrokerConnection";
@@ -37,6 +38,7 @@ import {
 import SimpleChipList from "./SimpleChipList.vue";
 import NodeStatusInfoTimeline from "./NodeStatusInfoTimeline.vue";
 import Dialog from "primevue/dialog";
+import Panel from "primevue/panel";
 import ProgressSpinner from "primevue/progressspinner";
 import Tag from "primevue/tag";
 import Badge from "primevue/badge";
@@ -57,12 +59,15 @@ const statusDialogTitle = ref("");
 const statusDialogText = ref("");
 const statusLoading = ref(false);
 
+const descriptionCollapsed = ref(true);
+const queryCollapsed = ref(true);
+
 type execView =
   | { kind: "single"; label: string; duration: string }
   | {
       kind: "repeated";
       label: string;
-      id: number;
+      id: number | null;
       duration: string;
       interval: string;
       intervalHours: number | null;
@@ -140,6 +145,8 @@ async function loadRequest() {
   requestInfo.value = null;
   requestStatus.value = null;
   nodeSearch.value = "";
+  descriptionCollapsed.value = true;
+  queryCollapsed.value = true;
   if (props.requestId == null) return;
   await Promise.all([fetchRequest(), fetchRequestInfo(), fetchRequestStatus()]);
 }
@@ -229,6 +236,17 @@ async function copyStatusToClipboard(): Promise<void> {
   }
 }
 
+async function copyQueryToClipboard(): Promise<void> {
+  const xml = request.value?.query.queryXml;
+  if (!xml) return;
+  try {
+    await navigator.clipboard.writeText(xml);
+    createSuccessToast(toast, t("success"), t("queryCopied"));
+  } catch {
+    createErrorToast(toast, t("error"), t("failedToCopy"));
+  }
+}
+
 onMounted(async () => {
   await BrokerConnection.waitForBrokerCredentials();
   await BrokerConnection.refreshNodeCache();
@@ -257,7 +275,9 @@ watch(() => props.requestId, loadRequest);
       <div class="flex align-items-center flex-wrap gap-2 my-3">
         <Tag
           :value="
-            exec.kind === 'repeated' ? `${exec.label} ${exec.id}` : exec.label
+            exec.kind === 'repeated' && exec.id != null
+              ? `${exec.label} ${exec.id}`
+              : exec.label
           "
           :severity="exec.kind === 'repeated' ? 'warn' : 'info'"
         />
@@ -313,7 +333,74 @@ watch(() => props.requestId, loadRequest);
             <span>{{ requestInfo.targeted ? t("yes") : t("no") }}</span>
           </div>
         </div>
+        <div class="p-3 flex-1 metadata-panel">
+          <div class="text-xs uppercase font-bold text-color-secondary mb-2">
+            {{ t("principal") }}
+          </div>
+          <div class="flex justify-content-between py-1">
+            <span class="text-color-secondary">{{ t("name") }}</span>
+            <span>{{ request.query.principal.name ?? "—" }}</span>
+          </div>
+          <div class="flex justify-content-between py-1">
+            <span class="text-color-secondary">{{ t("o") }}</span>
+            <span>{{ request.query.principal.organisation ?? "—" }}</span>
+          </div>
+          <div class="flex justify-content-between py-1">
+            <span class="text-color-secondary">{{ t("email") }}</span>
+            <span>{{ request.query.principal.email ?? "—" }}</span>
+          </div>
+          <div class="flex justify-content-between py-1">
+            <span class="text-color-secondary">{{ t("phone") }}</span>
+            <span>{{ request.query.principal.phone ?? "—" }}</span>
+          </div>
+        </div>
       </div>
+      <Panel
+        v-if="request.query.description"
+        v-model:collapsed="descriptionCollapsed"
+        toggleable
+        class="mt-3"
+      >
+        <template #header>
+          <span
+            class="flex-1 cursor-pointer font-bold"
+            @click="descriptionCollapsed = !descriptionCollapsed"
+          >
+            {{ t("descriptionSection") }}
+          </span>
+        </template>
+        <p class="m-0 line-height-3" style="white-space: pre-wrap">
+          {{ request.query.description }}
+        </p>
+      </Panel>
+      <Panel
+        v-if="request.query.queryXml"
+        v-model:collapsed="queryCollapsed"
+        toggleable
+        class="mt-3"
+      >
+        <template #header>
+          <span
+            class="flex-1 cursor-pointer font-bold"
+            @click="queryCollapsed = !queryCollapsed"
+          >
+            {{ t("querySection") }}
+          </span>
+        </template>
+        <template #icons>
+          <Button
+            icon="pi pi-copy"
+            text
+            rounded
+            size="small"
+            v-tooltip.bottom="t('copyQuery')"
+            @click="copyQueryToClipboard"
+          />
+        </template>
+        <pre class="m-0 text-sm overflow-x-auto">{{
+          request.query.queryXml
+        }}</pre>
+      </Panel>
     </div>
 
     <div

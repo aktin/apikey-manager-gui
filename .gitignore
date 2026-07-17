@@ -77,3 +77,6 @@ dist/
 # Python tooling artifacts
 .venv/
 __pycache__/
+
+# Custom
+/docs
