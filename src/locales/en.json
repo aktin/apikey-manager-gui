@@ -127,6 +127,9 @@
   "statusCopied": "Status message copied",
   "querySection": "Query",
   "descriptionSection": "Description",
+  "name": "Name",
+  "email": "Email",
+  "phone": "Phone",
   "copySqlQuery": "Copy SQL query",
   "sqlCopied": "SQL query copied"
 }

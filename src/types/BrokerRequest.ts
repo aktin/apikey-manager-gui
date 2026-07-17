@@ -23,6 +23,10 @@ export interface Query {
 }
 
 export interface Principal {
+  name: string | null;
+  organisation: string | null;
+  email: string | null;
+  phone: string | null;
   tags: string[];
 }
 

@@ -127,6 +127,9 @@
   "statusCopied": "Statusmeldung kopiert",
   "querySection": "Abfrage",
   "descriptionSection": "Beschreibung",
+  "name": "Name",
+  "email": "E-Mail",
+  "phone": "Telefon",
   "copySqlQuery": "SQL-Abfrage kopieren",
   "sqlCopied": "SQL-Abfrage kopiert"
 }

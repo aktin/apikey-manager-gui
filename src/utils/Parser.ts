@@ -37,7 +37,14 @@ export function parseXmlBrokerRequest(xml: string): BrokerRequest {
   const scheduledText = get1("scheduled");
 
   const principalEl = doc.getElementsByTagNameNS(ns, "principal")[0];
+  const principalText = (tag: string) =>
+    principalEl?.getElementsByTagNameNS(ns, tag)[0]?.textContent?.trim() ||
+    null;
   const principal: Principal = {
+    name: principalText("name"),
+    organisation: principalText("organisation"),
+    email: principalText("email"),
+    phone: principalText("phone"),
     tags: (() => {
       const tagEls = principalEl?.getElementsByTagNameNS(ns, "tag");
       return tagEls

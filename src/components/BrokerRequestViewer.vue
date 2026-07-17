@@ -334,6 +334,27 @@ watch(() => props.requestId, loadRequest);
             <span>{{ requestInfo.targeted ? t("yes") : t("no") }}</span>
           </div>
         </div>
+        <div class="p-3 flex-1 metadata-panel">
+          <div class="text-xs uppercase font-bold text-color-secondary mb-2">
+            {{ t("principal") }}
+          </div>
+          <div class="flex justify-content-between py-1">
+            <span class="text-color-secondary">{{ t("name") }}</span>
+            <span>{{ request.query.principal.name ?? "—" }}</span>
+          </div>
+          <div class="flex justify-content-between py-1">
+            <span class="text-color-secondary">{{ t("o") }}</span>
+            <span>{{ request.query.principal.organisation ?? "—" }}</span>
+          </div>
+          <div class="flex justify-content-between py-1">
+            <span class="text-color-secondary">{{ t("email") }}</span>
+            <span>{{ request.query.principal.email ?? "—" }}</span>
+          </div>
+          <div class="flex justify-content-between py-1">
+            <span class="text-color-secondary">{{ t("phone") }}</span>
+            <span>{{ request.query.principal.phone ?? "—" }}</span>
+          </div>
+        </div>
       </div>
       <Panel
         v-if="request.query.description"
