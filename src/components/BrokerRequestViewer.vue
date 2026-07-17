@@ -59,8 +59,8 @@ const statusDialogTitle = ref("");
 const statusDialogText = ref("");
 const statusLoading = ref(false);
 
-const descriptionCollapsed = ref(false);
-const queryCollapsed = ref(false);
+const descriptionCollapsed = ref(true);
+const queryCollapsed = ref(true);
 
 type execView =
   | { kind: "single"; label: string; duration: string }
@@ -145,8 +145,8 @@ async function loadRequest() {
   requestInfo.value = null;
   requestStatus.value = null;
   nodeSearch.value = "";
-  descriptionCollapsed.value = false;
-  queryCollapsed.value = false;
+  descriptionCollapsed.value = true;
+  queryCollapsed.value = true;
   if (props.requestId == null) return;
   await Promise.all([fetchRequest(), fetchRequestInfo(), fetchRequestStatus()]);
 }
