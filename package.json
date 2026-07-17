@@ -1,10 +1,10 @@
 {
   "name": "apikey-manager-gui",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Cross-platform desktop app to manage API keys of the AKTIN Broker",
-  "author": "Daniel Kombeiz <dkombeiz@ukaachen.de>",
+  "author": "Alexander Kombeiz <akombeiz@ukaachen.de>",
   "contributors": [
-    "Alexander Kombeiz <akombeiz@ukaachen.de>"
+    "Daniel Kombeiz <dkombeiz@ukaachen.de>"
   ],
   "license": "AGPL-3.0-or-later",
   "main": ".vite/build/main.js",
