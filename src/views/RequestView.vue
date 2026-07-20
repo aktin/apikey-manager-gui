@@ -6,6 +6,8 @@
  * the selected request's detail and per-node status on the right.
  */
 import { ref } from "vue";
+import Splitter from "primevue/splitter";
+import SplitterPanel from "primevue/splitterpanel";
 import BrokerRequestList from "../components/BrokerRequestList.vue";
 import BrokerRequestViewer from "../components/BrokerRequestViewer.vue";
 
@@ -13,15 +15,15 @@ const selectedRequestId = ref<number | null>(null);
 </script>
 
 <template>
-  <div class="grid">
-    <div class="col-12 md:col-4 lg:col-3">
+  <Splitter style="height: calc(100vh - 7rem)">
+    <SplitterPanel :size="25" :min-size="15" class="overflow-hidden">
       <BrokerRequestList
         :selected-id="selectedRequestId"
         @select="selectedRequestId = $event"
       />
-    </div>
-    <div class="col-12 md:col-8 lg:col-9">
+    </SplitterPanel>
+    <SplitterPanel :size="75" :min-size="25" class="overflow-y-auto px-3">
       <BrokerRequestViewer :request-id="selectedRequestId" />
-    </div>
-  </div>
+    </SplitterPanel>
+  </Splitter>
 </template>
