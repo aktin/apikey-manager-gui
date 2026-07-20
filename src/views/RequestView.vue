@@ -15,7 +15,11 @@ const selectedRequestId = ref<number | null>(null);
 </script>
 
 <template>
-  <Splitter style="height: calc(100vh - 7rem)">
+  <Splitter
+    state-key="request-splitter"
+    state-storage="local"
+    style="height: calc(100vh - 7rem)"
+  >
     <SplitterPanel :size="25" :min-size="15" class="overflow-hidden">
       <BrokerRequestList
         :selected-id="selectedRequestId"
