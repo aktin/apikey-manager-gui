@@ -18,6 +18,8 @@ interface RouteConfig {
 
 const { t } = useI18n();
 
+const version = __APP_VERSION__;
+
 const routing = computed<RouteConfig[]>(() => [
   { label: t("keys"), route: "/api-keys" },
   { label: t("request"), route: "/request" },
@@ -38,6 +40,7 @@ const routing = computed<RouteConfig[]>(() => [
     </div>
 
     <div class="flex align-items-center gap-2 mr-3">
+      <span class="text-color-secondary text-sm">v{{ version }}</span>
       <BrokerStatusIndicator />
       <BrokerProfileManager />
     </div>
