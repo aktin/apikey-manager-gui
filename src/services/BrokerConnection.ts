@@ -126,6 +126,13 @@ class BrokerConnection {
     return this.api.getBrokerRequestNodeStatus(requestId, nodeId);
   }
 
+  createBrokerRequest(
+    buildDefinition: (id: number) => string,
+    nodesXml: string | null
+  ): Promise<{ status: number; id: number | null }> {
+    return this.api.createBrokerRequest(buildDefinition, nodesXml);
+  }
+
   /** Fetches the broker node list and repopulates the node-CN cache. */
   async refreshNodeCache(): Promise<void> {
     const result = await this.api.getBrokerNodeList();

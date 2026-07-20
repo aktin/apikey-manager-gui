@@ -20,6 +20,7 @@ import { RequestQuerySummary } from "../types/BrokerRequest";
 import { notifyStatusError } from "../utils/StatusToast";
 import { formatDateToLocale } from "../utils/MomentWrapper";
 import SimpleChipList from "./SimpleChipList.vue";
+import CreateQueryForm from "./CreateQueryForm.vue";
 import Tag from "primevue/tag";
 
 const { t } = useI18n();
@@ -58,7 +59,11 @@ async function loadRequests() {
     if (generation !== loadGeneration) return;
     // Placeholder rows render immediately; series id and tags fill in once
     // every request's query summary has resolved.
-    requests.value = entries.map((e) => ({ ...e, seriesId: null, tags: [] }));
+    requests.value = entries.map((e) => ({
+      ...e,
+      seriesId: null,
+      tags: []
+    }));
     const rows = await Promise.all(
       entries.map((e) => BrokerConnection.getRequestQuerySummary(e))
     );
@@ -76,12 +81,17 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-column gap-2">
-    <InputText
-      v-model="filter"
-      :placeholder="t('keywordSearch')"
-      class="w-full"
-    />
+  <div class="flex flex-column">
+    <div class="flex align-items-center m-2">
+      <InputText
+        v-model="filter"
+        :placeholder="t('keywordSearch')"
+        class="w-full"
+      />
+      <div class="flex align-items-center m-2">
+        <CreateQueryForm :requests="requests" @created="loadRequests" />
+      </div>
+    </div>
     <DataTable
       :value="filteredRequests"
       :selection="selectedRow"
