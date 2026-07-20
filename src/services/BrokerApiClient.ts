@@ -203,4 +203,77 @@ export class BrokerApiClient {
       "request node status"
     );
   }
+
+  /**
+   * Creates and publishes a broker query request: allocates an id
+   * (`POST /broker/request`, reading the new id from the `Location` header),
+   * uploads the definition built by `buildDefinition`, optionally restricts the
+   * target nodes, then publishes. On any failure after allocation the allocated
+   * request is deleted so no half-created request lingers. Returns the created
+   * id on success, or a null id with the failing HTTP status.
+   */
+  async createBrokerRequest(
+    buildDefinition: (id: number) => string,
+    nodesXml: string | null
+  ): Promise<{ status: number; id: number | null }> {
+    try {
+      const { url, adminApiKey } = this.credentials.get();
+      const auth = { Authorization: `Bearer ${adminApiKey}` };
+
+      const allocated = await fetch(`${url}/broker/request`, {
+        method: "POST",
+        headers: auth
+      });
+      if (allocated.status !== 201) {
+        return { status: allocated.status, id: null };
+      }
+      const location = allocated.headers.get("Location") ?? "";
+      const id = Number(location.slice(location.lastIndexOf("/") + 1));
+      if (!Number.isFinite(id)) {
+        return { status: 500, id: null };
+      }
+
+      const base = `${url}/broker/request/${id}`;
+      const rollback = () => fetch(base, { method: "DELETE", headers: auth });
+
+      const defined = await fetch(base, {
+        method: "PUT",
+        headers: {
+          ...auth,
+          "Content-Type": "application/vnd.aktin.query.request+xml"
+        },
+        body: buildDefinition(id)
+      });
+      if (!defined.ok) {
+        await rollback();
+        return { status: defined.status, id: null };
+      }
+
+      if (nodesXml) {
+        const restricted = await fetch(`${base}/nodes`, {
+          method: "PUT",
+          headers: { ...auth, "Content-Type": "application/xml" },
+          body: nodesXml
+        });
+        if (!restricted.ok) {
+          await rollback();
+          return { status: restricted.status, id: null };
+        }
+      }
+
+      const published = await fetch(`${base}/publish`, {
+        method: "POST",
+        headers: auth
+      });
+      if (!published.ok) {
+        await rollback();
+        return { status: published.status, id: null };
+      }
+
+      return { status: 201, id };
+    } catch (error) {
+      console.error("Failed to create broker request:", error);
+      return { status: 500, id: null };
+    }
+  }
 }
