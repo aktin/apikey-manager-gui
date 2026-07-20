@@ -64,6 +64,31 @@ export interface RequestQuerySummary extends RequestListEntry {
 }
 
 /**
+ * Form payload for creating a broker query request. Distinct from the parsed
+ * read model: durations are ISO-8601 strings (raw form values, not Moment
+ * durations) and `targetNodeIds` restricts the request to those nodes
+ * (`null` publishes to all nodes).
+ */
+export interface CreateQueryPayload {
+  reference: Date;
+  scheduled: Date;
+  title: string;
+  description: string;
+  queryXml: string;
+  principal: Principal;
+  duration: string;
+  repeated: RepeatedSchedule | null;
+  targetNodeIds: number[] | null;
+}
+
+/** Repeated-execution parameters of a {@link CreateQueryPayload}. */
+export interface RepeatedSchedule {
+  interval: string;
+  intervalHours: number | null;
+  seriesId: number | null;
+}
+
+/**
  * Per-node processing status of a {@link BrokerRequest}.
  *
  * Each field holds the timestamp a lifecycle stage was reached for one node,
