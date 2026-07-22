@@ -15,7 +15,7 @@ import { useI18n } from "vue-i18n";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
 import { useToast } from "primevue/usetoast";
-import { createInfoToast } from "./ToastWrapper";
+import { createInfoToast } from "../shared/ToastWrapper";
 
 const toast = useToast();
 const { t, locale } = useI18n();

@@ -35,7 +35,7 @@ import Button from "primevue/button";
 import ConfirmPopup from "primevue/confirmpopup";
 import ProgressSpinner from "primevue/progressspinner";
 import Menu from "primevue/menu";
-import LanguageSwitcher from "../shared/LanguageSwitcher.vue";
+import LanguageSwitcher from "./LanguageSwitcher.vue";
 import ProfileStorage from "./ProfileStorage";
 import { CredentialProfile } from "./CredentialProfile";
 
