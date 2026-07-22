@@ -86,6 +86,8 @@
   "emptyNodeList": "Keine Knoten gefunden",
   "nodeNotFound": "Knoten konnte nicht gefunden werden",
   "lastContact": "Letzter Kontakt",
+  "nodeSection": "Knoten",
+  "activitySection": "Aktivität",
   "importStatistics": "Import-Statistik",
   "imported": "Importiert",
   "updated": "Aktualisiert",

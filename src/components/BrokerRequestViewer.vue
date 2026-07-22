@@ -339,8 +339,8 @@ watch(() => props.requestId, loadRequest);
         />
         <SimpleChipList :chips="request.query.principal.tags" />
       </div>
-      <div class="flex flex-column md:flex-row gap-3">
-        <div class="p-3 flex-1 metadata-panel">
+      <div class="flex flex-wrap gap-3">
+        <div class="p-3 metadata-panel">
           <div class="text-xs uppercase font-bold text-color-secondary mb-2">
             {{ t("scheduleSection") }}
           </div>
@@ -357,7 +357,7 @@ watch(() => props.requestId, loadRequest);
             <span>{{ formatDateToLocale(request.referenceDate) }}</span>
           </div>
         </div>
-        <div class="p-3 flex-1 metadata-panel">
+        <div class="p-3 metadata-panel">
           <div class="text-xs uppercase font-bold text-color-secondary mb-2">
             {{ t("requestSection") }}
           </div>
@@ -384,7 +384,7 @@ watch(() => props.requestId, loadRequest);
             <span>{{ requestInfo.targeted ? t("yes") : t("no") }}</span>
           </div>
         </div>
-        <div class="p-3 flex-1 metadata-panel">
+        <div class="p-3 metadata-panel">
           <div class="text-xs uppercase font-bold text-color-secondary mb-2">
             {{ t("principal") }}
           </div>
@@ -557,6 +557,8 @@ watch(() => props.requestId, loadRequest);
  * clearly against the white (surface-0) container.
  */
 .metadata-panel {
+  flex: 1 1 16rem;
+  min-width: 0;
   background: var(--p-surface-100);
   border-radius: var(--p-content-border-radius);
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);

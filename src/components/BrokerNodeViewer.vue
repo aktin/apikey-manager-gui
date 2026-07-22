@@ -95,53 +95,84 @@ watch(() => props.nodeId, loadNode);
       <h2 class="m-0 text-2xl font-bold line-height-2">
         [{{ node.id }}] {{ node.cn ?? "—" }}
       </h2>
-      <div class="flex flex-wrap gap-3 text-color-secondary mt-2">
-        <span v-if="node.o"
-          ><b>{{ t("o") }}:</b> {{ node.o }}</span
-        >
-        <span v-if="node.l"
-          ><b>{{ t("l") }}:</b> {{ node.l }}</span
-        >
-        <span><b>WebSocket:</b> {{ node.websocket ? t("yes") : t("no") }}</span>
-        <span>
-          <b>{{ t("lastContact") }}:</b>
-          {{ formatDateToLocale(node.lastContact) }}
-        </span>
-      </div>
       <SimpleChipList v-if="node.modules.length" :chips="node.modules" />
     </div>
 
-    <div class="p-3 border-round mt-3 panel">
-      <div class="text-xs uppercase font-bold text-color-secondary mb-2">
-        {{ t("importStatistics") }}
+    <div class="flex flex-wrap gap-3 mt-3">
+      <div class="p-3 metadata-panel">
+        <div class="text-xs uppercase font-bold text-color-secondary mb-2">
+          {{ t("nodeSection") }}
+        </div>
+        <div v-if="node.o" class="flex justify-content-between gap-3 py-1">
+          <span class="text-color-secondary">{{ t("o") }}</span>
+          <span class="text-right">{{ node.o }}</span>
+        </div>
+        <div v-if="node.l" class="flex justify-content-between gap-3 py-1">
+          <span class="text-color-secondary">{{ t("l") }}</span>
+          <span>{{ node.l }}</span>
+        </div>
+        <div class="flex justify-content-between gap-3 py-1">
+          <span class="text-color-secondary">WebSocket</span>
+          <span>{{ node.websocket ? t("yes") : t("no") }}</span>
+        </div>
       </div>
-      <div v-if="stats" class="flex flex-wrap gap-4">
-        <span
-          ><b>{{ t("imported") }}:</b> {{ stats.imported }}</span
+
+      <div class="p-3 metadata-panel">
+        <div class="text-xs uppercase font-bold text-color-secondary mb-2">
+          {{ t("activitySection") }}
+        </div>
+        <div class="flex justify-content-between gap-3 py-1">
+          <span class="text-color-secondary">{{ t("lastContact") }}</span>
+          <span>{{ formatDateToLocale(node.lastContact) }}</span>
+        </div>
+        <div
+          v-if="stats?.start"
+          class="flex justify-content-between gap-3 py-1"
         >
-        <span
-          ><b>{{ t("updated") }}:</b> {{ stats.updated }}</span
+          <span class="text-color-secondary">{{ t("lastStart") }}</span>
+          <span>{{ formatDateToLocale(stats.start) }}</span>
+        </div>
+        <div
+          v-if="stats?.lastWrite"
+          class="flex justify-content-between gap-3 py-1"
         >
-        <span
-          ><b>{{ t("invalid") }}:</b> {{ stats.invalid }}</span
+          <span class="text-color-secondary">{{ t("lastImport") }}</span>
+          <span>{{ formatDateToLocale(stats.lastWrite) }}</span>
+        </div>
+        <div
+          v-if="stats?.lastReject"
+          class="flex justify-content-between gap-3 py-1"
         >
-        <span
-          ><b>{{ t("failed") }}:</b> {{ stats.failed }}</span
-        >
-        <span v-if="stats.start" class="text-color-secondary">
-          <b>{{ t("lastStart") }}:</b> {{ formatDateToLocale(stats.start) }}
-        </span>
-        <span v-if="stats.lastWrite" class="text-color-secondary">
-          <b>{{ t("lastImport") }}:</b>
-          {{ formatDateToLocale(stats.lastWrite) }}
-        </span>
-        <span v-if="stats.lastReject" class="text-color-secondary">
-          <b>{{ t("lastError") }}:</b>
-          {{ formatDateToLocale(stats.lastReject) }}
-        </span>
+          <span class="text-color-secondary">{{ t("lastError") }}</span>
+          <span>{{ formatDateToLocale(stats.lastReject) }}</span>
+        </div>
       </div>
-      <div v-else class="text-color-secondary text-sm">
-        {{ t("notAvailable") }}
+
+      <div class="p-3 metadata-panel">
+        <div class="text-xs uppercase font-bold text-color-secondary mb-2">
+          {{ t("importStatistics") }}
+        </div>
+        <template v-if="stats">
+          <div class="flex justify-content-between gap-3 py-1">
+            <span class="text-color-secondary">{{ t("imported") }}</span>
+            <span>{{ stats.imported }}</span>
+          </div>
+          <div class="flex justify-content-between gap-3 py-1">
+            <span class="text-color-secondary">{{ t("updated") }}</span>
+            <span>{{ stats.updated }}</span>
+          </div>
+          <div class="flex justify-content-between gap-3 py-1">
+            <span class="text-color-secondary">{{ t("invalid") }}</span>
+            <span>{{ stats.invalid }}</span>
+          </div>
+          <div class="flex justify-content-between gap-3 py-1">
+            <span class="text-color-secondary">{{ t("failed") }}</span>
+            <span>{{ stats.failed }}</span>
+          </div>
+        </template>
+        <div v-else class="text-color-secondary text-sm">
+          {{ t("notAvailable") }}
+        </div>
       </div>
     </div>
 
@@ -204,6 +235,19 @@ watch(() => props.nodeId, loadNode);
  */
 .panel {
   background: var(--p-surface-100);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/*
+ * Metadata panels wrap by container width (flex-basis + flex-wrap) instead of
+ * a viewport breakpoint, so they restructure correctly when the splitter
+ * shrinks the detail panel while the window stays wide.
+ */
+.metadata-panel {
+  flex: 1 1 16rem;
+  min-width: 0;
+  background: var(--p-surface-100);
+  border-radius: var(--p-content-border-radius);
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 </style>

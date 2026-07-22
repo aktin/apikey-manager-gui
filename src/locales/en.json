@@ -86,6 +86,8 @@
   "emptyNodeList": "No nodes found",
   "nodeNotFound": "Node not found",
   "lastContact": "Last contact",
+  "nodeSection": "Node",
+  "activitySection": "Activity",
   "importStatistics": "Import statistics",
   "imported": "Imported",
   "updated": "Updated",
