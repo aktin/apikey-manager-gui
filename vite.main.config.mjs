@@ -22,7 +22,7 @@ export default defineConfig({
     target: "node22",
     outDir: ".vite/build",
     rollupOptions: {
-      input: path.resolve(__dirname, "src/main.ts"),
+      input: path.resolve(__dirname, "src/app/main.ts"),
       external: ["keytar", "electron", "crypto", "path", "fs"]
     }
   }
