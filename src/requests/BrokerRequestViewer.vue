@@ -98,9 +98,20 @@ const exec = computed<execView | null>(() => {
 
 const nodeSearch = ref("");
 
-// Filters nodes by the displayed label (#id + CN), case-insensitive.
+const stateFilter: Ref<NodeState | null> = ref(null);
+
+/** Toggles showing only nodes whose most-actual state matches `state`. */
+function toggleStateFilter(state: NodeState): void {
+  stateFilter.value = stateFilter.value === state ? null : state;
+}
+
+// Filters nodes by the active summary-state chip and by the displayed
+// label (#id + CN), case-insensitive.
 const filteredStatus = computed(() => {
-  const all = requestStatus.value ?? [];
+  let all = requestStatus.value ?? [];
+  if (stateFilter.value) {
+    all = all.filter((n) => getMostActualState(n) === stateFilter.value);
+  }
   const q = nodeSearch.value.trim().toLowerCase();
   if (!q) return all;
   return all.filter((n) =>
@@ -145,6 +156,7 @@ async function loadRequest() {
   requestInfo.value = null;
   requestStatus.value = null;
   nodeSearch.value = "";
+  stateFilter.value = null;
   descriptionCollapsed.value = true;
   queryCollapsed.value = true;
   if (props.requestId == null) return;
@@ -455,12 +467,19 @@ watch(() => props.requestId, loadRequest);
       class="flex align-items-center justify-content-between flex-wrap gap-2 mt-4 mb-2 px-2"
     >
       <div class="flex align-items-center flex-wrap gap-3">
-        <span class="text-lg font-bold">{{ t("nodeStatus") }}</span>
-        <Badge :value="requestStatus.length" severity="secondary" />
+        <span
+          class="flex align-items-center gap-2 cursor-pointer"
+          @click="stateFilter = null"
+        >
+          <span class="text-lg font-bold">{{ t("nodeStatus") }}</span>
+          <Badge :value="requestStatus.length" severity="secondary" />
+        </span>
         <span
           v-for="item in stateSummary"
           :key="item.state"
-          class="flex align-items-center gap-1"
+          class="state-chip flex align-items-center gap-1 cursor-pointer border-round px-2 py-1"
+          :class="{ 'state-chip-active': stateFilter === item.state }"
+          @click="toggleStateFilter(item.state)"
         >
           <span :class="nodeStateColorClass(item.state)">{{ item.label }}</span>
           <Badge :value="item.count" severity="secondary" />
@@ -558,5 +577,13 @@ watch(() => props.requestId, loadRequest);
   background: var(--p-surface-100);
   border-radius: var(--p-content-border-radius);
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Summary chips double as node-list filters; highlight the active one. */
+.state-chip:hover {
+  background: var(--p-surface-100);
+}
+.state-chip-active {
+  background: var(--p-surface-200);
 }
 </style>
