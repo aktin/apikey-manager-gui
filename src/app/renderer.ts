@@ -1,0 +1,38 @@
+/**
+ * Entry point for the Electron renderer process (Vue 3 SPA).
+ *
+ * Creates and mounts the Vue app, and registers global plugins:
+ * - PrimeVue for UI components
+ * - Vue-i18n for localization
+ * - PrimeVue ToastService for notifications
+ * - ConfirmationService for dialogs
+ * - Tooltip directive for UI hints
+ *
+ * Referenced in `index.html` as <script type="module" src="/src/app/renderer.ts">.
+ */
+import { createApp } from "vue";
+import App from "./App.vue";
+
+import i18n from "./i18n";
+import router from "./router";
+
+// PrimeVue imports
+import PrimeVue from "primevue/config";
+import Lara from "@primeuix/themes/lara";
+import ToastService from "primevue/toastservice";
+import Tooltip from "primevue/tooltip";
+import ConfirmationService from "primevue/confirmationservice";
+
+// Styles imports
+import "primeicons/primeicons.css";
+import "primeflex/primeflex.css";
+import "./style.css";
+
+const app = createApp(App)
+  .use(PrimeVue, { theme: { preset: Lara } })
+  .use(ToastService)
+  .use(ConfirmationService)
+  .use(i18n)
+  .use(router)
+  .directive("tooltip", Tooltip)
+  .mount("#app");

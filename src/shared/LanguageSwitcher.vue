@@ -1,0 +1,68 @@
+<script setup lang="ts">
+/**
+ * LanguageSwitcher.vue
+ *
+ * A compact UI component that lets the user switch application language at runtime.
+ *
+ * Features:
+ * - Displays a button with a dropdown menu for language selection
+ * - Persists the selected language in `localStorage`
+ * - Uses vue-i18n's Composition API (`locale.value`)
+ * - Shows a confirmation toast when the language is changed
+ */
+import { ref, watchEffect } from "vue";
+import { useI18n } from "vue-i18n";
+import Button from "primevue/button";
+import Menu from "primevue/menu";
+import { useToast } from "primevue/usetoast";
+import { createInfoToast } from "./ToastWrapper";
+
+const toast = useToast();
+const { t, locale } = useI18n();
+const languageMenu = ref();
+
+const languages = ref([
+  {
+    label: t("switchLanguage"),
+    items: [
+      {
+        label: "English",
+        command: () => setLanguage("en")
+      },
+      {
+        label: "Deutsch",
+        command: () => setLanguage("de")
+      }
+    ]
+  }
+]);
+
+/**
+ * Changes the app language and persists the selection.
+ *
+ * @param lang - Language code ("en" or "de")
+ */
+function setLanguage(lang: string): void {
+  locale.value = lang;
+  localStorage.setItem("lang", lang);
+  createInfoToast(toast, t("info"), t("languageSwitchedTo", { lang }));
+}
+
+watchEffect(() => {
+  const storedLang = localStorage.getItem("lang");
+  if (storedLang) {
+    locale.value = storedLang;
+  }
+});
+</script>
+
+<template>
+  <div>
+    <Button
+      icon="pi pi-language"
+      @click="languageMenu?.toggle($event)"
+      v-tooltip.bottom="t('switchLanguage')"
+    />
+    <Menu ref="languageMenu" :model="languages" :popup="true" />
+  </div>
+</template>
