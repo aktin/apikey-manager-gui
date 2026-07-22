@@ -78,6 +78,9 @@ onMounted(async () => {
   await BrokerConnection.waitForBrokerCredentials();
   await loadRequests();
 });
+
+// Lets the parent view reload the table, e.g. after a request was deleted.
+defineExpose({ reload: loadRequests });
 </script>
 
 <template>

@@ -11,6 +11,7 @@ import { computed, onMounted, Ref, ref, watch } from "vue";
 import BrokerConnection from "../services/BrokerConnection";
 import InputText from "primevue/inputtext";
 import { useToast } from "primevue/usetoast";
+import { useConfirm } from "primevue/useconfirm";
 import { useI18n } from "vue-i18n";
 import Button from "primevue/button";
 import {
@@ -37,6 +38,7 @@ import {
 } from "../utils/NodeStatus";
 import SimpleChipList from "./SimpleChipList.vue";
 import NodeStatusInfoTimeline from "./NodeStatusInfoTimeline.vue";
+import ConfirmPopup from "primevue/confirmpopup";
 import Dialog from "primevue/dialog";
 import Panel from "primevue/panel";
 import ProgressSpinner from "primevue/progressspinner";
@@ -47,8 +49,10 @@ import InputIcon from "primevue/inputicon";
 
 const { t } = useI18n();
 const toast = useToast();
+const confirm = useConfirm();
 
 const props = defineProps<{ requestId: number | null }>();
+const emit = defineEmits<{ (e: "deleted", id: number): void }>();
 
 const request: Ref<BrokerRequest | null> = ref(null);
 const requestInfo: Ref<RequestInfo | null> = ref(null);
@@ -236,6 +240,42 @@ async function copyStatusToClipboard(): Promise<void> {
   }
 }
 
+const deleting = ref(false);
+
+/** Anchors the delete confirmation popup to the clicked delete button. */
+function confirmDelete(event: Event): void {
+  const target = event.currentTarget as HTMLElement | null;
+  if (!target) return;
+  confirm.require({
+    group: "requestDelete",
+    target,
+    message: t("confirmRequestDelete"),
+    icon: "pi pi-exclamation-triangle",
+    rejectClass: "p-button-secondary p-button-outlined p-button-sm",
+    acceptClass: "p-button-danger p-button-sm",
+    rejectLabel: t("cancel"),
+    acceptLabel: t("delete"),
+    accept: deleteRequest
+  });
+}
+
+/** Deletes the shown request and notifies the parent on success. */
+async function deleteRequest(): Promise<void> {
+  const id = props.requestId;
+  if (id == null) return;
+  deleting.value = true;
+  const status = await BrokerConnection.deleteBrokerRequest(String(id));
+  deleting.value = false;
+  if (status >= 200 && status < 300) {
+    createSuccessToast(toast, t("success"), t("requestDeleted", { id }));
+    emit("deleted", id);
+    return;
+  }
+  notifyStatusError(toast, t, status, {
+    404: { title: "notFound", message: "requestNotFound" }
+  });
+}
+
 async function copyQueryToClipboard(): Promise<void> {
   const xml = request.value?.query.queryXml;
   if (!xml) return;
@@ -269,9 +309,20 @@ watch(() => props.requestId, loadRequest);
       v-if="request && exec && requestInfo"
       class="surface-0 p-3 border-round"
     >
-      <h2 class="m-0 text-2xl font-bold line-height-2">
-        {{ request.query.title }}
-      </h2>
+      <div class="flex align-items-start justify-content-between gap-2">
+        <h2 class="m-0 text-2xl font-bold line-height-2">
+          {{ request.query.title }}
+        </h2>
+        <Button
+          icon="pi pi-trash"
+          severity="danger"
+          outlined
+          :loading="deleting"
+          v-tooltip.bottom="t('deleteRequest')"
+          @click="confirmDelete"
+          class="pr-3 pl-3"
+        />
+      </div>
       <div class="flex align-items-center flex-wrap gap-2 my-3">
         <Tag
           :value="
@@ -288,8 +339,8 @@ watch(() => props.requestId, loadRequest);
         />
         <SimpleChipList :chips="request.query.principal.tags" />
       </div>
-      <div class="flex flex-column md:flex-row gap-3">
-        <div class="p-3 flex-1 metadata-panel">
+      <div class="flex flex-wrap gap-3">
+        <div class="p-3 metadata-panel">
           <div class="text-xs uppercase font-bold text-color-secondary mb-2">
             {{ t("scheduleSection") }}
           </div>
@@ -306,7 +357,7 @@ watch(() => props.requestId, loadRequest);
             <span>{{ formatDateToLocale(request.referenceDate) }}</span>
           </div>
         </div>
-        <div class="p-3 flex-1 metadata-panel">
+        <div class="p-3 metadata-panel">
           <div class="text-xs uppercase font-bold text-color-secondary mb-2">
             {{ t("requestSection") }}
           </div>
@@ -333,7 +384,7 @@ watch(() => props.requestId, loadRequest);
             <span>{{ requestInfo.targeted ? t("yes") : t("no") }}</span>
           </div>
         </div>
-        <div class="p-3 flex-1 metadata-panel">
+        <div class="p-3 metadata-panel">
           <div class="text-xs uppercase font-bold text-color-secondary mb-2">
             {{ t("principal") }}
           </div>
@@ -465,6 +516,9 @@ watch(() => props.requestId, loadRequest);
     </div>
   </template>
 
+  <!-- Grouped so it does not duplicate the ungrouped profile-delete popup -->
+  <ConfirmPopup group="requestDelete" />
+
   <Dialog
     v-model:visible="statusDialogVisible"
     modal
@@ -503,6 +557,8 @@ watch(() => props.requestId, loadRequest);
  * clearly against the white (surface-0) container.
  */
 .metadata-panel {
+  flex: 1 1 16rem;
+  min-width: 0;
   background: var(--p-surface-100);
   border-radius: var(--p-content-border-radius);
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);

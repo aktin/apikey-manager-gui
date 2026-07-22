@@ -205,6 +205,43 @@ export class BrokerApiClient {
   }
 
   /**
+   * Deletes a broker request following the broker-admin flow: close the
+   * request (`POST .../close`), delete its aggregated results, then delete the
+   * request itself. Stops at the first failing step and returns its HTTP
+   * status; returns the final DELETE status on success.
+   */
+  async deleteBrokerRequest(requestId: string): Promise<number> {
+    try {
+      const { url, adminApiKey } = this.credentials.get();
+      const auth = { Authorization: `Bearer ${adminApiKey}` };
+
+      const closed = await fetch(`${url}/broker/request/${requestId}/close`, {
+        method: "POST",
+        headers: auth
+      });
+      if (!closed.ok) return closed.status;
+
+      const results = await fetch(
+        `${url}/aggregator/request/${requestId}/result`,
+        {
+          method: "DELETE",
+          headers: auth
+        }
+      );
+      if (!results.ok) return results.status;
+
+      const deleted = await fetch(`${url}/broker/request/${requestId}`, {
+        method: "DELETE",
+        headers: auth
+      });
+      return deleted.status;
+    } catch (error) {
+      console.error("Failed to delete broker request:", error);
+      return 500;
+    }
+  }
+
+  /**
    * Creates and publishes a broker query request: allocates an id
    * (`POST /broker/request`, reading the new id from the `Location` header),
    * uploads the definition built by `buildDefinition`, optionally restricts the
