@@ -133,6 +133,14 @@ export function parseXmlBrokerRequestInfo(xml: string): RequestInfo {
   };
 }
 
+/** Parses a request's target-node list (`<nodes><node>id</node>…`) to ids. */
+export function parseXmlBrokerRequestTargetNodes(xml: string): number[] {
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  return Array.from(doc.getElementsByTagName("node"))
+    .map((el) => Number(el.textContent))
+    .filter((id) => Number.isFinite(id));
+}
+
 export function parseXmlBrokerRequestStatus(xml: string): NodeStatusInfo[] {
   const doc = new DOMParser().parseFromString(xml, "application/xml");
   const infos = Array.from(doc.getElementsByTagName("request-status-info"));

@@ -204,6 +204,16 @@ export class BrokerApiClient {
     );
   }
 
+  async getBrokerRequestTargetNodes(
+    requestId: string
+  ): Promise<{ status: number; data: string }> {
+    return this.request(
+      `/broker/request/${requestId}/nodes`,
+      "application/xml",
+      "request target nodes"
+    );
+  }
+
   /**
    * Deletes a broker request following the broker-admin flow: close the
    * request (`POST .../close`), delete its aggregated results, then delete the
