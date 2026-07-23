@@ -21,6 +21,7 @@ import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import Select from "primevue/select";
 import Listbox from "primevue/listbox";
+import Badge from "primevue/badge";
 import DatePicker from "primevue/datepicker";
 import Checkbox from "primevue/checkbox";
 import { useToast } from "primevue/usetoast";
@@ -28,7 +29,9 @@ import { useI18n } from "vue-i18n";
 import BrokerConnection from "../broker/BrokerConnection";
 import {
   parseXmlBrokerNodeList,
-  parseXmlBrokerRequest
+  parseXmlBrokerRequest,
+  parseXmlBrokerRequestInfo,
+  parseXmlBrokerRequestTargetNodes
 } from "../broker/Parser";
 import { buildNodesXml, buildQueryRequestXml } from "./QueryXmlBuilder";
 import {
@@ -202,6 +205,27 @@ function prefill(req: BrokerRequest) {
   }
 }
 
+/** Prefills the target-node selection from the source request's targeting. */
+async function loadTargetNodes(id: number): Promise<void> {
+  limitToNodes.value = false;
+  selectedNodes.value = [];
+  const info = await BrokerConnection.getBrokerRequestInfo(String(id));
+  if (info.status !== 200) {
+    notifyStatusError(toast, t, info.status, {});
+    return;
+  }
+  if (!parseXmlBrokerRequestInfo(info.data).targeted) return;
+  const nodesResp = await BrokerConnection.getBrokerRequestTargetNodes(
+    String(id)
+  );
+  if (nodesResp.status !== 200) {
+    notifyStatusError(toast, t, nodesResp.status, {});
+    return;
+  }
+  limitToNodes.value = true;
+  selectedNodes.value = parseXmlBrokerRequestTargetNodes(nodesResp.data);
+}
+
 /** Fetches the chosen request's definition and prefills the form from it. */
 async function loadFromRequest(id: number) {
   const resp = await BrokerConnection.getBrokerRequest(String(id));
@@ -210,6 +234,7 @@ async function loadFromRequest(id: number) {
     return;
   }
   prefill(parseXmlBrokerRequest(resp.data));
+  await loadTargetNodes(id);
 }
 
 function buildPayload(): CreateQueryPayload {
@@ -503,7 +528,7 @@ async function createQuery() {
         </div>
       </section>
 
-      <!-- Query definition + target nodes -->
+      <!-- Query definition -->
       <section class="p-3 metadata-panel">
         <div class="text-xs uppercase font-bold text-color-secondary mb-3">
           {{ t("querySection") }}
@@ -533,13 +558,29 @@ async function createQuery() {
             rows="6"
             class="w-full font-mono"
           />
+        </div>
+      </section>
+
+      <!-- Target nodes -->
+      <section class="p-3 metadata-panel">
+        <div class="flex align-items-center justify-content-between mb-3">
+          <div class="text-xs uppercase font-bold text-color-secondary">
+            {{ t("targetedRequest") }}
+          </div>
+          <Badge
+            v-if="limitToNodes"
+            :value="t('nodesSelectedCount', { count: selectedNodes.length })"
+            severity="secondary"
+          />
+        </div>
+        <div class="flex flex-column gap-3">
           <div class="flex align-items-center gap-2">
             <Checkbox
               v-model="limitToNodes"
               :binary="true"
               inputId="limitToNodes"
             />
-            <label for="limitToNodes">{{ t("targetedRequest") }}</label>
+            <label for="limitToNodes">{{ t("limitToNodesLabel") }}</label>
           </div>
           <Listbox
             v-if="limitToNodes"

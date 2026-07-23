@@ -219,4 +219,6 @@
   "confirmQueryDelete": "Delete this saved query? This action cannot be undone.",
   "queryDeleted": "Query \"{name}\" deleted",
   "queryDeleteFailed": "Failed to delete query"
+  "nodesSelectedCount": "{count} selected",
+  "limitToNodesLabel": "Restrict to selected nodes"
 }
