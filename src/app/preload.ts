@@ -23,3 +23,16 @@ contextBridge.exposeInMainWorld("profileCrypto", {
   encrypt: (text: string) => ipcRenderer.invoke("encrypt", text),
   decrypt: (text: string) => ipcRenderer.invoke("decrypt", text)
 });
+
+contextBridge.exposeInMainWorld("queryBuilderFiles", {
+  readCatalog: () => ipcRenderer.invoke("querybuilder-read-catalog"),
+  writeCatalog: (content: string) =>
+    ipcRenderer.invoke("querybuilder-write-catalog", content),
+  listQueries: () => ipcRenderer.invoke("querybuilder-list-queries"),
+  readQuery: (name: string) =>
+    ipcRenderer.invoke("querybuilder-read-query", name),
+  writeQuery: (name: string, content: string) =>
+    ipcRenderer.invoke("querybuilder-write-query", name, content),
+  deleteQuery: (name: string) =>
+    ipcRenderer.invoke("querybuilder-delete-query", name)
+});

@@ -52,6 +52,10 @@ const visible = ref(false);
 // Prefill source
 const loadSourceId = ref<number | null>(null);
 
+// Saved query-builder queries, offered for the query definition field
+const savedQueries = ref<string[]>([]);
+const selectedSavedQuery = ref<string | null>(null);
+
 // Request
 const title = ref("");
 const description = ref("");
@@ -118,15 +122,28 @@ const canCreate = computed(
     (!limitToNodes.value || selectedNodes.value.length > 0)
 );
 
-// Load the target-node options once, the first time the dialog opens.
+// Load the target-node options once, the first time the dialog opens; refresh
+// the saved-query names on every open (they may change between openings).
 watch(visible, async (open) => {
-  if (open && nodes.value.length === 0) {
+  if (!open) return;
+  savedQueries.value = await window.queryBuilderFiles.listQueries();
+  if (nodes.value.length === 0) {
     const resp = await BrokerConnection.getBrokerNodeList();
     if (resp.status === 200) {
       nodes.value = parseXmlBrokerNodeList(resp.data);
     }
   }
 });
+
+/** Fills the query definition field from a saved query-builder query. */
+async function loadSavedQuery(name: string): Promise<void> {
+  const content = await window.queryBuilderFiles.readQuery(name);
+  if (content == null) {
+    createErrorToast(toast, t("error"), t("savedQueryNotFound"));
+    return;
+  }
+  queryXml.value = content;
+}
 
 /** Reports whether the query definition parses as well-formed XML. */
 function isValidXml(xml: string): boolean {
@@ -232,6 +249,7 @@ function buildPayload(): CreateQueryPayload {
 
 function resetForm() {
   loadSourceId.value = null;
+  selectedSavedQuery.value = null;
   title.value = "";
   description.value = "";
   tagsInput.value = "";
@@ -491,6 +509,24 @@ async function createQuery() {
           {{ t("querySection") }}
         </div>
         <div class="flex flex-column gap-3">
+          <!-- Fill the query definition from a saved query-builder query -->
+          <div v-if="savedQueries.length">
+            <label
+              for="savedQueryInput"
+              class="block mb-1 text-sm text-color-secondary"
+            >
+              {{ t("loadSavedQueryHint") }}
+            </label>
+            <Select
+              id="savedQueryInput"
+              v-model="selectedSavedQuery"
+              :options="savedQueries"
+              :placeholder="t('loadSavedQuery')"
+              filter
+              class="w-full"
+              @change="loadSavedQuery($event.value)"
+            />
+          </div>
           <Textarea
             v-model="queryXml"
             :placeholder="t('queryXmlLabel')"
