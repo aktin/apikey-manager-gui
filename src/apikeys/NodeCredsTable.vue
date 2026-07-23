@@ -26,12 +26,13 @@ import { useI18n } from "vue-i18n";
 import { createErrorToast, createSuccessToast } from "../shared/ToastWrapper";
 import { notifyStatusError } from "../shared/StatusToast";
 import { mergeApiKeysWithNodes, parseNodeIdMap } from "../broker/Parser";
+import type { ApiKeyRow } from "../broker/Parser";
 
 const toast = useToast();
 const { t } = useI18n();
 
-const apiKeyList = ref<Record<string, any>[]>([]);
-const selectedRow = ref<Record<string, any> | null>(null);
+const apiKeyList = ref<ApiKeyRow[]>([]);
+const selectedRow = ref<ApiKeyRow | null>(null);
 const showInactiveKeys = ref(false);
 const nodeCount = ref(0);
 
@@ -63,7 +64,7 @@ async function copyApiKeyToClipboard(text: string) {
   try {
     await navigator.clipboard.writeText(text);
     createSuccessToast(toast, t("success"), t("keyCopied"));
-  } catch (err) {
+  } catch {
     createErrorToast(toast, t("error"), t("failedToCopy"));
   }
 }
@@ -71,7 +72,7 @@ async function copyApiKeyToClipboard(text: string) {
 /**
  * Fetches API keys and broker node metadata, then formats them for display.
  */
-async function fetchAndFormatApiKeyList(): Promise<Record<string, any>[]> {
+async function fetchAndFormatApiKeyList(): Promise<ApiKeyRow[]> {
   const keyResult = await BrokerConnection.getApiKeys();
   const nodeResult = await BrokerConnection.getBrokerNodeList();
   if (keyResult.status === 200) {

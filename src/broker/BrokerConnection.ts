@@ -129,6 +129,12 @@ class BrokerConnection {
     return this.api.getBrokerRequestNodeStatus(requestId, nodeId);
   }
 
+  getBrokerRequestTargetNodes(
+    requestId: string
+  ): Promise<{ status: number; data: string }> {
+    return this.api.getBrokerRequestTargetNodes(requestId);
+  }
+
   deleteBrokerRequest(requestId: string): Promise<number> {
     return this.api.deleteBrokerRequest(requestId);
   }

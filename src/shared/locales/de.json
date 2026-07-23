@@ -153,5 +153,7 @@
   "durationPrev1M": "Voriger Monat",
   "durationPrev7D": "Vorige 7 Tage",
   "durationNext1M": "Nächster Monat",
-  "durationNext7D": "Nächste 7 Tage"
+  "durationNext7D": "Nächste 7 Tage",
+  "nodesSelectedCount": "{count} ausgewählt",
+  "limitToNodesLabel": "Auf ausgewählte Knoten beschränken"
 }

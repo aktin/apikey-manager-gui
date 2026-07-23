@@ -19,7 +19,15 @@ import {
 } from "@vue/eslint-config-typescript";
 
 export default defineConfigWithVueTs(
-  { ignores: ["**/.vite/**", "**/dist/**", "**/out/**", "**/node_modules/**"] },
+  {
+    ignores: [
+      "**/.vite/**",
+      "**/dist/**",
+      "**/out/**",
+      "**/node_modules/**",
+      "**/.remember/**"
+    ]
+  },
   pluginVue.configs["flat/essential"],
   vueTsConfigs.recommended,
   {
@@ -27,7 +35,17 @@ export default defineConfigWithVueTs(
       "@typescript-eslint/no-unused-vars": [
         "warn",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
+      ],
+      // Error pages are named after their HTTP status code
+      "vue/multi-word-component-names": [
+        "error",
+        { ignores: ["Error404", "Error500"] }
       ]
     }
+  },
+  {
+    // Electron Forge loads its config via CommonJS
+    files: ["forge.config.js"],
+    rules: { "@typescript-eslint/no-require-imports": "off" }
   }
 );
