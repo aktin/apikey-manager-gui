@@ -13,8 +13,10 @@
  */
 import { app, BrowserWindow, ipcMain, screen } from "electron";
 import path from "node:path";
+import { promises as fs } from "node:fs";
 import Store from "electron-store";
 import { decrypt, encrypt } from "../profiles/ProfileEncryptionBridge";
+import { isValidQueryName } from "../querybuilder/QueryName";
 
 const store = new Store();
 
@@ -30,6 +32,80 @@ ipcMain.handle("encrypt", (_event, plainText: string) => encrypt(plainText));
 ipcMain.handle("decrypt", (_event, encryptedText: string) =>
   decrypt(encryptedText)
 );
+
+// File storage for the query builder: the block catalog and saved query XMLs
+// live under userData so they never enter the (public) repository.
+const queryBuilderDir = () =>
+  path.join(app.getPath("userData"), "querybuilder");
+const queriesDir = () => path.join(queryBuilderDir(), "queries");
+const catalogFile = () => path.join(queryBuilderDir(), "catalog.json");
+
+/**
+ * Resolves a query name to its file path, so renderer input can never escape
+ * the queries folder: the shared name validation (plain file name, no
+ * Windows-reserved device names) is authoritative here, plus a containment
+ * check on the resolved path as defense in depth.
+ */
+function resolveQueryFile(name: string): string {
+  if (!isValidQueryName(name)) {
+    throw new Error("Invalid query name");
+  }
+  const base = path.resolve(queriesDir());
+  const filePath = path.resolve(base, `${name}.xml`);
+  if (!filePath.startsWith(base + path.sep)) {
+    throw new Error("Invalid query name");
+  }
+  return filePath;
+}
+
+async function readTextFile(filePath: string): Promise<string | null> {
+  try {
+    return await fs.readFile(filePath, "utf-8");
+  } catch {
+    return null;
+  }
+}
+
+// IPC handlers for query-builder files
+ipcMain.handle("querybuilder-read-catalog", () => readTextFile(catalogFile()));
+ipcMain.handle(
+  "querybuilder-write-catalog",
+  async (_event, content: string) => {
+    await fs.mkdir(queryBuilderDir(), { recursive: true });
+    await fs.writeFile(catalogFile(), content, "utf-8");
+  }
+);
+ipcMain.handle("querybuilder-list-queries", async () => {
+  try {
+    // withFileTypes so symlinks and directories are skipped, not followed.
+    const entries = await fs.readdir(queriesDir(), { withFileTypes: true });
+    return entries
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".xml"))
+      .map((entry) => entry.name.slice(0, -".xml".length))
+      .sort((a, b) => a.localeCompare(b));
+  } catch {
+    return [];
+  }
+});
+ipcMain.handle("querybuilder-read-query", (_event, name: string) =>
+  readTextFile(resolveQueryFile(name))
+);
+ipcMain.handle(
+  "querybuilder-write-query",
+  async (_event, name: string, content: string) => {
+    const filePath = resolveQueryFile(name);
+    await fs.mkdir(queriesDir(), { recursive: true });
+    await fs.writeFile(filePath, content, "utf-8");
+  }
+);
+ipcMain.handle("querybuilder-delete-query", async (_event, name: string) => {
+  try {
+    // unlink only removes files, never directories; a missing file is fine.
+    await fs.unlink(resolveQueryFile(name));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
+});
 
 // Creates and configures the main application window.
 const createWindow = () => {

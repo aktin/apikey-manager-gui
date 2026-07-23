@@ -5,6 +5,7 @@
  *
  * - `storeAPI`: Async key-value storage using Electron Store
  * - `profileCrypto`: AES-GCM encryption and decryption interface
+ * - `queryBuilderFiles`: Query-builder catalog and saved-query files in userData
  *
  * Declared as global so TypeScript understands their existence in the renderer process.
  *
@@ -22,6 +23,14 @@ declare global {
     profileCrypto: {
       encrypt: (text: string) => Promise<string>;
       decrypt: (text: string) => Promise<string>;
+    };
+    queryBuilderFiles: {
+      readCatalog: () => Promise<string | null>;
+      writeCatalog: (content: string) => Promise<void>;
+      listQueries: () => Promise<string[]>;
+      readQuery: (name: string) => Promise<string | null>;
+      writeQuery: (name: string, content: string) => Promise<void>;
+      deleteQuery: (name: string) => Promise<void>;
     };
   }
 }
