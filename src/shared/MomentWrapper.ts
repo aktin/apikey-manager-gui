@@ -3,7 +3,7 @@
  * durations for display, localized through the app's vue-i18n instance.
  */
 import { useI18n } from "vue-i18n";
-import moment, { Duration } from "moment";
+import moment, { Duration, DurationInputArg1 } from "moment";
 
 export type MomentDuration = Duration;
 
@@ -11,7 +11,7 @@ export type MomentDuration = Duration;
  * Creates a Moment `Duration` from any Moment-accepted input
  * (ISO 8601 string, milliseconds, plain object, …).
  */
-export function createDuration(value: any): Duration {
+export function createDuration(value: DurationInputArg1): Duration {
   return moment.duration(value);
 }
 

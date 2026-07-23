@@ -278,13 +278,26 @@ export function parseXmlProperties(xml: string): PropertyEntry[] {
 }
 
 /**
+ * Table row for one API key: fixed key metadata plus the DN components
+ * (CN, O, L, …) as dynamic properties.
+ */
+export interface ApiKeyRow {
+  raw: string;
+  apiKey: string;
+  dn: string;
+  nodeId: string | null;
+  isActive: boolean;
+  [dnComponent: string]: string | boolean | null;
+}
+
+/**
  * Merges the broker's plaintext API-key list with node IDs into table rows,
  * splitting each DN into its components (CN, O, L) and flagging inactive keys.
  */
 export function mergeApiKeysWithNodes(
   keyData: string,
   nodeMap: Map<string, string>
-): Record<string, any>[] {
+): ApiKeyRow[] {
   return keyData
     .trim()
     .split("\n")
@@ -294,7 +307,7 @@ export function mergeApiKeysWithNodes(
       const idx = line.indexOf("=");
       const apiKey = line.slice(0, idx);
       const dn = line.slice(idx + 1);
-      const row: Record<string, any> = {
+      const row: ApiKeyRow = {
         raw: line,
         apiKey,
         dn,
