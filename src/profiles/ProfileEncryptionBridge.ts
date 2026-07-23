@@ -26,6 +26,7 @@ let keytar: typeof import("keytar");
 
 if (app.isPackaged) {
   // Manually load from resources folder in production
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   keytar = require(
     path.join(
       app.getAppPath(),
@@ -38,6 +39,7 @@ if (app.isPackaged) {
   );
 } else {
   // Use regular require in dev mode
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   keytar = require("keytar");
 }
 

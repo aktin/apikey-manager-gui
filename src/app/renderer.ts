@@ -28,7 +28,7 @@ import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 import "./style.css";
 
-const app = createApp(App)
+createApp(App)
   .use(PrimeVue, { theme: { preset: Lara } })
   .use(ToastService)
   .use(ConfirmationService)
