@@ -6,9 +6,15 @@
  * management (import/export/clear, custom blocks) and block selection on the
  * left, a live XML preview with copy/download on the right. The catalog is
  * persisted via CatalogStorage; the selection is view-local state.
+ *
+ * Saved queries are stored with their block selection, so loading one puts the
+ * builder back into the state that produced it. Loading and saving are separate
+ * controls on purpose: saving can only overwrite the query that is currently
+ * loaded, so an unrelated selection can never replace a saved query.
  */
 import { computed, onMounted, ref, watch } from "vue";
 import Button from "primevue/button";
+import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import Checkbox from "primevue/checkbox";
 import ConfirmPopup from "primevue/confirmpopup";
@@ -17,7 +23,11 @@ import SplitterPanel from "primevue/splitterpanel";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
-import { createErrorToast, createSuccessToast } from "../shared/ToastWrapper";
+import {
+  createErrorToast,
+  createInfoToast,
+  createSuccessToast
+} from "../shared/ToastWrapper";
 import {
   ColumnBlock,
   createEmptyCatalog,
@@ -35,6 +45,12 @@ import {
 } from "./QueryXmlAssembler";
 import { downloadTextFile } from "./FileTransfer";
 import { isValidQueryName } from "./QueryName";
+import {
+  parseQueryState,
+  QuerySelectionState,
+  restoreSelection,
+  serializeQueryState
+} from "./QueryState";
 import CatalogManager from "./CatalogManager.vue";
 import CustomBlockEditor, {
   DeletedBlockPayload,
@@ -50,12 +66,23 @@ const confirm = useConfirm();
 const catalog = ref<QueryBuilderCatalog | null>(null);
 const blockEditor = ref<InstanceType<typeof CustomBlockEditor> | null>(null);
 
-const queryName = ref("");
 const savedQueryNames = ref<string[]>([]);
-// Content and name of the loaded saved query; the preview shows the content
-// instead of the live assembly until the block selection changes.
-const loadedQueryXml = ref<string | null>(null);
+// The saved query the builder currently holds: the load dropdown displays it
+// and the delete button acts on it.
 const loadedQueryName = ref<string | null>(null);
+// Whether the loaded query came with a block selection. Only such a query may
+// be overwritten, so an unrelated selection can never replace a saved one.
+const loadedIsResumable = ref(false);
+// The loaded or last saved selection, serialized, as the baseline for detecting
+// unsaved changes.
+const savedStateJson = ref<string | null>(null);
+// Name typed into the save field, independent of what is loaded.
+const saveName = ref("");
+// Content of a saved query without stored block selection: it cannot be
+// restored into the builder, so it is shown as read-only text instead.
+const readOnlyXml = ref<string | null>(null);
+// Anchor element for the confirm popups of the load dropdown.
+const loadControl = ref<HTMLElement | null>(null);
 
 const selectedPrepId = ref<string | null>(null);
 const selectedFilterIds = ref<string[]>([]);
@@ -112,13 +139,28 @@ const queryXml = computed(() =>
   selection.value.prep ? assembleQueryXml(selection.value) : ""
 );
 
-/** What the preview pane and its actions operate on. */
-const previewXml = computed(() => loadedQueryXml.value ?? queryXml.value);
+/** What the preview pane and its copy/download actions operate on. */
+const previewXml = computed(() => readOnlyXml.value ?? queryXml.value);
 
-// Changing the live selection discards a loaded saved query.
+/** The current selection in the format stored next to a saved query. */
+const currentStateJson = computed(() =>
+  serializeQueryState({
+    prepId: selectedPrepId.value,
+    filterIds: selectedFilterIds.value,
+    tableIds: selectedTableIds.value,
+    columnIds: selectedColumns.value,
+    paramValues: paramValues.value
+  })
+);
+
+/** Whether the selection differs from the loaded or last saved query. */
+const hasUnsavedChanges = computed(
+  () => !!queryXml.value && currentStateJson.value !== savedStateJson.value
+);
+
+// Touching the selection returns the preview to the live assembly.
 watch(selection, () => {
-  loadedQueryXml.value = null;
-  loadedQueryName.value = null;
+  readOnlyXml.value = null;
 });
 
 function ensureDefaults(blockId: string, params: PrepBlock["params"]): void {
@@ -182,12 +224,22 @@ function toggleColumn(tableId: string, columnId: string): void {
   selectedColumns.value[tableId] = columns;
 }
 
+/**
+ * Empties the selection and forgets which saved query it came from, used when
+ * the catalog is replaced: the loaded query's blocks may no longer exist, so it
+ * is no longer the query being worked on.
+ */
 function resetSelection(): void {
   selectedPrepId.value = null;
   selectedFilterIds.value = [];
   selectedTableIds.value = [];
   selectedColumns.value = {};
   paramValues.value = {};
+  loadedQueryName.value = null;
+  loadedIsResumable.value = false;
+  savedStateJson.value = null;
+  saveName.value = "";
+  readOnlyXml.value = null;
 }
 
 async function onCatalogImported(imported: QueryBuilderCatalog): Promise<void> {
@@ -325,85 +377,137 @@ async function refreshSavedQueries(): Promise<void> {
   savedQueryNames.value = await window.queryBuilderFiles.listQueries();
 }
 
-// Delete only applies to a name that actually exists as a saved query.
-const isPersistedName = computed(() =>
-  savedQueryNames.value.includes(queryName.value.trim())
-);
-
 /**
- * Picking an option in the editable name field loads that saved query into
- * the preview; plain typing only sets the save name (the editable Select
- * reports typing as an "input" originalEvent), so a loaded query can be
- * saved under a new name as a copy.
+ * Loading happens by picking in the dropdown, never by typing a name. The
+ * dropdown only displays what is loaded, so a cancelled switch needs no undo.
  */
-function onQueryFieldChange(event: {
-  originalEvent: Event;
-  value: string;
-}): void {
-  if (event.originalEvent?.type === "input") return;
+function onQueryPicked(event: { value: string }): void {
   void loadSavedQuery(event.value);
 }
 
-/** Shows the picked saved query in the preview (read-only). */
+/** A sidecar the app cannot read must not block viewing the query. */
+function readStoredState(json: string) {
+  try {
+    return parseQueryState(json);
+  } catch {
+    // Deliberately without the error object: parse errors can quote file
+    // content, which must not end up in logs.
+    console.error("Failed to read stored query state");
+    return null;
+  }
+}
+
+/**
+ * Puts the builder back into the state stored with the picked saved query,
+ * asking first if that would discard unsaved changes. Queries saved without
+ * that state (before it was persisted) can only be shown as read-only text,
+ * which leaves the selection untouched.
+ */
 async function loadSavedQuery(name: string): Promise<void> {
-  const content = await window.queryBuilderFiles.readQuery(name);
-  if (content == null) {
+  const [xml, stateJson] = await Promise.all([
+    window.queryBuilderFiles.readQuery(name),
+    window.queryBuilderFiles.readQueryState(name)
+  ]);
+  if (xml == null) {
     createErrorToast(toast, t("error"), t("savedQueryNotFound"));
-    loadedQueryXml.value = null;
-    loadedQueryName.value = null;
     await refreshSavedQueries();
     return;
   }
-  loadedQueryXml.value = content;
-  loadedQueryName.value = name;
-}
-
-/** Saves the previewed XML under the entered name; confirms overwrites. */
-function saveQuery(event: Event): void {
-  const name = queryName.value.trim();
-  if (!name || !previewXml.value) return;
-  if (!isValidQueryName(name)) {
-    createErrorToast(toast, t("inputError"), t("invalidQueryName"));
+  const state = stateJson ? readStoredState(stateJson) : null;
+  if (!state) {
+    readOnlyXml.value = xml;
+    loadedQueryName.value = name;
+    loadedIsResumable.value = false;
+    createInfoToast(toast, t("info"), t("queryNotResumable"));
     return;
   }
-  if (!savedQueryNames.value.includes(name)) {
-    void writeQueryFile(name);
+  if (!hasUnsavedChanges.value || !loadControl.value) {
+    restoreQuery(name, state);
     return;
   }
-  const target = event.currentTarget as HTMLElement | null;
-  if (!target) return;
   confirm.require({
-    group: "queryOverwrite",
-    target,
-    message: t("confirmQueryOverwrite"),
+    group: "discardChanges",
+    target: loadControl.value,
+    message: t("confirmDiscardChanges"),
     icon: "pi pi-exclamation-triangle",
     rejectClass: "p-button-secondary p-button-outlined p-button-sm",
     acceptClass: "p-button-danger p-button-sm",
     rejectLabel: t("cancel"),
-    acceptLabel: t("overwrite"),
-    accept: () => void writeQueryFile(name)
+    acceptLabel: t("discard"),
+    accept: () => restoreQuery(name, state)
   });
 }
 
+/** Applies a stored selection to the builder and reports what was skipped. */
+function restoreQuery(name: string, state: QuerySelectionState): void {
+  const restored = restoreSelection(
+    state,
+    catalog.value ?? createEmptyCatalog()
+  );
+  selectedPrepId.value = restored.selection.prepId;
+  selectedFilterIds.value = restored.selection.filterIds;
+  selectedTableIds.value = restored.selection.tableIds;
+  selectedColumns.value = restored.selection.columnIds;
+  paramValues.value = restored.selection.paramValues;
+  readOnlyXml.value = null;
+  loadedQueryName.value = name;
+  loadedIsResumable.value = true;
+  savedStateJson.value = currentStateJson.value;
+  saveName.value = name;
+  if (restored.dropped) {
+    createInfoToast(toast, t("info"), t("queryBlocksMissing"));
+    return;
+  }
+  createSuccessToast(toast, t("success"), t("queryLoaded", { name }));
+}
+
+/**
+ * Saves the assembled XML and the block selection under the entered name. An
+ * existing name that is not the loaded query is refused instead of overwritten,
+ * so only the query currently being worked on can be replaced; that replacement
+ * needs no confirmation because the main process keeps a backup of it.
+ */
+function saveQuery(): void {
+  const name = saveName.value.trim();
+  if (!name || !queryXml.value) return;
+  if (!isValidQueryName(name)) {
+    createErrorToast(toast, t("inputError"), t("invalidQueryName"));
+    return;
+  }
+  if (
+    savedQueryNames.value.includes(name) &&
+    (!loadedIsResumable.value || name !== loadedQueryName.value)
+  ) {
+    createErrorToast(toast, t("inputError"), t("queryNameTaken", { name }));
+    return;
+  }
+  void writeQueryFile(name);
+}
+
 async function writeQueryFile(name: string): Promise<void> {
+  const stateJson = currentStateJson.value;
   try {
-    await window.queryBuilderFiles.writeQuery(name, previewXml.value);
+    await window.queryBuilderFiles.writeQuery(name, queryXml.value, stateJson);
     await refreshSavedQueries();
+    // Saving makes the written query the one being worked on.
+    loadedQueryName.value = name;
+    loadedIsResumable.value = true;
+    savedStateJson.value = stateJson;
     createSuccessToast(toast, t("success"), t("querySaved", { name }));
   } catch {
     createErrorToast(toast, t("error"), t("querySaveFailed"));
   }
 }
 
-/** Asks for confirmation, then deletes the saved query named in the field. */
+/** Asks for confirmation, then deletes the loaded saved query. */
 function confirmDeleteQuery(event: Event): void {
-  const name = queryName.value.trim();
+  const name = loadedQueryName.value;
   const target = event.currentTarget as HTMLElement | null;
-  if (!isPersistedName.value || !name || !target) return;
+  if (!name || !target) return;
   confirm.require({
     group: "savedQueryDelete",
     target,
-    message: t("confirmQueryDelete"),
+    message: t("confirmQueryDelete", { name }),
     icon: "pi pi-exclamation-triangle",
     rejectClass: "p-button-secondary p-button-outlined p-button-sm",
     acceptClass: "p-button-danger p-button-sm",
@@ -417,11 +521,11 @@ async function deleteSavedQuery(name: string): Promise<void> {
   try {
     await window.queryBuilderFiles.deleteQuery(name);
     await refreshSavedQueries();
-    if (loadedQueryName.value === name) {
-      loadedQueryXml.value = null;
-      loadedQueryName.value = null;
-    }
-    if (queryName.value.trim() === name) queryName.value = "";
+    // The selection stays in the builder, but it is no longer saved anywhere.
+    loadedQueryName.value = null;
+    loadedIsResumable.value = false;
+    savedStateJson.value = null;
+    readOnlyXml.value = null;
     createSuccessToast(toast, t("success"), t("queryDeleted", { name }));
   } catch {
     createErrorToast(toast, t("error"), t("queryDeleteFailed"));
@@ -573,50 +677,67 @@ onMounted(async () => {
 
     <SplitterPanel :size="50" :min-size="25" class="overflow-hidden">
       <div class="flex flex-column h-full p-3">
+        <!-- Loading a saved query: its own row, so it cannot be mistaken for
+             the save name below. -->
         <div class="flex align-items-center justify-content-between gap-2 mb-2">
           <span class="text-lg font-bold">{{ t("xmlPreview") }}</span>
-          <div class="flex align-items-center flex-wrap gap-2">
+          <div ref="loadControl" class="flex align-items-center gap-2">
+            <!-- Displays what is loaded, so cancelling a switch changes
+                 nothing. -->
             <Select
-              v-model="queryName"
+              :model-value="loadedQueryName"
               :options="savedQueryNames"
-              editable
-              :placeholder="t('queryName')"
-              class="w-14rem"
-              @change="onQueryFieldChange"
-            />
-            <Button
-              icon="pi pi-save"
-              severity="secondary"
-              outlined
-              :disabled="!previewXml || !queryName.trim()"
-              v-tooltip.bottom="t('saveQuery')"
-              @click="saveQuery"
-            />
-            <Button
-              icon="pi pi-copy"
-              severity="secondary"
-              outlined
-              :disabled="!previewXml"
-              v-tooltip.bottom="t('copyQuery')"
-              @click="copyXmlToClipboard"
-            />
-            <Button
-              icon="pi pi-download"
-              severity="secondary"
-              outlined
-              :disabled="!previewXml"
-              v-tooltip.bottom="t('downloadXml')"
-              @click="downloadXml"
+              :placeholder="t('loadSavedQuery')"
+              class="w-12rem"
+              @change="onQueryPicked"
             />
             <Button
               icon="pi pi-trash"
               severity="danger"
               outlined
-              :disabled="!isPersistedName"
+              :disabled="!loadedQueryName"
               v-tooltip.bottom="t('deleteQuery')"
               @click="confirmDeleteQuery"
             />
           </div>
+        </div>
+
+        <!-- Saving under a name, plus the actions on the previewed XML. -->
+        <div class="flex align-items-center gap-2 mb-2">
+          <InputText
+            v-model="saveName"
+            :placeholder="t('queryName')"
+            class="flex-1"
+          />
+          <Button
+            icon="pi pi-save"
+            severity="secondary"
+            outlined
+            :disabled="!queryXml || !saveName.trim() || !!readOnlyXml"
+            v-tooltip.bottom="t('saveQuery')"
+            @click="saveQuery"
+          />
+          <span class="border-left-1 surface-border h-2rem mx-1" />
+          <Button
+            icon="pi pi-copy"
+            severity="secondary"
+            outlined
+            :disabled="!previewXml"
+            v-tooltip.bottom="t('copyQuery')"
+            @click="copyXmlToClipboard"
+          />
+          <Button
+            icon="pi pi-download"
+            severity="secondary"
+            outlined
+            :disabled="!previewXml"
+            v-tooltip.bottom="t('downloadXml')"
+            @click="downloadXml"
+          />
+        </div>
+
+        <div v-if="readOnlyXml" class="text-sm text-color-secondary mb-2">
+          <i class="pi pi-lock mr-1" />{{ t("queryNotResumable") }}
         </div>
         <div
           v-if="!previewXml"
@@ -632,8 +753,8 @@ onMounted(async () => {
   </Splitter>
 
   <!-- Grouped so they do not collide with other confirm popups. -->
-  <ConfirmPopup group="queryOverwrite" />
   <ConfirmPopup group="savedQueryDelete" />
+  <ConfirmPopup group="discardChanges" />
 </template>
 
 <style scoped>

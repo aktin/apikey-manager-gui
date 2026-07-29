@@ -31,8 +31,10 @@ contextBridge.exposeInMainWorld("queryBuilderFiles", {
   listQueries: () => ipcRenderer.invoke("querybuilder-list-queries"),
   readQuery: (name: string) =>
     ipcRenderer.invoke("querybuilder-read-query", name),
-  writeQuery: (name: string, content: string) =>
-    ipcRenderer.invoke("querybuilder-write-query", name, content),
+  readQueryState: (name: string) =>
+    ipcRenderer.invoke("querybuilder-read-query-state", name),
+  writeQuery: (name: string, xml: string, state: string) =>
+    ipcRenderer.invoke("querybuilder-write-query", name, xml, state),
   deleteQuery: (name: string) =>
     ipcRenderer.invoke("querybuilder-delete-query", name)
 });

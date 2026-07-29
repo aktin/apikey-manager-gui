@@ -29,7 +29,8 @@ declare global {
       writeCatalog: (content: string) => Promise<void>;
       listQueries: () => Promise<string[]>;
       readQuery: (name: string) => Promise<string | null>;
-      writeQuery: (name: string, content: string) => Promise<void>;
+      readQueryState: (name: string) => Promise<string | null>;
+      writeQuery: (name: string, xml: string, state: string) => Promise<void>;
       deleteQuery: (name: string) => Promise<void>;
     };
   }
