@@ -58,6 +58,19 @@ function resolveQueryFile(name: string, suffix: string): string {
   return filePath;
 }
 
+/**
+ * Moves a query file aside as "<file>.bak" before it is overwritten, so the
+ * previous version survives an accidental save. Only the last version is kept
+ * (rename replaces an existing backup); a missing file is nothing to back up.
+ */
+async function backupQueryFile(filePath: string): Promise<void> {
+  try {
+    await fs.rename(filePath, `${filePath}.bak`);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
+}
+
 async function readTextFile(filePath: string): Promise<string | null> {
   try {
     return await fs.readFile(filePath, "utf-8");
@@ -101,13 +114,15 @@ ipcMain.handle(
     const xmlFile = resolveQueryFile(name, ".xml");
     const stateFile = resolveQueryFile(name, ".json");
     await fs.mkdir(queriesDir(), { recursive: true });
+    await backupQueryFile(xmlFile);
+    await backupQueryFile(stateFile);
     await fs.writeFile(xmlFile, xml, "utf-8");
     await fs.writeFile(stateFile, state, "utf-8");
   }
 );
 ipcMain.handle("querybuilder-delete-query", async (_event, name: string) => {
-  // Removes the query together with its builder state.
-  for (const suffix of [".xml", ".json"]) {
+  // Removes the query, its builder state, and their backups.
+  for (const suffix of [".xml", ".json", ".xml.bak", ".json.bak"]) {
     try {
       // unlink only removes files, never directories; a missing file is fine.
       await fs.unlink(resolveQueryFile(name, suffix));
