@@ -8,7 +8,8 @@
  *
  * Features:
  * - Single- or repeated-execution schedule, toggled inline
- * - Optional restriction to selected target nodes, loaded lazily on first open
+ * - Optional restriction to selected target nodes, loaded lazily on first open,
+ *   with a select-all toggle and a checkbox per node
  * - Validates required fields and that the query definition is well-formed XML
  * - Allocates, defines, optionally targets, and publishes the request in one step
  * - Clears the form and closes the dialog on success, emitting `created`
@@ -108,6 +109,20 @@ const nodeOptions = computed(() =>
 
 const requestOptions = computed(() =>
   props.requests.map((r) => ({ label: `#${r.id}`, value: r.id }))
+);
+
+// Select-all mirror for the node list: reads whether every node is selected,
+// writes either the full or the empty selection.
+const allNodesSelected = computed({
+  get: () =>
+    nodes.value.length > 0 && selectedNodes.value.length === nodes.value.length,
+  set: (select: boolean) => {
+    selectedNodes.value = select ? nodes.value.map((n) => n.id) : [];
+  }
+});
+
+const someNodesSelected = computed(
+  () => selectedNodes.value.length > 0 && !allNodesSelected.value
 );
 
 // Create button is enabled only when all required fields are filled.
@@ -329,7 +344,8 @@ async function createQuery() {
     v-model:visible="visible"
     modal
     :header="t('createQuery')"
-    :style="{ width: '90vw', maxWidth: '46rem' }"
+    :style="{ width: '90vw', maxWidth: '64rem' }"
+    :contentStyle="{ maxHeight: '76vh', overflowY: 'auto' }"
   >
     <div class="flex flex-column gap-3">
       <!-- Clone an existing request into the form -->
@@ -374,7 +390,7 @@ async function createQuery() {
             <Textarea
               id="descriptionInput"
               v-model="description"
-              rows="2"
+              rows="6"
               autoResize
               class="w-full"
             />
@@ -555,7 +571,7 @@ async function createQuery() {
           <Textarea
             v-model="queryXml"
             :placeholder="t('queryXmlLabel')"
-            rows="6"
+            rows="28"
             class="w-full font-mono"
           />
         </div>
@@ -582,20 +598,43 @@ async function createQuery() {
             />
             <label for="limitToNodes">{{ t("limitToNodesLabel") }}</label>
           </div>
-          <Listbox
-            v-if="limitToNodes"
-            v-model="selectedNodes"
-            :options="nodeOptions"
-            optionLabel="label"
-            optionValue="value"
-            multiple
-            checkmark
-            filter
-            :filterPlaceholder="t('keywordSearch')"
-            :emptyFilterMessage="t('emptyNodeList')"
-            listStyle="max-height: 14rem"
-            class="w-full"
-          />
+          <template v-if="limitToNodes">
+            <div class="flex align-items-center gap-2">
+              <Checkbox
+                v-model="allNodesSelected"
+                :binary="true"
+                :indeterminate="someNodesSelected"
+                inputId="selectAllNodes"
+              />
+              <label for="selectAllNodes">{{ t("selectAllNodesLabel") }}</label>
+            </div>
+            <Listbox
+              v-model="selectedNodes"
+              :options="nodeOptions"
+              optionLabel="label"
+              optionValue="value"
+              multiple
+              filter
+              :filterPlaceholder="t('keywordSearch')"
+              :emptyFilterMessage="t('emptyNodeList')"
+              listStyle="max-height: 20rem"
+              class="w-full"
+            >
+              <!-- Display-only checkbox: the row click owns the selection, so
+                   clicks must pass through to the listbox item. -->
+              <template #option="{ option, selected }">
+                <div class="flex align-items-center gap-2">
+                  <Checkbox
+                    :model-value="selected"
+                    :binary="true"
+                    tabindex="-1"
+                    style="pointer-events: none"
+                  />
+                  <span>{{ option.label }}</span>
+                </div>
+              </template>
+            </Listbox>
+          </template>
         </div>
       </section>
     </div>
