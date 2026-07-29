@@ -520,12 +520,17 @@ watch(() => props.requestId, loadRequest);
             />
             <span>{{ [node.nodeId] }} {{ nodeLabel(node.nodeId) }}</span>
           </span>
-          <template v-if="hasAnyTimestamp(node)">
-            <NodeStatusInfoTimeline :node-status-info="node" />
-          </template>
-          <span v-else class="text-color-secondary text-sm">{{
-            t("notRetrievedYet")
-          }}</span>
+          <NodeStatusInfoTimeline
+            v-if="hasAnyTimestamp(node)"
+            :node-status-info="node"
+          />
+          <Button
+            v-else
+            :label="t('notRetrieved')"
+            :class="nodeStateColorClass(null)"
+            text
+            disabled
+          />
         </div>
       </div>
     </div>

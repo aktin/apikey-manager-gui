@@ -1,6 +1,6 @@
 {
   "name": "apikey-manager-gui",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "Cross-platform desktop app to manage API keys of the AKTIN Broker",
   "author": "Alexander Kombeiz <akombeiz@ukaachen.de>",
   "contributors": [
