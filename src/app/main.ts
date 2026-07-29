@@ -41,21 +41,34 @@ const queriesDir = () => path.join(queryBuilderDir(), "queries");
 const catalogFile = () => path.join(queryBuilderDir(), "catalog.json");
 
 /**
- * Resolves a query name to its file path, so renderer input can never escape
- * the queries folder: the shared name validation (plain file name, no
- * Windows-reserved device names) is authoritative here, plus a containment
+ * Resolves a query name and file suffix to a file path, so renderer input can
+ * never escape the queries folder: the shared name validation (plain file name,
+ * no Windows-reserved device names) is authoritative here, plus a containment
  * check on the resolved path as defense in depth.
  */
-function resolveQueryFile(name: string): string {
+function resolveQueryFile(name: string, suffix: string): string {
   if (!isValidQueryName(name)) {
     throw new Error("Invalid query name");
   }
   const base = path.resolve(queriesDir());
-  const filePath = path.resolve(base, `${name}.xml`);
+  const filePath = path.resolve(base, `${name}${suffix}`);
   if (!filePath.startsWith(base + path.sep)) {
     throw new Error("Invalid query name");
   }
   return filePath;
+}
+
+/**
+ * Moves a query file aside as "<file>.bak" before it is overwritten, so the
+ * previous version survives an accidental save. Only the last version is kept
+ * (rename replaces an existing backup); a missing file is nothing to back up.
+ */
+async function backupQueryFile(filePath: string): Promise<void> {
+  try {
+    await fs.rename(filePath, `${filePath}.bak`);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
 }
 
 async function readTextFile(filePath: string): Promise<string | null> {
@@ -88,22 +101,34 @@ ipcMain.handle("querybuilder-list-queries", async () => {
   }
 });
 ipcMain.handle("querybuilder-read-query", (_event, name: string) =>
-  readTextFile(resolveQueryFile(name))
+  readTextFile(resolveQueryFile(name, ".xml"))
 );
+ipcMain.handle("querybuilder-read-query-state", (_event, name: string) =>
+  readTextFile(resolveQueryFile(name, ".json"))
+);
+// The XML and the builder state that produced it are written as a pair, so a
+// saved query can be loaded back into the builder.
 ipcMain.handle(
   "querybuilder-write-query",
-  async (_event, name: string, content: string) => {
-    const filePath = resolveQueryFile(name);
+  async (_event, name: string, xml: string, state: string) => {
+    const xmlFile = resolveQueryFile(name, ".xml");
+    const stateFile = resolveQueryFile(name, ".json");
     await fs.mkdir(queriesDir(), { recursive: true });
-    await fs.writeFile(filePath, content, "utf-8");
+    await backupQueryFile(xmlFile);
+    await backupQueryFile(stateFile);
+    await fs.writeFile(xmlFile, xml, "utf-8");
+    await fs.writeFile(stateFile, state, "utf-8");
   }
 );
 ipcMain.handle("querybuilder-delete-query", async (_event, name: string) => {
-  try {
-    // unlink only removes files, never directories; a missing file is fine.
-    await fs.unlink(resolveQueryFile(name));
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  // Removes the query, its builder state, and their backups.
+  for (const suffix of [".xml", ".json", ".xml.bak", ".json.bak"]) {
+    try {
+      // unlink only removes files, never directories; a missing file is fine.
+      await fs.unlink(resolveQueryFile(name, suffix));
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
   }
 });
 
