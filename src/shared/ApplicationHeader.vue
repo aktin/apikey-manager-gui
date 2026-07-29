@@ -22,7 +22,7 @@ const version = __APP_VERSION__;
 
 const routing = computed<RouteConfig[]>(() => [
   { label: t("keys"), route: "/api-keys" },
-  { label: t("request"), route: "/request" },
+  { label: t("requests"), route: "/request" },
   { label: t("nodes"), route: "/nodes" },
   { label: t("queryBuilder"), route: "/builder" }
 ]);

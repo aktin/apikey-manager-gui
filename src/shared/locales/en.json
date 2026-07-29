@@ -64,6 +64,7 @@
   "deleteProfile": "Delete profile",
   "keys": "API keys",
   "request": "Request",
+  "requests": "Requests",
   "requestId": "Request ID",
   "referenceDate": "Reference date",
   "scheduledDate": "Execution date",

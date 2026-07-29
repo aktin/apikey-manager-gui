@@ -64,6 +64,7 @@
   "deleteProfile": "Profil löschen",
   "keys": "API-Schlüssel",
   "request": "Anfrage",
+  "requests": "Anfragen",
   "requestId": "Anfragen ID",
   "referenceDate": "Referenzdatum",
   "scheduledDate": "Ausführungsdatum",
