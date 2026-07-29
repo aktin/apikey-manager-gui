@@ -117,7 +117,7 @@
   "completed": "Abgeschlossen",
   "failed": "Fehlgeschlagen",
   "expired": "Abgelaufen",
-  "notRetrievedYet": "Noch nicht abgeholt",
+  "notRetrieved": "Nicht abgeholt",
   "openStatusTimeline": "Zeitstrahl öffnen",
   "openNodeStatusMessage": "Knotenstatus anzeigen",
   "copyFullKey": "Vollständigen API-Schlüssel kopieren",
