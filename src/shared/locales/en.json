@@ -225,5 +225,6 @@
   "queryDeleted": "Query \"{name}\" deleted",
   "queryDeleteFailed": "Failed to delete query",
   "nodesSelectedCount": "{count} selected",
-  "limitToNodesLabel": "Restrict to selected nodes"
+  "limitToNodesLabel": "Restrict to selected nodes",
+  "selectAllNodesLabel": "Select all nodes"
 }
