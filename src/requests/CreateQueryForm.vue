@@ -344,7 +344,8 @@ async function createQuery() {
     v-model:visible="visible"
     modal
     :header="t('createQuery')"
-    :style="{ width: '90vw', maxWidth: '46rem' }"
+    :style="{ width: '90vw', maxWidth: '64rem' }"
+    :contentStyle="{ maxHeight: '76vh', overflowY: 'auto' }"
   >
     <div class="flex flex-column gap-3">
       <!-- Clone an existing request into the form -->
@@ -389,7 +390,7 @@ async function createQuery() {
             <Textarea
               id="descriptionInput"
               v-model="description"
-              rows="2"
+              rows="6"
               autoResize
               class="w-full"
             />
@@ -570,7 +571,7 @@ async function createQuery() {
           <Textarea
             v-model="queryXml"
             :placeholder="t('queryXmlLabel')"
-            rows="6"
+            rows="28"
             class="w-full font-mono"
           />
         </div>
@@ -616,7 +617,7 @@ async function createQuery() {
               filter
               :filterPlaceholder="t('keywordSearch')"
               :emptyFilterMessage="t('emptyNodeList')"
-              listStyle="max-height: 14rem"
+              listStyle="max-height: 20rem"
               class="w-full"
             >
               <!-- Display-only checkbox: the row click owns the selection, so
