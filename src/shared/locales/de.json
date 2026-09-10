@@ -183,7 +183,7 @@
   "destinationLabel": "Export-Ziel",
   "tempTablesLabel": "Erzeugte temporäre Tabellen",
   "sqlTemplateLabel": "SQL-Template",
-  "sqlTemplateHint": "Parameter im SQL über ihren Key in doppelten geschweiften Klammern referenzieren",
+  "sqlTemplateHint": "Parameter im SQL über ihren Key in doppelten geschweiften Klammern referenzieren. {'${data.start}'} und {'${data.end}'} setzt das DWH zur Ausführungszeit aus Referenzdatum und Zeitraum der Anfrage ein, Bausteine damit sind serienfähig",
   "parametersSection": "Parameter",
   "paramKey": "Key",
   "paramLabel": "Bezeichnung",

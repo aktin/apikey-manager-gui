@@ -183,7 +183,7 @@
   "destinationLabel": "Export destination",
   "tempTablesLabel": "Created temporary tables",
   "sqlTemplateLabel": "SQL template",
-  "sqlTemplateHint": "Reference parameters in the SQL via their key wrapped in double curly braces",
+  "sqlTemplateHint": "Reference parameters in the SQL via their key wrapped in double curly braces. {'${data.start}'} and {'${data.end}'} are filled in by the DWH at execution time from the request reference date and duration, so blocks using them work in series requests",
   "parametersSection": "Parameters",
   "paramKey": "Key",
   "paramLabel": "Label",

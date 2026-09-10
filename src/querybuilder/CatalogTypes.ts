@@ -4,8 +4,11 @@
  * A catalog is a user-provided collection of SQL building blocks; the app
  * ships without any catalog content. Blocks carry SQL templates with
  * `{{key}}` placeholders and declare their parameters, which the UI renders
- * as form fields. The assembled blocks form a broker query in the
- * `http://aktin.org/ns/i2b2/sql` XML format.
+ * as form fields. DWH-side placeholders such as `${data.start}` and
+ * `${data.end}` are not touched by the app and are substituted by the DWH at
+ * execution time from the request's reference date and duration, which is what
+ * makes a block usable in series requests. The assembled blocks form a broker
+ * query in the `http://aktin.org/ns/i2b2/sql` XML format.
  */
 
 /** Input types a block parameter can declare; decides the rendered field. */
