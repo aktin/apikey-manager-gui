@@ -21,6 +21,7 @@ import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import Select from "primevue/select";
+import SelectButton from "primevue/selectbutton";
 import Listbox from "primevue/listbox";
 import Badge from "primevue/badge";
 import DatePicker from "primevue/datepicker";
@@ -41,7 +42,7 @@ import {
   RequestQuerySummary
 } from "./BrokerRequest";
 import { NodeListEntry } from "../nodes/BrokerNode";
-import { createDuration, MomentDuration } from "../shared/MomentWrapper";
+import { MomentDuration } from "../shared/MomentWrapper";
 import { createErrorToast, createSuccessToast } from "../shared/ToastWrapper";
 import { notifyStatusError } from "../shared/StatusToast";
 
@@ -73,7 +74,10 @@ const principalEmail = ref("");
 // Schedule
 const reference = ref<Date | null>(null);
 const scheduled = ref<Date | null>(null);
-const duration = ref("-P24M");
+// Collection period as unsigned ISO-8601 period; the direction flag decides
+// whether it ends at (before) or starts at (after) the reference date.
+const duration = ref("P24M");
+const durationBefore = ref(true);
 const isSeries = ref(false);
 const interval = ref("");
 const intervalHours = ref("");
@@ -87,21 +91,15 @@ const limitToNodes = ref(false);
 const selectedNodes = ref<number[]>([]);
 const nodes = ref<NodeListEntry[]>([]);
 
-// Collection-period presets mirror the broker-admin form (ISO-8601 durations).
-const DURATIONS = [
-  { value: "-P24M", key: "durationPrev24M" },
-  { value: "-P12M", key: "durationPrev12M" },
-  { value: "-P6M", key: "durationPrev6M" },
-  { value: "-P3M", key: "durationPrev3M" },
-  { value: "-P1M", key: "durationPrev1M" },
-  { value: "-P7D", key: "durationPrev7D" },
-  { value: "P1M", key: "durationNext1M" },
-  { value: "P7D", key: "durationNext7D" }
-] as const;
+// Date-based ISO-8601 period (years, months, weeks, days), as the DWH parses it.
+const ISO_PERIOD = /^P(?=\d)(\d+Y)?(\d+M)?(\d+W)?(\d+D)?$/;
 
-const durationOptions = computed(() =>
-  DURATIONS.map((d) => ({ label: t(d.key), value: d.value }))
-);
+const durationValid = computed(() => ISO_PERIOD.test(duration.value.trim()));
+
+const durationDirectionOptions = computed(() => [
+  { label: t("durationBefore"), value: true },
+  { label: t("durationAfter"), value: false }
+]);
 
 const nodeOptions = computed(() =>
   nodes.value.map((n) => ({ label: n.cn ?? `#${n.id}`, value: n.id }))
@@ -134,7 +132,7 @@ const canCreate = computed(
     tagsInput.value.trim() !== "" &&
     principalName.value.trim() !== "" &&
     principalEmail.value.trim() !== "" &&
-    duration.value !== "" &&
+    durationValid.value &&
     queryXml.value.trim() !== "" &&
     (!isSeries.value || interval.value.trim() !== "") &&
     (!limitToNodes.value || selectedNodes.value.length > 0)
@@ -173,16 +171,11 @@ function isValidDate(date: Date): boolean {
   return !isNaN(date.getTime());
 }
 
-/**
- * Maps a parsed duration back to one of the collection-period presets by
- * comparing normalized ISO forms; returns "" when no preset matches.
- */
-function matchDurationPreset(value: MomentDuration): string {
+/** Splits a parsed duration into its unsigned ISO period and direction. */
+function applyDuration(value: MomentDuration): void {
   const iso = value.toISOString();
-  return (
-    DURATIONS.find((d) => createDuration(d.value).toISOString() === iso)
-      ?.value ?? ""
-  );
+  durationBefore.value = iso.startsWith("-");
+  duration.value = iso.replace(/^-/, "");
 }
 
 /** Prefills the form from an existing request, for cloning and resubmitting. */
@@ -199,7 +192,7 @@ function prefill(req: BrokerRequest) {
   queryXml.value = q.queryXml;
   if (q.repeatedExecution) {
     isSeries.value = true;
-    duration.value = matchDurationPreset(q.repeatedExecution.duration);
+    applyDuration(q.repeatedExecution.duration);
     interval.value = q.repeatedExecution.interval.asMilliseconds()
       ? q.repeatedExecution.interval.toISOString()
       : "";
@@ -211,9 +204,8 @@ function prefill(req: BrokerRequest) {
       q.repeatedExecution.id != null ? String(q.repeatedExecution.id) : "";
   } else {
     isSeries.value = false;
-    duration.value = q.singleExecution
-      ? matchDurationPreset(q.singleExecution.duration)
-      : "";
+    if (q.singleExecution) applyDuration(q.singleExecution.duration);
+    else duration.value = "";
     interval.value = "";
     intervalHours.value = "";
     seriesId.value = "";
@@ -270,7 +262,7 @@ function buildPayload(): CreateQueryPayload {
       phone: null,
       tags
     },
-    duration: duration.value,
+    duration: (durationBefore.value ? "-" : "") + duration.value.trim(),
     repeated: isSeries.value
       ? {
           interval: interval.value.trim(),
@@ -298,7 +290,8 @@ function resetForm() {
   principalEmail.value = "";
   reference.value = null;
   scheduled.value = null;
-  duration.value = "-P24M";
+  duration.value = "P24M";
+  durationBefore.value = true;
   isSeries.value = false;
   interval.value = "";
   intervalHours.value = "";
@@ -495,14 +488,22 @@ async function createQuery() {
             >
               {{ t("duration") }}
             </label>
-            <Select
-              id="durationInput"
-              v-model="duration"
-              :options="durationOptions"
-              optionLabel="label"
-              optionValue="value"
-              class="w-full"
-            />
+            <div class="flex gap-2">
+              <SelectButton
+                v-model="durationBefore"
+                :options="durationDirectionOptions"
+                optionLabel="label"
+                optionValue="value"
+                :allowEmpty="false"
+              />
+              <InputText
+                id="durationInput"
+                v-model="duration"
+                :invalid="duration.trim() !== '' && !durationValid"
+                class="w-full"
+              />
+            </div>
+            <small class="text-color-secondary">{{ t("durationHint") }}</small>
           </div>
           <div class="flex align-items-center gap-2">
             <Checkbox v-model="isSeries" :binary="true" inputId="isSeries" />
