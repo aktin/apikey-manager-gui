@@ -221,5 +221,6 @@
   "queryDeleteFailed": "Query konnte nicht gelöscht werden",
   "nodesSelectedCount": "{count} ausgewählt",
   "limitToNodesLabel": "Auf ausgewählte Knoten beschränken",
-  "selectAllNodesLabel": "Alle Knoten auswählen"
+  "selectAllNodesLabel": "Alle Knoten auswählen",
+  "today": "Heute"
 }
