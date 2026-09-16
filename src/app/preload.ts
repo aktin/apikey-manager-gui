@@ -11,6 +11,7 @@
  * @see https://www.electronjs.org/docs/latest/tutorial/context-isolation
  */
 import { contextBridge, ipcRenderer } from "electron";
+import { TestDatabaseConfig } from "../profiles/CredentialProfile";
 
 contextBridge.exposeInMainWorld("storeAPI", {
   get: (key: string) => ipcRenderer.invoke("store-get", key),
@@ -36,5 +37,7 @@ contextBridge.exposeInMainWorld("queryBuilderFiles", {
   writeQuery: (name: string, xml: string, state: string) =>
     ipcRenderer.invoke("querybuilder-write-query", name, xml, state),
   deleteQuery: (name: string) =>
-    ipcRenderer.invoke("querybuilder-delete-query", name)
+    ipcRenderer.invoke("querybuilder-delete-query", name),
+  runQuery: (config: TestDatabaseConfig, sql: string, tables: string[]) =>
+    ipcRenderer.invoke("querybuilder-run-query", config, sql, tables)
 });

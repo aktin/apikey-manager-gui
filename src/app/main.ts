@@ -4,18 +4,22 @@
  * Bootstraps the application by:
  * - Creating the main browser window
  * - Handling IPC for secure data access and encryption
+ * - Running query-builder queries against the test database
  * - Registering lifecycle events (e.g. window restore, quit behavior)
  *
  * Integrates with:
  * - Electron Forge (Vite plugin)
  * - electron-store for persistent key-value storage
  * - ProfileEncryptionBridge for AES-GCM encryption
+ * - pg for the Postgres test database
  */
 import { app, BrowserWindow, ipcMain, screen } from "electron";
 import path from "node:path";
 import { promises as fs } from "node:fs";
 import Store from "electron-store";
+import { Client, types } from "pg";
 import { decrypt, encrypt } from "../profiles/ProfileEncryptionBridge";
+import { TestDatabaseConfig } from "../profiles/CredentialProfile";
 import { isValidQueryName } from "../querybuilder/QueryName";
 
 const store = new Store();
@@ -131,6 +135,86 @@ ipcMain.handle("querybuilder-delete-query", async (_event, name: string) => {
     }
   }
 });
+
+// Dates and timestamps stay as the database renders them, as in psql, instead
+// of being parsed into JS dates and shifted to UTC in the result file.
+for (const oid of [
+  types.builtins.DATE,
+  types.builtins.TIMESTAMP,
+  types.builtins.TIMESTAMPTZ
+]) {
+  types.setTypeParser(oid, (value) => value);
+}
+
+/** Renders a query result as tab-separated text with a header row. */
+function formatRows(
+  fields: { name: string }[],
+  rows: Record<string, unknown>[]
+) {
+  const names = fields.map((field) => field.name);
+  return [
+    names.join("\t"),
+    ...rows.map((row) =>
+      names.map((name) => String(row[name] ?? "")).join("\t")
+    )
+  ].join("\n");
+}
+
+/**
+ * Runs the SQL on the test database in one session, then dumps every export
+ * table (the temporary tables the SQL created) to a timestamped text file in
+ * the query-builder folder. Returns the file path.
+ */
+async function runTestQuery(
+  config: TestDatabaseConfig,
+  sql: string,
+  tables: string[]
+): Promise<string> {
+  const { host, port, database, user, password } = config;
+  const client = new Client({
+    host,
+    port,
+    database,
+    user,
+    password,
+    connectionTimeoutMillis: 5000
+  });
+  await client.connect();
+  try {
+    await client.query(sql);
+    const sections: string[] = [];
+    for (const table of tables) {
+      const result = await client.query(
+        `SELECT * FROM "${table.replace(/"/g, '""')}"`
+      );
+      sections.push(
+        `-- ${table} (${result.rowCount} rows)\n` +
+          formatRows(result.fields, result.rows)
+      );
+    }
+    const dir = path.join(queryBuilderDir(), "results");
+    await fs.mkdir(dir, { recursive: true });
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const file = path.join(dir, `${stamp}.txt`);
+    await fs.writeFile(file, sections.join("\n\n"), "utf-8");
+    return file;
+  } finally {
+    await client.end();
+  }
+}
+
+// Errors are returned, not thrown, so the renderer gets the plain database
+// message without the IPC wrapper text.
+ipcMain.handle(
+  "querybuilder-run-query",
+  async (_event, config: TestDatabaseConfig, sql: string, tables: string[]) => {
+    try {
+      return { path: await runTestQuery(config, sql, tables) };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : String(error) };
+    }
+  }
+);
 
 // Creates and configures the main application window.
 const createWindow = () => {

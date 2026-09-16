@@ -4,8 +4,10 @@
  *
  * Route view for composing a broker query from catalog blocks: catalog
  * management (import/export/clear, custom blocks) and block selection on the
- * left, a live XML preview with copy/download on the right. The catalog is
- * persisted via CatalogStorage; the selection is view-local state.
+ * left, a live XML preview with run/download on the right. The catalog is
+ * persisted via CatalogStorage; the selection is view-local state. Running
+ * executes the query's SQL on the configured test database via the main
+ * process, with the DWH date placeholders filled from the test configuration.
  *
  * Saved queries are stored with their block selection, so loading one puts the
  * builder back into the state that produced it. Loading and saving are separate
@@ -45,6 +47,7 @@ import {
 } from "./QueryXmlAssembler";
 import { downloadTextFile } from "./FileTransfer";
 import { isValidQueryName } from "./QueryName";
+import ProfileStorage from "../profiles/ProfileStorage";
 import {
   parseQueryState,
   QuerySelectionState,
@@ -83,6 +86,9 @@ const saveName = ref("");
 const readOnlyXml = ref<string | null>(null);
 // Anchor element for the confirm popups of the load dropdown.
 const loadControl = ref<HTMLElement | null>(null);
+// Configured in the profile dialog; the run button follows it.
+const testDatabase = ProfileStorage.testDatabase;
+const running = ref(false);
 
 const selectedPrepId = ref<string | null>(null);
 const selectedFilterIds = ref<string[]>([]);
@@ -139,7 +145,7 @@ const queryXml = computed(() =>
   selection.value.prep ? assembleQueryXml(selection.value) : ""
 );
 
-/** What the preview pane and its copy/download actions operate on. */
+/** What the preview pane and its run/download actions operate on. */
 const previewXml = computed(() => readOnlyXml.value ?? queryXml.value);
 
 /** The current selection in the format stored next to a saved query. */
@@ -532,13 +538,43 @@ async function deleteSavedQuery(name: string): Promise<void> {
   }
 }
 
-async function copyXmlToClipboard(): Promise<void> {
-  if (!previewXml.value) return;
+/**
+ * Runs the previewed query on the test database: the SQL source with the
+ * date placeholders filled in, plus the export tables to dump afterwards.
+ */
+async function runQuery(): Promise<void> {
+  const config = testDatabase.value;
+  if (!previewXml.value || !config) return;
+  const doc = new DOMParser().parseFromString(
+    previewXml.value,
+    "application/xml"
+  );
+  const sql = (doc.getElementsByTagName("source")[0]?.textContent ?? "")
+    .split("${data.start}")
+    .join(config.start)
+    .split("${data.end}")
+    .join(config.end);
+  const tables = [...doc.getElementsByTagName("export")].flatMap(
+    (element) => element.getAttribute("table") ?? []
+  );
+  running.value = true;
   try {
-    await navigator.clipboard.writeText(previewXml.value);
-    createSuccessToast(toast, t("success"), t("queryCopied"));
-  } catch {
-    createErrorToast(toast, t("error"), t("failedToCopy"));
+    const result = await window.queryBuilderFiles.runQuery(config, sql, tables);
+    if ("error" in result) {
+      createErrorToast(
+        toast,
+        t("error"),
+        t("queryRunFailed", { reason: result.error })
+      );
+      return;
+    }
+    createSuccessToast(
+      toast,
+      t("success"),
+      t("queryRunFinished", { path: result.path })
+    );
+  } finally {
+    running.value = false;
   }
 }
 
@@ -719,12 +755,13 @@ onMounted(async () => {
           />
           <span class="border-left-1 surface-border h-2rem mx-1" />
           <Button
-            icon="pi pi-copy"
+            icon="pi pi-play"
             severity="secondary"
             outlined
-            :disabled="!previewXml"
-            v-tooltip.bottom="t('copyQuery')"
-            @click="copyXmlToClipboard"
+            :disabled="!previewXml || !testDatabase"
+            :loading="running"
+            v-tooltip.bottom="t('runQuery')"
+            @click="runQuery"
           />
           <Button
             icon="pi pi-download"

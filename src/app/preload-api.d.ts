@@ -5,13 +5,17 @@
  *
  * - `storeAPI`: Async key-value storage using Electron Store
  * - `profileCrypto`: AES-GCM encryption and decryption interface
- * - `queryBuilderFiles`: Query-builder catalog and saved-query files in userData
+ * - `queryBuilderFiles`: Query-builder catalog and saved-query files in userData,
+ *   plus running a query against the test database
  *
  * Declared as global so TypeScript understands their existence in the renderer process.
  *
  * @see src/app/preload.ts
  */
-export {};
+import { TestDatabaseConfig } from "../profiles/CredentialProfile";
+
+/** Where the result file was written, or why the run failed. */
+export type QueryRunResult = { path: string } | { error: string };
 
 declare global {
   interface Window {
@@ -32,6 +36,11 @@ declare global {
       readQueryState: (name: string) => Promise<string | null>;
       writeQuery: (name: string, xml: string, state: string) => Promise<void>;
       deleteQuery: (name: string) => Promise<void>;
+      runQuery: (
+        config: TestDatabaseConfig,
+        sql: string,
+        tables: string[]
+      ) => Promise<QueryRunResult>;
     };
   }
 }

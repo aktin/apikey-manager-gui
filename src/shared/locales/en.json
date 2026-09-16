@@ -233,5 +233,8 @@
   "testDbEnd": "End date",
   "testDatabaseHint": "Start and end date replace {'${data.start}'} and {'${data.end}'} when a query is run from the query builder.",
   "saveTestDatabase": "Save test database",
-  "testDatabaseSaved": "Test database saved"
+  "testDatabaseSaved": "Test database saved",
+  "runQuery": "Run on test database",
+  "queryRunFinished": "Result written to {path}",
+  "queryRunFailed": "Query failed: {reason}"
 }
