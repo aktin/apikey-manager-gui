@@ -9,13 +9,21 @@
  * - Indexed by unique profile name
  * - Persisted in local storage using `electron-store`
  *
- * Also supports saving and restoring the last selected profile.
+ * Also supports saving and restoring the last selected profile, and holds the
+ * test database configuration as shared reactive state, so the query builder
+ * follows changes made in the configuration dialog.
  */
-import { CredentialProfile } from "./CredentialProfile";
+import { shallowRef } from "vue";
+import { CredentialProfile, TestDatabaseConfig } from "./CredentialProfile";
 
 export default class ProfileStorage {
   private static readonly PROFILE_KEY = "savedProfiles";
   private static readonly LAST_SELECTED_KEY = "LastSelected";
+  // Hyphenated so it can never collide with an (alphanumeric) profile name.
+  private static readonly TEST_DB_KEY = "test-database";
+
+  /** The stored test database configuration, `null` until loaded or saved. */
+  static readonly testDatabase = shallowRef<TestDatabaseConfig | null>(null);
 
   private static async getProfileNames(): Promise<string[]> {
     return ((await window.storeAPI.get(this.PROFILE_KEY)) as string[]) || [];
@@ -95,5 +103,23 @@ export default class ProfileStorage {
 
   static async setLastSelected(name: string): Promise<void> {
     await window.storeAPI.set(this.LAST_SELECTED_KEY, name);
+  }
+
+  /** Decrypts the stored test database configuration into `testDatabase`. */
+  static async loadTestDatabase(): Promise<void> {
+    const raw = await window.storeAPI.get(this.TEST_DB_KEY);
+    if (!raw) return;
+    this.testDatabase.value = JSON.parse(
+      await window.profileCrypto.decrypt(raw as string)
+    );
+  }
+
+  /** Encrypts and saves the test database configuration. */
+  static async saveTestDatabase(config: TestDatabaseConfig): Promise<void> {
+    const encrypted = await window.profileCrypto.encrypt(
+      JSON.stringify(config)
+    );
+    await window.storeAPI.set(this.TEST_DB_KEY, encrypted);
+    this.testDatabase.value = config;
   }
 }

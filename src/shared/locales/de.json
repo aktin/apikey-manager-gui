@@ -222,5 +222,16 @@
   "nodesSelectedCount": "{count} ausgewählt",
   "limitToNodesLabel": "Auf ausgewählte Knoten beschränken",
   "selectAllNodesLabel": "Alle Knoten auswählen",
-  "today": "Heute"
+  "today": "Heute",
+  "testDatabase": "Testdatenbank",
+  "testDbHost": "Host",
+  "testDbPort": "Port",
+  "testDbName": "Datenbank",
+  "testDbUser": "Benutzer",
+  "testDbPassword": "Passwort",
+  "testDbStart": "Startdatum",
+  "testDbEnd": "Enddatum",
+  "testDatabaseHint": "Start- und Enddatum ersetzen {'${data.start}'} und {'${data.end}'}, wenn eine Query aus dem Query Builder ausgeführt wird.",
+  "saveTestDatabase": "Testdatenbank speichern",
+  "testDatabaseSaved": "Testdatenbank gespeichert"
 }

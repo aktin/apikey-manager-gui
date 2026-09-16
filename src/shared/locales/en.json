@@ -222,5 +222,16 @@
   "nodesSelectedCount": "{count} selected",
   "limitToNodesLabel": "Restrict to selected nodes",
   "selectAllNodesLabel": "Select all nodes",
-  "today": "Today"
+  "today": "Today",
+  "testDatabase": "Test database",
+  "testDbHost": "Host",
+  "testDbPort": "Port",
+  "testDbName": "Database",
+  "testDbUser": "User",
+  "testDbPassword": "Password",
+  "testDbStart": "Start date",
+  "testDbEnd": "End date",
+  "testDatabaseHint": "Start and end date replace {'${data.start}'} and {'${data.end}'} when a query is run from the query builder.",
+  "saveTestDatabase": "Save test database",
+  "testDatabaseSaved": "Test database saved"
 }

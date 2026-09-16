@@ -13,3 +13,19 @@ export interface CredentialProfile {
   key: string;
   url: string;
 }
+
+/**
+ * Connection settings of the Postgres test database the query builder runs
+ * queries against, plus the dates substituted for the `${data.start}` and
+ * `${data.end}` placeholders (ISO date strings). Stored encrypted like the
+ * broker profiles.
+ */
+export interface TestDatabaseConfig {
+  host: string;
+  port: number;
+  database: string;
+  user: string;
+  password: string;
+  start: string;
+  end: string;
+}
