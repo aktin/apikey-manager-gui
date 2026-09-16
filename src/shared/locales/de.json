@@ -232,8 +232,6 @@
   "testDbStart": "Startdatum",
   "testDbEnd": "Enddatum",
   "testDatabaseHint": "Start- und Enddatum ersetzen {'${data.start}'} und {'${data.end}'}, wenn eine Query aus dem Query Builder ausgeführt wird.",
-  "saveTestDatabase": "Testdatenbank speichern",
-  "testDatabaseSaved": "Testdatenbank gespeichert",
   "runQuery": "Auf Testdatenbank ausführen",
   "queryRunFinished": "Ergebnis geschrieben nach {path}",
   "queryRunFailed": "Abfrage fehlgeschlagen: {reason}"

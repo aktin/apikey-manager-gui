@@ -11,12 +11,12 @@
  * - Updates BrokerConnection credentials on profile switch
  * - Displays localized toast messages and confirmation prompts
  * - Persists last selected profile for reuse on startup
- * - Saves the test database connection and placeholder dates for the query
- *   builder (encrypted like the profiles)
+ * - Stores the optional test database (connection and placeholder dates for
+ *   the query builder) as part of the profile
  *
  * UI:
  * - Floating dialog with name, key, and URL inputs
- * - Collapsible "Test database" section with its own save button
+ * - Collapsible "Test database" section, saved with the profile
  * - Save/Delete/Select buttons and embedded language switcher
  */
 import { computed, onMounted, ref } from "vue";
@@ -79,24 +79,39 @@ const dbUser = ref("");
 const dbPassword = ref("");
 const dbStart = ref<Date | null>(null);
 const dbEnd = ref<Date | null>(null);
+// The saved profile's test database as JSON, the baseline for change detection.
+const savedTestDb = ref("null");
 
 const DATE_FORMAT = "YYYY-MM-DD";
 
+// The test database is optional: it counts only once every field is filled.
 // The password may be empty for trust-authenticated local databases.
-const canSaveTestDb = computed(
-  () =>
-    dbHost.value.trim() !== "" &&
-    dbPort.value != null &&
-    dbName.value.trim() !== "" &&
-    dbUser.value.trim() !== "" &&
-    dbStart.value != null &&
-    dbEnd.value != null
+const testDbInput = computed<TestDatabaseConfig | null>(() =>
+  dbHost.value.trim() &&
+  dbPort.value != null &&
+  dbName.value.trim() &&
+  dbUser.value.trim() &&
+  dbStart.value &&
+  dbEnd.value
+    ? {
+        host: dbHost.value.trim(),
+        port: dbPort.value,
+        database: dbName.value.trim(),
+        user: dbUser.value.trim(),
+        password: dbPassword.value,
+        start: moment(dbStart.value).format(DATE_FORMAT),
+        end: moment(dbEnd.value).format(DATE_FORMAT)
+      }
+    : null
 );
 
 // Save button is enabled only if something changed and inputs are valid
 const saveBtnDisabled = computed(
   () =>
-    (nameNotChanged.value && keyNotChanged.value && urlNotChanged.value) ||
+    (nameNotChanged.value &&
+      keyNotChanged.value &&
+      urlNotChanged.value &&
+      testDbNotChanged.value) ||
     !name.value ||
     !key.value ||
     !url.value
@@ -110,6 +125,9 @@ const keyNotChanged = computed(
 );
 const urlNotChanged = computed(
   () => savedUrl.value === url.value || url.value === ""
+);
+const testDbNotChanged = computed(
+  () => JSON.stringify(testDbInput.value) === savedTestDb.value
 );
 
 function openProfileSelectionMenu(event: Event): void {
@@ -139,6 +157,17 @@ function changeSavedProfile(): void {
   savedName.value = name.value;
   savedKey.value = key.value;
   savedUrl.value = url.value;
+  savedTestDb.value = JSON.stringify(testDbInput.value);
+}
+
+function fillTestDbForm(config?: TestDatabaseConfig): void {
+  dbHost.value = config?.host ?? "";
+  dbPort.value = config?.port ?? 5432;
+  dbName.value = config?.database ?? "";
+  dbUser.value = config?.user ?? "";
+  dbPassword.value = config?.password ?? "";
+  dbStart.value = config ? moment(config.start, DATE_FORMAT).toDate() : null;
+  dbEnd.value = config ? moment(config.end, DATE_FORMAT).toDate() : null;
 }
 
 async function insertProfile(profileName: string): Promise<void> {
@@ -147,12 +176,14 @@ async function insertProfile(profileName: string): Promise<void> {
   name.value = profileData?.name ?? "";
   key.value = profileData?.key ?? "";
   url.value = profileData?.url ?? "";
+  fillTestDbForm(profileData?.testDatabase);
 
   selectedProfile.value = isValid ? { name: name.value } : null;
   deleteBtnDisabled.value = !isValid;
 
   changeSavedProfile();
   BrokerConnection.setCredentials(url.value, key.value);
+  ProfileStorage.testDatabase.value = profileData?.testDatabase ?? null;
   await ProfileStorage.setLastSelected(name.value);
 }
 
@@ -218,7 +249,8 @@ async function saveOrUpdateProfile(): Promise<void> {
   const profileData: CredentialProfile = {
     name: name.value,
     key: key.value,
-    url: url.value
+    url: url.value,
+    testDatabase: testDbInput.value ?? undefined
   };
   await ProfileStorage.saveProfile(profileData);
   createSuccessToast(
@@ -267,36 +299,9 @@ function confirmDelete(event: Event): void {
   });
 }
 
-function fillTestDbForm(config: TestDatabaseConfig): void {
-  dbHost.value = config.host;
-  dbPort.value = config.port;
-  dbName.value = config.database;
-  dbUser.value = config.user;
-  dbPassword.value = config.password;
-  dbStart.value = moment(config.start, DATE_FORMAT).toDate();
-  dbEnd.value = moment(config.end, DATE_FORMAT).toDate();
-}
-
-async function saveTestDatabase(): Promise<void> {
-  await ProfileStorage.saveTestDatabase({
-    host: dbHost.value.trim(),
-    port: dbPort.value!,
-    database: dbName.value.trim(),
-    user: dbUser.value.trim(),
-    password: dbPassword.value,
-    start: moment(dbStart.value!).format(DATE_FORMAT),
-    end: moment(dbEnd.value!).format(DATE_FORMAT)
-  });
-  createSuccessToast(toast, t("success"), t("testDatabaseSaved"));
-}
-
 onMounted(async () => {
   await loadLastSavedProfile();
   await loadProfilesList();
-  await ProfileStorage.loadTestDatabase();
-  if (ProfileStorage.testDatabase.value) {
-    fillTestDbForm(ProfileStorage.testDatabase.value);
-  }
 });
 </script>
 
@@ -345,7 +350,7 @@ onMounted(async () => {
         <label>{{ t("profileUrl") }}</label>
       </FloatLabel>
 
-      <!-- Test database for the query builder, independent of the profile -->
+      <!-- Optional test database for the query builder, part of the profile -->
       <Panel :header="t('testDatabase')" toggleable collapsed>
         <div class="flex flex-column gap-5 pt-2">
           <div class="flex gap-3">
@@ -403,17 +408,9 @@ onMounted(async () => {
               <label>{{ t("testDbEnd") }}</label>
             </FloatLabel>
           </div>
-          <div class="flex align-items-center gap-3">
-            <small class="text-color-secondary flex-1">
-              {{ t("testDatabaseHint") }}
-            </small>
-            <Button
-              icon="pi pi-save"
-              :disabled="!canSaveTestDb"
-              v-tooltip.bottom="t('saveTestDatabase')"
-              @click="saveTestDatabase"
-            />
-          </div>
+          <small class="text-color-secondary">
+            {{ t("testDatabaseHint") }}
+          </small>
         </div>
       </Panel>
     </div>
