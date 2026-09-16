@@ -9,7 +9,7 @@
  * - No UI code: no plugins like Vue are needed.
  * - Referenced by Electron Forge via `forge.config.js` with target `"main"`.
  * - Outputs to `.vite/build/`, typically loaded as `"main"` in `package.json`.
- * - External modules like `electron`, `keytar`, and Node.js built-ins are excluded from bundling.
+ * - External modules like `electron`, `keytar`, `pg`, and Node.js built-ins are excluded from bundling.
  *
  * @see https://vitejs.dev/config/ — Vite config options
  * @see https://www.electronjs.org/docs/latest/tutorial/quick-start — Electron main process intro
@@ -23,7 +23,7 @@ export default defineConfig({
     outDir: ".vite/build",
     rollupOptions: {
       input: path.resolve(__dirname, "src/app/main.ts"),
-      external: ["keytar", "electron", "crypto", "path", "fs"]
+      external: ["keytar", "pg", "electron", "crypto", "path", "fs"]
     }
   }
 });
