@@ -83,14 +83,14 @@ function confirmClear(event: Event): void {
       @change="onFilePicked"
     />
     <Button
-      icon="pi pi-upload"
+      icon="pi pi-download"
       severity="secondary"
       outlined
       v-tooltip.bottom="t('catalogImport')"
       @click="fileInput?.click()"
     />
     <Button
-      icon="pi pi-download"
+      icon="pi pi-upload"
       severity="secondary"
       outlined
       :disabled="!props.catalog"
