@@ -8,6 +8,7 @@
  *
  * Features:
  * - Single- or repeated-execution schedule, toggled inline
+ * - "Today" toggle that pins the execution date to the current date
  * - Optional restriction to selected target nodes, loaded lazily on first open,
  *   with a select-all toggle and a checkbox per node
  * - Validates required fields and that the query definition is well-formed XML
@@ -25,6 +26,7 @@ import SelectButton from "primevue/selectbutton";
 import Listbox from "primevue/listbox";
 import Badge from "primevue/badge";
 import DatePicker from "primevue/datepicker";
+import ToggleButton from "primevue/togglebutton";
 import Checkbox from "primevue/checkbox";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
@@ -74,6 +76,10 @@ const principalEmail = ref("");
 // Schedule
 const reference = ref<Date | null>(null);
 const scheduled = ref<Date | null>(null);
+// While active, the execution date is pinned to today and the picker is
+// disabled; deactivating restores the date the picker held before.
+const scheduledToday = ref(false);
+let scheduledBeforeToday: Date | null = null;
 // Collection period as unsigned ISO-8601 period; the direction flag decides
 // whether it ends at (before) or starts at (after) the reference date.
 const duration = ref("P24M");
@@ -167,6 +173,17 @@ function isValidXml(xml: string): boolean {
   return doc.getElementsByTagName("parsererror").length === 0;
 }
 
+function toggleScheduledToday(active: boolean): void {
+  if (active) {
+    scheduledBeforeToday = scheduled.value;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    scheduled.value = today;
+  } else {
+    scheduled.value = scheduledBeforeToday;
+  }
+}
+
 function isValidDate(date: Date): boolean {
   return !isNaN(date.getTime());
 }
@@ -188,6 +205,7 @@ function prefill(req: BrokerRequest) {
   principalOrg.value = q.principal.organisation ?? "";
   principalEmail.value = q.principal.email ?? "";
   reference.value = isValidDate(req.referenceDate) ? req.referenceDate : null;
+  scheduledToday.value = false;
   scheduled.value = isValidDate(req.scheduledDate) ? req.scheduledDate : null;
   queryXml.value = q.queryXml;
   if (q.repeatedExecution) {
@@ -289,6 +307,7 @@ function resetForm() {
   principalOrg.value = "";
   principalEmail.value = "";
   reference.value = null;
+  scheduledToday.value = false;
   scheduled.value = null;
   duration.value = "P24M";
   durationBefore.value = true;
@@ -473,12 +492,22 @@ async function createQuery() {
               >
                 {{ t("scheduledDate") }}
               </label>
-              <DatePicker
-                id="scheduledInput"
-                v-model="scheduled"
-                showIcon
-                class="w-full"
-              />
+              <div class="flex gap-2">
+                <DatePicker
+                  id="scheduledInput"
+                  v-model="scheduled"
+                  :disabled="scheduledToday"
+                  showIcon
+                  class="w-full"
+                />
+                <ToggleButton
+                  v-model="scheduledToday"
+                  :onLabel="t('today')"
+                  :offLabel="t('today')"
+                  class="flex-shrink-0"
+                  @update:modelValue="toggleScheduledToday"
+                />
+              </div>
             </div>
           </div>
           <div>
@@ -628,7 +657,7 @@ async function createQuery() {
                   <Checkbox
                     :model-value="selected"
                     :binary="true"
-                    tabindex="-1"
+                    :tabindex="-1"
                     style="pointer-events: none"
                   />
                   <span>{{ option.label }}</span>

@@ -221,5 +221,18 @@
   "queryDeleteFailed": "Query konnte nicht gelöscht werden",
   "nodesSelectedCount": "{count} ausgewählt",
   "limitToNodesLabel": "Auf ausgewählte Knoten beschränken",
-  "selectAllNodesLabel": "Alle Knoten auswählen"
+  "selectAllNodesLabel": "Alle Knoten auswählen",
+  "today": "Heute",
+  "testDatabase": "Testdatenbank",
+  "testDbHost": "Host",
+  "testDbPort": "Port",
+  "testDbName": "Datenbank",
+  "testDbUser": "Benutzer",
+  "testDbPassword": "Passwort",
+  "testDbStart": "Startdatum",
+  "testDbEnd": "Enddatum",
+  "testDatabaseHint": "Start- und Enddatum ersetzen {'${data.start}'} und {'${data.end}'}, wenn eine Query aus dem Query Builder ausgeführt wird.",
+  "runQuery": "Auf Testdatenbank ausführen",
+  "queryRunFinished": "Ergebnis geschrieben nach {path}",
+  "queryRunFailed": "Abfrage fehlgeschlagen: {reason}"
 }

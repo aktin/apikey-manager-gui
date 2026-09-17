@@ -11,12 +11,16 @@
  * - Updates BrokerConnection credentials on profile switch
  * - Displays localized toast messages and confirmation prompts
  * - Persists last selected profile for reuse on startup
+ * - Stores the optional test database (connection and placeholder dates for
+ *   the query builder) as part of the profile
  *
  * UI:
  * - Floating dialog with name, key, and URL inputs
+ * - Collapsible "Test database" section, saved with the profile
  * - Save/Delete/Select buttons and embedded language switcher
  */
 import { computed, onMounted, ref } from "vue";
+import moment from "moment";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import { useI18n } from "vue-i18n";
@@ -31,13 +35,16 @@ import Dialog from "primevue/dialog";
 import FloatLabel from "primevue/floatlabel";
 import Password from "primevue/password";
 import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
+import DatePicker from "primevue/datepicker";
+import Panel from "primevue/panel";
 import Button from "primevue/button";
 import ConfirmPopup from "primevue/confirmpopup";
 import ProgressSpinner from "primevue/progressspinner";
 import Menu from "primevue/menu";
 import LanguageSwitcher from "./LanguageSwitcher.vue";
 import ProfileStorage from "./ProfileStorage";
-import { CredentialProfile } from "./CredentialProfile";
+import { CredentialProfile, TestDatabaseConfig } from "./CredentialProfile";
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -64,10 +71,47 @@ const profilesList = ref<
 const profilesMenu = ref();
 const suppressInputValidation = ref(false);
 
+// Test database: form fields, dates as picked (stored as ISO date strings)
+const dbHost = ref("");
+const dbPort = ref<number | null>(5432);
+const dbName = ref("");
+const dbUser = ref("");
+const dbPassword = ref("");
+const dbStart = ref<Date | null>(null);
+const dbEnd = ref<Date | null>(null);
+// The saved profile's test database as JSON, the baseline for change detection.
+const savedTestDb = ref("null");
+
+const DATE_FORMAT = "YYYY-MM-DD";
+
+// The test database is optional: it counts only once every field is filled.
+// The password may be empty for trust-authenticated local databases.
+const testDbInput = computed<TestDatabaseConfig | null>(() =>
+  dbHost.value.trim() &&
+  dbPort.value != null &&
+  dbName.value.trim() &&
+  dbUser.value.trim() &&
+  dbStart.value &&
+  dbEnd.value
+    ? {
+        host: dbHost.value.trim(),
+        port: dbPort.value,
+        database: dbName.value.trim(),
+        user: dbUser.value.trim(),
+        password: dbPassword.value,
+        start: moment(dbStart.value).format(DATE_FORMAT),
+        end: moment(dbEnd.value).format(DATE_FORMAT)
+      }
+    : null
+);
+
 // Save button is enabled only if something changed and inputs are valid
 const saveBtnDisabled = computed(
   () =>
-    (nameNotChanged.value && keyNotChanged.value && urlNotChanged.value) ||
+    (nameNotChanged.value &&
+      keyNotChanged.value &&
+      urlNotChanged.value &&
+      testDbNotChanged.value) ||
     !name.value ||
     !key.value ||
     !url.value
@@ -81,6 +125,9 @@ const keyNotChanged = computed(
 );
 const urlNotChanged = computed(
   () => savedUrl.value === url.value || url.value === ""
+);
+const testDbNotChanged = computed(
+  () => JSON.stringify(testDbInput.value) === savedTestDb.value
 );
 
 function openProfileSelectionMenu(event: Event): void {
@@ -110,6 +157,17 @@ function changeSavedProfile(): void {
   savedName.value = name.value;
   savedKey.value = key.value;
   savedUrl.value = url.value;
+  savedTestDb.value = JSON.stringify(testDbInput.value);
+}
+
+function fillTestDbForm(config?: TestDatabaseConfig): void {
+  dbHost.value = config?.host ?? "";
+  dbPort.value = config?.port ?? 5432;
+  dbName.value = config?.database ?? "";
+  dbUser.value = config?.user ?? "";
+  dbPassword.value = config?.password ?? "";
+  dbStart.value = config ? moment(config.start, DATE_FORMAT).toDate() : null;
+  dbEnd.value = config ? moment(config.end, DATE_FORMAT).toDate() : null;
 }
 
 async function insertProfile(profileName: string): Promise<void> {
@@ -118,12 +176,14 @@ async function insertProfile(profileName: string): Promise<void> {
   name.value = profileData?.name ?? "";
   key.value = profileData?.key ?? "";
   url.value = profileData?.url ?? "";
+  fillTestDbForm(profileData?.testDatabase);
 
   selectedProfile.value = isValid ? { name: name.value } : null;
   deleteBtnDisabled.value = !isValid;
 
   changeSavedProfile();
   BrokerConnection.setCredentials(url.value, key.value);
+  ProfileStorage.testDatabase.value = profileData?.testDatabase ?? null;
   await ProfileStorage.setLastSelected(name.value);
 }
 
@@ -189,7 +249,8 @@ async function saveOrUpdateProfile(): Promise<void> {
   const profileData: CredentialProfile = {
     name: name.value,
     key: key.value,
-    url: url.value
+    url: url.value,
+    testDatabase: testDbInput.value ?? undefined
   };
   await ProfileStorage.saveProfile(profileData);
   createSuccessToast(
@@ -288,6 +349,70 @@ onMounted(async () => {
         <InputText v-model="url" class="w-full" />
         <label>{{ t("profileUrl") }}</label>
       </FloatLabel>
+
+      <!-- Optional test database for the query builder, part of the profile -->
+      <Panel :header="t('testDatabase')" toggleable collapsed>
+        <div class="flex flex-column gap-5 pt-2">
+          <div class="flex gap-3">
+            <FloatLabel class="flex-1">
+              <InputText v-model="dbHost" class="w-full" />
+              <label>{{ t("testDbHost") }}</label>
+            </FloatLabel>
+            <FloatLabel class="w-7rem">
+              <InputNumber
+                v-model="dbPort"
+                :useGrouping="false"
+                :min="1"
+                :max="65535"
+                class="w-full"
+                input-class="w-full"
+              />
+              <label>{{ t("testDbPort") }}</label>
+            </FloatLabel>
+          </div>
+          <FloatLabel class="w-full">
+            <InputText v-model="dbName" class="w-full" />
+            <label>{{ t("testDbName") }}</label>
+          </FloatLabel>
+          <div class="flex gap-3">
+            <FloatLabel class="flex-1">
+              <InputText v-model="dbUser" class="w-full" />
+              <label>{{ t("testDbUser") }}</label>
+            </FloatLabel>
+            <FloatLabel class="flex-1">
+              <Password
+                v-model="dbPassword"
+                toggleMask
+                :feedback="false"
+                class="w-full"
+                input-class="w-full"
+              />
+              <label>{{ t("testDbPassword") }}</label>
+            </FloatLabel>
+          </div>
+          <div class="flex gap-3">
+            <FloatLabel class="flex-1">
+              <DatePicker
+                v-model="dbStart"
+                dateFormat="yy-mm-dd"
+                class="w-full"
+              />
+              <label>{{ t("testDbStart") }}</label>
+            </FloatLabel>
+            <FloatLabel class="flex-1">
+              <DatePicker
+                v-model="dbEnd"
+                dateFormat="yy-mm-dd"
+                class="w-full"
+              />
+              <label>{{ t("testDbEnd") }}</label>
+            </FloatLabel>
+          </div>
+          <small class="text-color-secondary">
+            {{ t("testDatabaseHint") }}
+          </small>
+        </div>
+      </Panel>
     </div>
 
     <!-- Footer: language switch (left) + grouped profile actions (right) -->

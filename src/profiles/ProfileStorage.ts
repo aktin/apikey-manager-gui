@@ -5,29 +5,39 @@
  * `contextBridge` APIs (`storeAPI`, `profileCrypto`).
  *
  * Profiles are:
- * - Encrypted with AES-GCM before being stored
+ * - Serialized as JSON and encrypted with AES-GCM before being stored
  * - Indexed by unique profile name
  * - Persisted in local storage using `electron-store`
  *
- * Also supports saving and restoring the last selected profile.
+ * Also supports saving and restoring the last selected profile, and holds the
+ * selected profile's test database as shared reactive state, so the query
+ * builder follows profile switches made in the configuration dialog.
  */
-import { CredentialProfile } from "./CredentialProfile";
+import { shallowRef } from "vue";
+import { CredentialProfile, TestDatabaseConfig } from "./CredentialProfile";
 
 export default class ProfileStorage {
   private static readonly PROFILE_KEY = "savedProfiles";
   private static readonly LAST_SELECTED_KEY = "LastSelected";
+
+  /** Test database of the selected profile, set by the profile manager. */
+  static readonly testDatabase = shallowRef<TestDatabaseConfig | null>(null);
 
   private static async getProfileNames(): Promise<string[]> {
     return ((await window.storeAPI.get(this.PROFILE_KEY)) as string[]) || [];
   }
 
   private static serialize(profile: CredentialProfile): string {
-    return `${profile.name};${profile.key};${profile.url}`;
+    return JSON.stringify(profile);
   }
 
   private static deserialize(raw: string): CredentialProfile {
-    const [name, key, url] = raw.split(";");
-    return { name, key, url };
+    // Profiles saved before the test database existed are "name;key;url".
+    if (!raw.startsWith("{")) {
+      const [name, key, url] = raw.split(";");
+      return { name, key, url };
+    }
+    return JSON.parse(raw);
   }
 
   /**
