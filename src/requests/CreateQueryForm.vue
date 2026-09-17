@@ -657,7 +657,7 @@ async function createQuery() {
                   <Checkbox
                     :model-value="selected"
                     :binary="true"
-                    tabindex="-1"
+                    :tabindex="-1"
                     style="pointer-events: none"
                   />
                   <span>{{ option.label }}</span>
