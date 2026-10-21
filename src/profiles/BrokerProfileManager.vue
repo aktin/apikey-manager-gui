@@ -467,7 +467,7 @@ onMounted(async () => {
             />
             <label>{{ t("language") }}</label>
           </FloatLabel>
-          <div>
+          <div class="-mt-3">
             <label class="block mb-1 text-sm text-color-secondary">
               {{ t("timeZone") }}
             </label>
