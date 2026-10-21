@@ -481,7 +481,7 @@ async function createQuery() {
                 for="referenceInput"
                 class="block mb-1 text-sm text-color-secondary"
               >
-                {{ t("referenceDate") }}
+                {{ t("referenceDate") }} (UTC)
               </label>
               <DatePicker
                 id="referenceInput"
@@ -497,7 +497,7 @@ async function createQuery() {
                 for="scheduledInput"
                 class="block mb-1 text-sm text-color-secondary"
               >
-                {{ t("scheduledDate") }}
+                {{ t("scheduledDate") }} (UTC)
               </label>
               <div class="flex gap-2">
                 <DatePicker
