@@ -235,6 +235,7 @@
   "runQuery": "Auf Testdatenbank ausführen",
   "queryRunFinished": "Ergebnis geschrieben nach {path}",
   "queryRunFailed": "Abfrage fehlgeschlagen: {reason}",
+  "brokerConfig": "Broker-Konfiguration",
   "misc": "Sonstiges",
   "language": "Sprache",
   "timeZone": "Zeitzone der angezeigten Zeitstempel",

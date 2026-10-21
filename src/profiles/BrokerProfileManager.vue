@@ -17,9 +17,9 @@
  *   effect immediately when changed and are re-applied on profile switch
  *
  * UI:
- * - Floating dialog with name, key, and URL inputs
- * - Collapsible "Test database" and "Miscellaneous" (language, time zone)
- *   sections, saved with the profile
+ * - Floating dialog with the profile name on top
+ * - Collapsible sections: broker (key, URL), test database, miscellaneous
+ *   (language, time zone)
  * - Save/Delete/Select buttons and embedded language switcher
  */
 import { computed, onMounted, ref } from "vue";
@@ -359,28 +359,32 @@ onMounted(async () => {
       <ProgressSpinner />
     </div>
 
-    <!-- Input fields: name, key, URL (all equal width) -->
+    <!-- Profile name on top, then one collapsible section per concern -->
     <div v-else class="flex flex-column gap-5">
       <FloatLabel class="w-full mt-4">
         <InputText v-model="name" class="w-full" />
         <label>{{ t("profileName") }}</label>
       </FloatLabel>
 
-      <FloatLabel class="w-full">
-        <Password
-          v-model="key"
-          toggleMask
-          :feedback="false"
-          class="w-full"
-          input-class="w-full"
-        />
-        <label>{{ t("profileKey") }}</label>
-      </FloatLabel>
+      <Panel :header="t('brokerConfig')" toggleable>
+        <div class="flex flex-column gap-5 pt-2">
+          <FloatLabel class="w-full">
+            <Password
+              v-model="key"
+              toggleMask
+              :feedback="false"
+              class="w-full"
+              input-class="w-full"
+            />
+            <label>{{ t("profileKey") }}</label>
+          </FloatLabel>
 
-      <FloatLabel class="w-full">
-        <InputText v-model="url" class="w-full" />
-        <label>{{ t("profileUrl") }}</label>
-      </FloatLabel>
+          <FloatLabel class="w-full">
+            <InputText v-model="url" class="w-full" />
+            <label>{{ t("profileUrl") }}</label>
+          </FloatLabel>
+        </div>
+      </Panel>
 
       <!-- Optional test database for the query builder, part of the profile -->
       <Panel :header="t('testDatabase')" toggleable collapsed>
