@@ -365,7 +365,7 @@ onMounted(async () => {
         <label>{{ t("profileName") }}</label>
       </FloatLabel>
 
-      <Panel :header="t('brokerConfig')" toggleable>
+      <Panel :header="t('brokerConfig')" toggleable collapsed>
         <div class="flex flex-column gap-5 pt-2">
           <FloatLabel class="w-full">
             <Password
