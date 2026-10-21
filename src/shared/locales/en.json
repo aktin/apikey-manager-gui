@@ -234,5 +234,9 @@
   "testDatabaseHint": "Start and end date replace {'${data.start}'} and {'${data.end}'} when a query is run from the query builder.",
   "runQuery": "Run on test database",
   "queryRunFinished": "Result written to {path}",
-  "queryRunFailed": "Query failed: {reason}"
+  "queryRunFailed": "Query failed: {reason}",
+  "misc": "Miscellaneous",
+  "language": "Language",
+  "timeZone": "Time zone of displayed timestamps",
+  "timeZoneLocal": "Local (Europe/Berlin)"
 }
