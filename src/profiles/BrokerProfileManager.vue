@@ -348,7 +348,12 @@ onMounted(async () => {
   />
 
   <!-- Profile manager dialog -->
-  <Dialog v-model:visible="visible" modal :header="t('config')" class="w-30rem">
+  <Dialog
+    v-model:visible="visible"
+    modal
+    :header="t('config')"
+    :style="{ width: '90vw', maxWidth: '36rem' }"
+  >
     <!-- Show loading spinner during async profile switch -->
     <div
       v-if="logInBlocked"
