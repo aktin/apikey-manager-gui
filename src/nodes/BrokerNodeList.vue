@@ -15,7 +15,7 @@ import BrokerConnection from "../broker/BrokerConnection";
 import { parseXmlBrokerNodeList } from "../broker/Parser";
 import { NodeListEntry } from "./BrokerNode";
 import { notifyStatusError } from "../shared/StatusToast";
-import { formatDateToLocale } from "../shared/MomentWrapper";
+import { formatDateToLocale } from "../shared/TimeZone";
 
 const { t } = useI18n();
 const toast = useToast();

@@ -8,12 +8,16 @@
  * - `key`: Admin API key for authenticating with the broker
  * - `url`: Base URL of the AKTIN broker instance
  * - `testDatabase`: Optional Postgres test database for the query builder
+ * - `language`: UI language applied when the profile is loaded
+ * - `timeZone`: IANA zone timestamps are displayed in, applied on load
  */
 export interface CredentialProfile {
   name: string;
   key: string;
   url: string;
   testDatabase?: TestDatabaseConfig;
+  language?: string;
+  timeZone?: string;
 }
 
 /**

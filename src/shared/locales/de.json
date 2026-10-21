@@ -41,8 +41,6 @@
   "addKey": "API-Schlüssel hinzufügen",
   "activate": "Aktivieren",
   "deactivate": "Deaktivieren",
-  "languageSwitchedTo": "Sprache gewechselt zu {lang}",
-  "switchLanguage": "Sprache ändern",
   "selectProfile": "Profil auswählen",
   "noSavedProfiles": "Keine gespeicherten Profile vorhanden",
   "emptyNameError": "Profilname darf nicht leer sein",
@@ -234,5 +232,10 @@
   "testDatabaseHint": "Start- und Enddatum ersetzen {'${data.start}'} und {'${data.end}'}, wenn eine Query aus dem Query Builder ausgeführt wird.",
   "runQuery": "Auf Testdatenbank ausführen",
   "queryRunFinished": "Ergebnis geschrieben nach {path}",
-  "queryRunFailed": "Abfrage fehlgeschlagen: {reason}"
+  "queryRunFailed": "Abfrage fehlgeschlagen: {reason}",
+  "brokerConfig": "Broker-Konfiguration",
+  "misc": "Sonstiges",
+  "language": "Sprache",
+  "timeZone": "Zeitzone der angezeigten Zeitstempel",
+  "timeZoneLocal": "Lokal (Europe/Berlin)"
 }

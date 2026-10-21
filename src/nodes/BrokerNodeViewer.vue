@@ -18,7 +18,7 @@ import {
 } from "../broker/Parser";
 import { BrokerNode, NodeStats, PropertyEntry } from "./BrokerNode";
 import { notifyStatusError } from "../shared/StatusToast";
-import { formatDateToLocale } from "../shared/MomentWrapper";
+import { formatDateToLocale } from "../shared/TimeZone";
 import SimpleChipList from "../shared/SimpleChipList.vue";
 import Panel from "primevue/panel";
 

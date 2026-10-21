@@ -2,14 +2,16 @@
 /**
  * ApplicationHeader.vue
  *
- * Top navigation bar: route tabs (keys / request) alongside the broker status
- * indicator and the profile manager.
+ * Top navigation bar: route tabs (keys / request) alongside the selected
+ * profile, the broker status indicator and the profile manager.
  */
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import TabMenu from "primevue/tabmenu";
+import Chip from "primevue/chip";
 import BrokerStatusIndicator from "../broker/BrokerStatusIndicator.vue";
 import BrokerProfileManager from "../profiles/BrokerProfileManager.vue";
+import ProfileStorage from "../profiles/ProfileStorage";
 
 interface RouteConfig {
   label: string;
@@ -19,6 +21,7 @@ interface RouteConfig {
 const { t } = useI18n();
 
 const version = __APP_VERSION__;
+const profileName = ProfileStorage.selectedProfileName;
 
 const routing = computed<RouteConfig[]>(() => [
   { label: t("keys"), route: "/api-keys" },
@@ -42,6 +45,17 @@ const routing = computed<RouteConfig[]>(() => [
 
     <div class="flex align-items-center gap-2 mr-3">
       <span class="text-color-secondary text-sm">v{{ version }}</span>
+      <Chip
+        v-if="profileName"
+        icon="pi pi-user"
+        :label="profileName"
+        class="max-w-14rem"
+        :pt="{
+          label: {
+            class: 'white-space-nowrap overflow-hidden text-overflow-ellipsis'
+          }
+        }"
+      />
       <BrokerStatusIndicator />
       <BrokerProfileManager />
     </div>

@@ -9,6 +9,8 @@
  * Features:
  * - Single- or repeated-execution schedule, toggled inline
  * - "Today" toggle that pins the execution date to the current date
+ * - Reference and execution date are entered in UTC, the zone the broker
+ *   interprets them in
  * - Optional restriction to selected target nodes, loaded lazily on first open,
  *   with a select-all toggle and a checkbox per node
  * - Validates required fields and that the query definition is well-formed XML
@@ -45,6 +47,7 @@ import {
 } from "./BrokerRequest";
 import { NodeListEntry } from "../nodes/BrokerNode";
 import { MomentDuration } from "../shared/MomentWrapper";
+import { utcAsWallClock, wallClockAsUtc } from "../shared/TimeZone";
 import { createErrorToast, createSuccessToast } from "../shared/ToastWrapper";
 import { notifyStatusError } from "../shared/StatusToast";
 
@@ -204,9 +207,13 @@ function prefill(req: BrokerRequest) {
   principalName.value = q.principal.name ?? "";
   principalOrg.value = q.principal.organisation ?? "";
   principalEmail.value = q.principal.email ?? "";
-  reference.value = isValidDate(req.referenceDate) ? req.referenceDate : null;
+  reference.value = isValidDate(req.referenceDate)
+    ? utcAsWallClock(req.referenceDate)
+    : null;
   scheduledToday.value = false;
-  scheduled.value = isValidDate(req.scheduledDate) ? req.scheduledDate : null;
+  scheduled.value = isValidDate(req.scheduledDate)
+    ? utcAsWallClock(req.scheduledDate)
+    : null;
   queryXml.value = q.queryXml;
   if (q.repeatedExecution) {
     isSeries.value = true;
@@ -268,8 +275,8 @@ function buildPayload(): CreateQueryPayload {
     .map((tag) => tag.trim())
     .filter(Boolean);
   return {
-    reference: reference.value!,
-    scheduled: scheduled.value!,
+    reference: wallClockAsUtc(reference.value!),
+    scheduled: wallClockAsUtc(scheduled.value!),
     title: title.value.trim(),
     description: description.value.trim(),
     queryXml: queryXml.value.trim(),
@@ -474,7 +481,7 @@ async function createQuery() {
                 for="referenceInput"
                 class="block mb-1 text-sm text-color-secondary"
               >
-                {{ t("referenceDate") }}
+                {{ t("referenceDate") }} (UTC)
               </label>
               <DatePicker
                 id="referenceInput"
@@ -490,7 +497,7 @@ async function createQuery() {
                 for="scheduledInput"
                 class="block mb-1 text-sm text-color-secondary"
               >
-                {{ t("scheduledDate") }}
+                {{ t("scheduledDate") }} (UTC)
               </label>
               <div class="flex gap-2">
                 <DatePicker

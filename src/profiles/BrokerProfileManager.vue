@@ -10,14 +10,18 @@
  * - Integrates with AES-encrypted profile storage (via ProfileStorage)
  * - Updates BrokerConnection credentials on profile switch
  * - Displays localized toast messages and confirmation prompts
- * - Persists last selected profile for reuse on startup
+ * - Persists last selected profile for reuse on startup and publishes its
+ *   name through ProfileStorage for the header
  * - Stores the optional test database (connection and placeholder dates for
  *   the query builder) as part of the profile
+ * - Stores UI language and display time zone with the profile; both take
+ *   effect immediately when changed and are re-applied on profile switch
  *
  * UI:
- * - Floating dialog with name, key, and URL inputs
- * - Collapsible "Test database" section, saved with the profile
- * - Save/Delete/Select buttons and embedded language switcher
+ * - Floating dialog with the profile name on top
+ * - Collapsible sections: broker (key, URL), test database, miscellaneous
+ *   (language, time zone)
+ * - Save/Delete/Select buttons
  */
 import { computed, onMounted, ref } from "vue";
 import moment from "moment";
@@ -42,13 +46,15 @@ import Button from "primevue/button";
 import ConfirmPopup from "primevue/confirmpopup";
 import ProgressSpinner from "primevue/progressspinner";
 import Menu from "primevue/menu";
-import LanguageSwitcher from "./LanguageSwitcher.vue";
+import Select from "primevue/select";
+import SelectButton from "primevue/selectbutton";
 import ProfileStorage from "./ProfileStorage";
 import { CredentialProfile, TestDatabaseConfig } from "./CredentialProfile";
+import { LOCAL_TIME_ZONE, UTC_TIME_ZONE, timeZone } from "../shared/TimeZone";
 
 const toast = useToast();
 const confirm = useConfirm();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const visible = ref<boolean>(false);
 const logInBlocked = ref<boolean>(false);
@@ -82,6 +88,20 @@ const dbEnd = ref<Date | null>(null);
 // The saved profile's test database as JSON, the baseline for change detection.
 const savedTestDb = ref("null");
 
+// Language and time zone are bound to the global settings, so they apply
+// immediately; the saved values are the baseline for change detection.
+const savedLanguage = ref("");
+const savedTimeZone = ref("");
+
+const languageOptions = [
+  { label: "English", value: "en" },
+  { label: "Deutsch", value: "de" }
+];
+const timeZoneOptions = computed(() => [
+  { label: "UTC", value: UTC_TIME_ZONE },
+  { label: t("timeZoneLocal"), value: LOCAL_TIME_ZONE }
+]);
+
 const DATE_FORMAT = "YYYY-MM-DD";
 
 // The test database is optional: it counts only once every field is filled.
@@ -111,7 +131,8 @@ const saveBtnDisabled = computed(
     (nameNotChanged.value &&
       keyNotChanged.value &&
       urlNotChanged.value &&
-      testDbNotChanged.value) ||
+      testDbNotChanged.value &&
+      settingsNotChanged.value) ||
     !name.value ||
     !key.value ||
     !url.value
@@ -128,6 +149,11 @@ const urlNotChanged = computed(
 );
 const testDbNotChanged = computed(
   () => JSON.stringify(testDbInput.value) === savedTestDb.value
+);
+const settingsNotChanged = computed(
+  () =>
+    savedLanguage.value === locale.value &&
+    savedTimeZone.value === timeZone.value
 );
 
 function openProfileSelectionMenu(event: Event): void {
@@ -158,6 +184,8 @@ function changeSavedProfile(): void {
   savedKey.value = key.value;
   savedUrl.value = url.value;
   savedTestDb.value = JSON.stringify(testDbInput.value);
+  savedLanguage.value = locale.value;
+  savedTimeZone.value = timeZone.value;
 }
 
 function fillTestDbForm(config?: TestDatabaseConfig): void {
@@ -177,12 +205,15 @@ async function insertProfile(profileName: string): Promise<void> {
   key.value = profileData?.key ?? "";
   url.value = profileData?.url ?? "";
   fillTestDbForm(profileData?.testDatabase);
+  if (profileData?.language) locale.value = profileData.language;
+  if (profileData?.timeZone) timeZone.value = profileData.timeZone;
 
   selectedProfile.value = isValid ? { name: name.value } : null;
   deleteBtnDisabled.value = !isValid;
 
   changeSavedProfile();
   BrokerConnection.setCredentials(url.value, key.value);
+  ProfileStorage.selectedProfileName.value = name.value;
   ProfileStorage.testDatabase.value = profileData?.testDatabase ?? null;
   await ProfileStorage.setLastSelected(name.value);
 }
@@ -250,7 +281,9 @@ async function saveOrUpdateProfile(): Promise<void> {
     name: name.value,
     key: key.value,
     url: url.value,
-    testDatabase: testDbInput.value ?? undefined
+    testDatabase: testDbInput.value ?? undefined,
+    language: locale.value,
+    timeZone: timeZone.value
   };
   await ProfileStorage.saveProfile(profileData);
   createSuccessToast(
@@ -317,7 +350,12 @@ onMounted(async () => {
   />
 
   <!-- Profile manager dialog -->
-  <Dialog v-model:visible="visible" modal :header="t('config')" class="w-30rem">
+  <Dialog
+    v-model:visible="visible"
+    modal
+    :header="t('config')"
+    :style="{ width: '90vw', maxWidth: '36rem' }"
+  >
     <!-- Show loading spinner during async profile switch -->
     <div
       v-if="logInBlocked"
@@ -327,32 +365,36 @@ onMounted(async () => {
       <ProgressSpinner />
     </div>
 
-    <!-- Input fields: name, key, URL (all equal width) -->
+    <!-- Profile name on top, then one collapsible section per concern -->
     <div v-else class="flex flex-column gap-5">
       <FloatLabel class="w-full mt-4">
         <InputText v-model="name" class="w-full" />
         <label>{{ t("profileName") }}</label>
       </FloatLabel>
 
-      <FloatLabel class="w-full">
-        <Password
-          v-model="key"
-          toggleMask
-          :feedback="false"
-          class="w-full"
-          input-class="w-full"
-        />
-        <label>{{ t("profileKey") }}</label>
-      </FloatLabel>
+      <Panel :header="t('brokerConfig')" toggleable collapsed>
+        <div class="flex flex-column gap-5 pt-3">
+          <FloatLabel class="w-full">
+            <Password
+              v-model="key"
+              toggleMask
+              :feedback="false"
+              class="w-full"
+              input-class="w-full"
+            />
+            <label>{{ t("profileKey") }}</label>
+          </FloatLabel>
 
-      <FloatLabel class="w-full">
-        <InputText v-model="url" class="w-full" />
-        <label>{{ t("profileUrl") }}</label>
-      </FloatLabel>
+          <FloatLabel class="w-full">
+            <InputText v-model="url" class="w-full" />
+            <label>{{ t("profileUrl") }}</label>
+          </FloatLabel>
+        </div>
+      </Panel>
 
       <!-- Optional test database for the query builder, part of the profile -->
       <Panel :header="t('testDatabase')" toggleable collapsed>
-        <div class="flex flex-column gap-5 pt-2">
+        <div class="flex flex-column gap-5 pt-3">
           <div class="flex gap-3">
             <FloatLabel class="flex-1">
               <InputText v-model="dbHost" class="w-full" />
@@ -408,17 +450,44 @@ onMounted(async () => {
               <label>{{ t("testDbEnd") }}</label>
             </FloatLabel>
           </div>
-          <small class="text-color-secondary">
+          <small class="text-color-secondary -mt-3">
             {{ t("testDatabaseHint") }}
           </small>
         </div>
       </Panel>
+
+      <!-- Language and display time zone, applied immediately -->
+      <Panel :header="t('misc')" toggleable collapsed>
+        <div class="flex flex-column gap-5 pt-3">
+          <FloatLabel class="w-full">
+            <Select
+              v-model="locale"
+              :options="languageOptions"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+            />
+            <label>{{ t("language") }}</label>
+          </FloatLabel>
+          <div class="-mt-3">
+            <label class="block mb-1 text-sm text-color-secondary">
+              {{ t("timeZone") }}
+            </label>
+            <SelectButton
+              v-model="timeZone"
+              :options="timeZoneOptions"
+              optionLabel="label"
+              optionValue="value"
+              :allowEmpty="false"
+            />
+          </div>
+        </div>
+      </Panel>
     </div>
 
-    <!-- Footer: language switch (left) + grouped profile actions (right) -->
+    <!-- Footer: grouped profile actions -->
     <template #footer>
       <div class="flex align-items-center w-full">
-        <LanguageSwitcher />
         <div class="flex gap-2 ml-auto">
           <Button
             icon="pi pi-arrow-right-arrow-left"

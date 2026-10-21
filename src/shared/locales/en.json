@@ -41,8 +41,6 @@
   "addKey": "Add API key",
   "activate": "Activate",
   "deactivate": "Deactivate",
-  "languageSwitchedTo": "Language switched to {lang}",
-  "switchLanguage": "Change language",
   "selectProfile": "Select profile",
   "noSavedProfiles": "No saved profiles available",
   "emptyNameError": "Profile name cannot be empty",
@@ -234,5 +232,10 @@
   "testDatabaseHint": "Start and end date replace {'${data.start}'} and {'${data.end}'} when a query is run from the query builder.",
   "runQuery": "Run on test database",
   "queryRunFinished": "Result written to {path}",
-  "queryRunFailed": "Query failed: {reason}"
+  "queryRunFailed": "Query failed: {reason}",
+  "brokerConfig": "Broker configuration",
+  "misc": "Miscellaneous",
+  "language": "Language",
+  "timeZone": "Time zone of displayed timestamps",
+  "timeZoneLocal": "Local (Europe/Berlin)"
 }

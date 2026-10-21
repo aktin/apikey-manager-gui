@@ -1,6 +1,6 @@
 /**
- * Thin Moment.js wrappers for creating durations and for formatting dates and
- * durations for display, localized through the app's vue-i18n instance.
+ * Thin Moment.js wrappers for creating durations and for formatting them for
+ * display, localized through the app's vue-i18n instance.
  */
 import { useI18n } from "vue-i18n";
 import moment, { Duration, DurationInputArg1 } from "moment";
@@ -13,17 +13,6 @@ export type MomentDuration = Duration;
  */
 export function createDuration(value: DurationInputArg1): Duration {
   return moment.duration(value);
-}
-
-/**
- * Formats a date as `DD.MM.YYYY HH:mm` in the active locale, or returns an
- * empty string when the date is null/undefined.
- */
-export function formatDateToLocale(date: Date | null | undefined): string {
-  const { locale } = useI18n({ useScope: "global" });
-  return date
-    ? moment(date).locale(locale.value).format("DD.MM.YYYY HH:mm")
-    : "";
 }
 
 /**

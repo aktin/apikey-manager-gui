@@ -10,15 +10,19 @@
  * - Persisted in local storage using `electron-store`
  *
  * Also supports saving and restoring the last selected profile, and holds the
- * selected profile's test database as shared reactive state, so the query
- * builder follows profile switches made in the configuration dialog.
+ * selected profile's name and test database as shared reactive state, so the
+ * header and the query builder follow profile switches made in the
+ * configuration dialog.
  */
-import { shallowRef } from "vue";
+import { ref, shallowRef } from "vue";
 import { CredentialProfile, TestDatabaseConfig } from "./CredentialProfile";
 
 export default class ProfileStorage {
   private static readonly PROFILE_KEY = "savedProfiles";
   private static readonly LAST_SELECTED_KEY = "LastSelected";
+
+  /** Name of the selected profile, set by the profile manager. */
+  static readonly selectedProfileName = ref("");
 
   /** Test database of the selected profile, set by the profile manager. */
   static readonly testDatabase = shallowRef<TestDatabaseConfig | null>(null);
