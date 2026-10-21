@@ -443,7 +443,7 @@ onMounted(async () => {
               <label>{{ t("testDbEnd") }}</label>
             </FloatLabel>
           </div>
-          <small class="text-color-secondary">
+          <small class="text-color-secondary -mt-3">
             {{ t("testDatabaseHint") }}
           </small>
         </div>
