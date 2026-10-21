@@ -20,7 +20,7 @@
  * - Floating dialog with the profile name on top
  * - Collapsible sections: broker (key, URL), test database, miscellaneous
  *   (language, time zone)
- * - Save/Delete/Select buttons and embedded language switcher
+ * - Save/Delete/Select buttons
  */
 import { computed, onMounted, ref } from "vue";
 import moment from "moment";
@@ -45,7 +45,6 @@ import Button from "primevue/button";
 import ConfirmPopup from "primevue/confirmpopup";
 import ProgressSpinner from "primevue/progressspinner";
 import Menu from "primevue/menu";
-import LanguageSwitcher from "./LanguageSwitcher.vue";
 import Select from "primevue/select";
 import SelectButton from "primevue/selectbutton";
 import ProfileStorage from "./ProfileStorage";
@@ -479,10 +478,9 @@ onMounted(async () => {
       </Panel>
     </div>
 
-    <!-- Footer: language switch (left) + grouped profile actions (right) -->
+    <!-- Footer: grouped profile actions -->
     <template #footer>
       <div class="flex align-items-center w-full">
-        <LanguageSwitcher />
         <div class="flex gap-2 ml-auto">
           <Button
             icon="pi pi-arrow-right-arrow-left"

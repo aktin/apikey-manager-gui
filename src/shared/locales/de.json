@@ -41,8 +41,6 @@
   "addKey": "API-Schlüssel hinzufügen",
   "activate": "Aktivieren",
   "deactivate": "Deaktivieren",
-  "languageSwitchedTo": "Sprache gewechselt zu {lang}",
-  "switchLanguage": "Sprache ändern",
   "selectProfile": "Profil auswählen",
   "noSavedProfiles": "Keine gespeicherten Profile vorhanden",
   "emptyNameError": "Profilname darf nicht leer sein",
