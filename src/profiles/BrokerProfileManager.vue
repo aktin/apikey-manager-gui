@@ -371,7 +371,7 @@ onMounted(async () => {
       </FloatLabel>
 
       <Panel :header="t('brokerConfig')" toggleable collapsed>
-        <div class="flex flex-column gap-5 pt-2">
+        <div class="flex flex-column gap-5 pt-3">
           <FloatLabel class="w-full">
             <Password
               v-model="key"
@@ -392,7 +392,7 @@ onMounted(async () => {
 
       <!-- Optional test database for the query builder, part of the profile -->
       <Panel :header="t('testDatabase')" toggleable collapsed>
-        <div class="flex flex-column gap-5 pt-2">
+        <div class="flex flex-column gap-5 pt-3">
           <div class="flex gap-3">
             <FloatLabel class="flex-1">
               <InputText v-model="dbHost" class="w-full" />
@@ -456,7 +456,7 @@ onMounted(async () => {
 
       <!-- Language and display time zone, applied immediately -->
       <Panel :header="t('misc')" toggleable collapsed>
-        <div class="flex flex-column gap-5 pt-2">
+        <div class="flex flex-column gap-5 pt-3">
           <FloatLabel class="w-full">
             <Select
               v-model="locale"
