@@ -10,7 +10,8 @@
  * - Integrates with AES-encrypted profile storage (via ProfileStorage)
  * - Updates BrokerConnection credentials on profile switch
  * - Displays localized toast messages and confirmation prompts
- * - Persists last selected profile for reuse on startup
+ * - Persists last selected profile for reuse on startup and publishes its
+ *   name through ProfileStorage for the header
  * - Stores the optional test database (connection and placeholder dates for
  *   the query builder) as part of the profile
  * - Stores UI language and display time zone with the profile; both take
@@ -212,6 +213,7 @@ async function insertProfile(profileName: string): Promise<void> {
 
   changeSavedProfile();
   BrokerConnection.setCredentials(url.value, key.value);
+  ProfileStorage.selectedProfileName.value = name.value;
   ProfileStorage.testDatabase.value = profileData?.testDatabase ?? null;
   await ProfileStorage.setLastSelected(name.value);
 }
