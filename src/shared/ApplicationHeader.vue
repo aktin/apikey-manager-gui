@@ -55,7 +55,6 @@ const routing = computed<RouteConfig[]>(() => [
             class: 'white-space-nowrap overflow-hidden text-overflow-ellipsis'
           }
         }"
-        v-tooltip.bottom="profileName"
       />
       <BrokerStatusIndicator />
       <BrokerProfileManager />
