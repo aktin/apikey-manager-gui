@@ -8,7 +8,7 @@
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { NodeStatusInfo } from "./BrokerRequest";
-import { formatDateToLocale } from "../shared/MomentWrapper";
+import { formatDateToLocale } from "../shared/TimeZone";
 import {
   NODE_STATE_ORDER,
   getMostActualState,

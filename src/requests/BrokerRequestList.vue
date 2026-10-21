@@ -18,7 +18,7 @@ import BrokerConnection from "../broker/BrokerConnection";
 import { parseXmlBrokerRequestList } from "../broker/Parser";
 import { RequestQuerySummary } from "./BrokerRequest";
 import { notifyStatusError } from "../shared/StatusToast";
-import { formatDateToLocale } from "../shared/MomentWrapper";
+import { formatDateToLocale } from "../shared/TimeZone";
 import SimpleChipList from "../shared/SimpleChipList.vue";
 import CreateQueryForm from "./CreateQueryForm.vue";
 import Tag from "primevue/tag";

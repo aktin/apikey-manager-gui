@@ -22,10 +22,8 @@ import {
 import { BrokerRequest, NodeStatusInfo, RequestInfo } from "./BrokerRequest";
 import { createErrorToast, createSuccessToast } from "../shared/ToastWrapper";
 import { notifyStatusError, resolveStatusError } from "../shared/StatusToast";
-import {
-  formatDateToLocale,
-  formatDurationToHumanReadable
-} from "../shared/MomentWrapper";
+import { formatDateToLocale } from "../shared/TimeZone";
+import { formatDurationToHumanReadable } from "../shared/MomentWrapper";
 import {
   NODE_STATE_ORDER,
   NodeState,
